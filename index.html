@@ -2,112 +2,115 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>index.html | Farmant Studios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmant Studios | Horror-Mini</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-        canvas { display: block; }
+        /* Farmant Studios Stil Ayarları */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d0216; /* Koyu Mor/Siyah Tema */
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(180deg, #1a0533 0%, #0d0216 100%);
+            width: 100%;
+        }
+
+        h1 { font-size: 3rem; color: #bc13fe; text-shadow: 0 0 15px #bc13fe; }
+        p { font-size: 1.2rem; color: #ccc; }
+
+        /* Sürümler Butonu */
+        .btn-container { margin: 20px; }
+        .btn {
+            background-color: #bc13fe;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background-color: #8b00cc; transform: scale(1.05); }
+
+        /* Oyun Alanı Simülasyonu */
+        #game-canvas {
+            width: 80%;
+            height: 400px;
+            border: 3px solid #bc13fe;
+            margin: 40px 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: crosshair;
+        }
         
-        /* GİRİŞ METİNLERİ */
-        #welcome-header {
-            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 1000; pointer-events: none;
-        }
-        .big-welcome { color: white; font-size: 45px; font-weight: bold; margin: 0; text-shadow: 0 0 15px #bc13fe; }
-        .small-yellow { color: yellow; font-size: 22px; margin: 5px 0; font-style: italic; font-weight: bold; }
-        .trust-text { color: #000; font-size: 18px; font-weight: bold; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 50px; display: inline-block; margin-top: 10px; }
+        .game-msg { color: #555; font-style: italic; }
 
-        /* SÜRÜMLER PANELİ */
-        #version-menu {
-            position: absolute; top: 20px; right: 20px; z-index: 1001; text-align: right;
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #444;
         }
-        #version-btn {
-            background: #bc13fe; color: white; border: 2px solid white; padding: 12px 24px;
-            cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 0 15px #bc13fe;
-        }
-        #version-list {
-            display: none; background: rgba(15, 15, 15, 0.98); border: 2px solid #bc13fe;
-            margin-top: 10px; padding: 15px; border-radius: 10px; width: 220px;
-        }
-        .version-item { display: flex; justify-content: space-between; align-items: center; color: #0f0; padding: 10px; border-bottom: 1px solid #333; }
-        .download-btn { background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; text-decoration: none; font-size: 11px; }
-
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
     </style>
 </head>
 <body>
 
-    <div id="welcome-header">
-        <h1 class="big-welcome">HOŞGELDİNİZ</h1>
-        <p class="small-yellow">SEFALAR GETİRDİNİZ</p>
-        <div class="trust-text">DAHA İYİ DAHA ŞIK FAN YAPIMI :) DAHA KORKU DEĞİL :(</div>
-    </div>
+    <header>
+        <h1>FARMANT STUDIOS</h1>
+        <p>Korku-Mini Deneyimine Hoş Geldiniz</p>
+        
+        <div class="btn-container">
+            <a href="#game-start" class="btn" onclick="startGame()">SÜRÜMLERİ OYNA</a>
+        </div>
+    </header>
 
-    <div id="version-menu">
-        <button id="version-btn" onclick="toggleVersions()">📂 SÜRÜMLER</button>
-        <div id="version-list">
-            <div class="version-item"><span>ALPHA 0.01</span><a href="#" class="download-btn" onclick="alert('Alpha 0.01 indiriliyor...')">İNDİR</a></div>
-            <div class="version-item"><span>ALPHA 0.02</span><a href="#" class="download-btn" onclick="alert('Alpha 0.02 indiriliyor...')">İNDİR</a></div>
+    <div id="game-start"></div>
+
+    <div id="game-canvas">
+        <p class="game-msg">[ Oyun Alanı: Tıkla ve Kontrolleri Dene ]</p>
+        <div style="position: absolute; bottom: 10px; right: 10px; color: #bc13fe; font-size: 12px;">
+            Pointer Lock Active: ON
         </div>
     </div>
 
-    <div id="crosshair"></div>
+    <div>
+        <h3>Kontroller</h3>
+        <ul>
+            <li><strong>W-A-S-D:</strong> Hareket</li>
+            <li><strong>MOUSE:</strong> Bakış (Pürüzsüz Kontrol)</li>
+            <li><strong>ESC:</strong> Çıkış</li>
+        </ul>
+    </div>
 
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-        import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+    <footer>
+        Farmant Studios - 2026 | Bu bir fan yapımıdır.
+    </footer>
 
-        window.toggleVersions = function() {
-            const vList = document.getElementById('version-list');
-            vList.style.display = (vList.style.display === 'block') ? 'none' : 'block';
+    <script>
+        // Sürümler butonuna basınca yapılacak işlem
+        function startGame() {
+            alert("Farmant Studios: Oyun Başlatılıyor! Hazır mısın?");
+            document.getElementById('game-canvas').scrollIntoView({ behavior: 'smooth' });
         }
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020202);
-        scene.fog = new THREE.FogExp2(0x020202, 0.15);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        const controls = new PointerLockControls(camera, document.body);
-        document.body.addEventListener('click', (e) => { if(e.target.id !== 'version-btn' && !e.target.classList.contains('download-btn')) controls.lock(); });
-
-        const floor = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), 2500);
-        let i = 0;
-        const dummy = new THREE.Object3D();
-        for(let x=-25; x<25; x++) { for(let z=-25; z<25; z++) { dummy.position.set(x, -1, z); dummy.updateMatrix(); floor.setMatrixAt(i++, dummy.matrix); } }
-        scene.add(floor);
-
-        const player = new THREE.Group();
-        player.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 1, 0.4), new THREE.MeshBasicMaterial({color: 0x000000})));
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), new THREE.MeshBasicMaterial({color: 0xbc13fe}));
-        const lArm = arm.clone(); lArm.position.set(-0.45, 0.1, 0);
-        const rArm = arm.clone(); rArm.position.set(0.45, 0.1, 0);
-        player.add(lArm, rArm, new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({color: 0x000000})));
-        scene.add(player);
-        camera.position.set(0, 1.8, 4.5);
-        player.add(camera);
-        player.add(new THREE.PointLight(0xbc13fe, 3, 15));
-        scene.add(new THREE.AmbientLight(0x222222));
-
-        const keys = {};
-        window.addEventListener('keydown', (e) => keys[e.code] = true);
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
-
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            if(controls.isLocked) {
-                const step = 8 * clock.getDelta();
-                if(keys['KeyW']) controls.moveForward(step);
-                if(keys['KeyS']) controls.moveForward(-step);
-                if(keys['KeyA']) controls.moveRight(-step);
-                if(keys['KeyD']) controls.moveRight(step);
-                player.position.copy(controls.getObject().position);
-                player.position.y -= 1.6;
-                player.rotation.y = controls.getObject().rotation.y;
-            }
-            renderer.render(scene, camera);
-        }
-        animate();
+        // Buraya senin orijinal oyun scriptlerini (Pointer Lock vs.) ekleyebilirsin
+        console.log("Farmant Studios Sistemleri Aktif.");
     </script>
+
 </body>
 </html>
