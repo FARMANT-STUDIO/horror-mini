@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HORROR MİNİ - Resmi Sürüm</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; }
+
+        /* ARAYÜZ TASARIMI */
+        #gui { position: absolute; top: 15px; left: 15px; color: #0f0; background: rgba(0,0,0,0.85); padding: 12px; border-radius: 8px; border-left: 4px solid #0f0; z-index: 100; pointer-events: none; font-size: 13px; line-height: 1.6; }
+        #depth-meter { position: absolute; top: 15px; right: 15px; background: #2b0040; color: #fff; padding: 15px; border: 2px solid #fff; border-radius: 10px; font-weight: bold; font-size: 20px; text-shadow: 2px 2px #000; z-index: 100; }
+        
+        /* ENVANTER (HOTBAR) */
+        #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(20, 20, 20, 0.9); padding: 10px; border: 2px solid #444; border-radius: 12px; z-index: 100; }
+        .slot { width: 60px; height: 60px; border: 2px solid #666; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ccc; position: relative; font-size: 10px; background: #222; transition: 0.2s; }
+        .slot.selected { border-color: #00ff00; background: #333; box-shadow: 0 0 15px rgba(0, 255, 0, 0.3); transform: scale(1.1); color: #fff; }
+        .count { position: absolute; bottom: 4px; right: 6px; font-size: 14px; color: #ffeb3b; font-weight: bold; }
+
+        /* CAN BARI */
+        #health-bar { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+        .heart { color: #f44336; font-size: 24px; text-shadow: 2px 2px #000; }
+
+        /* CROSSHAIR */
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; }
+        
+        /* GİRİŞ EKRANI */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; cursor: pointer; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <a download='HorrorMini.html' href='/' id='download-btn' onmouseout='this.style.background=\'#2b0040\'' onmouseover='this.style.background=\'#4a0070\'' style='display:inline-block; margin-bottom:20px; padding:14px 40px; background:#2b0040; color:#fff; font-size:20px; font-weight:bold; border:2px solid #fff; border-radius:10px; text-decoration:none; cursor:pointer; text-shadow:0 0 10px #fff; transition:0.3s;'>İNDİR</a>
+        <h1 style="font-size:72px; color:#fff; text-shadow:0 0 30px #2b0040, 0 0 60px #2b0040; margin:0; letter-spacing:6px;">HOŞGELDİNİZ</h1>
+        <p style="font-size:18px; color:#f1c40f; margin:5px 0 20px 0;">sefalar getirdiniz</p>
+        <h2 style="font-size:36px; color:#fff; text-shadow:0 0 20px #0f0; margin:0 20px; line-height:1.4;">DAHA ŞIK VİRÜSSÜZ<br>100 DE YÜZZZ<br>BENİM ONAYIMDA</h2>
+        <p style="font-size:16px; color:#888; margin-top:30px; cursor:pointer;" id="play-text">Oynamak İçin Tıkla</p>
+        <p style="font-size:14px; color:#666;">(W,A,S,D: Hareket | Sol Tık: Kaz | E: Yerleştir | 1-4: Seçim)</p>
+    </div>
+
+    <div id="gui">
+        <b>HORROR MİNİ v1.0</b><br>
+        FPS: <span id="fps">60</span><br>
+        X: <span id="pos-x">0</span> Z: <span id="pos-z">0</span>
+    </div>
+
+    <div id="depth-meter">SEVİYE: <span id="depth">100</span></div>
+
+    <div id="health-bar">
+        <span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span>
+        <span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span>
+    </div>
+
+    <div id="hotbar">
+        <div id="slot-0" class="slot selected">TOPRAK<div class="count" id="cnt-0">0</div></div>
+        <div id="slot-1" class="slot">ODUN<div class="count" id="cnt-1">0</div></div>
+        <div id="slot-2" class="slot">MADEN<div class="count" id="cnt-2">0</div></div>
+        <div id="slot-3" class="slot">NETERYAN<div class="count" id="cnt-3">0</div></div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb);
+        // KORKU TEMASI İÇİN SİS EKLE
+        scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(10, 50, 10);
+        scene.add(light, new THREE.AmbientLight(0x404040, 1.5));
+
+        // MATERYALLER
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        const mats = {
+            grass: new THREE.MeshLambertMaterial({ color: 0x2ecc71 }),
+            dirt: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
+            stone: new THREE.MeshLambertMaterial({ color: 0x7f8c8d }),
+            deepStone: new THREE.MeshLambertMaterial({ color: 0x2c3e50 }),
+            coal: new THREE.MeshLambertMaterial({ color: 0x111111 }),
+            iron: new THREE.MeshLambertMaterial({ color: 0xecf0f1 }),
+            gold: new THREE.MeshLambertMaterial({ color: 0xf1c40f }),
+            diamond: new THREE.MeshLambertMaterial({ color: 0x00d2ff }),
+            neteryan: new THREE.MeshLambertMaterial({ color: 0x2b0040 }), // Özel Neteryan
+            wood: new THREE.MeshLambertMaterial({ color: 0x5d4037 }),
+            leaf: new THREE.MeshLambertMaterial({ color: 0x1b5e20 })
+        };
+
+        const inventory = { toprak: 0, odun: 0, maden: 0, neteryan: 0 };
+        const slots = ["toprak", "odun", "maden", "neteryan"];
+        let selectedSlot = 0;
+        const blocks = [];
+        const chunks = {};
+        const chunkSize = 8;
+
+        function addBlock(x, y, z, mat, type) {
+            const b = new THREE.Mesh(geo, mat);
+            b.position.set(x, y, z);
+            b.userData = { type: type };
+            scene.add(b);
+            blocks.push(b);
+        }
+
+        // MADEN DAĞILIM MANTIĞI
+        function generateBlock(y) {
+            const depth = y + 100;
+            const r = Math.random();
+            if (depth <= 10 && r < 0.015) return { m: mats.neteryan, id: "neteryan" };
+            if (depth <= 30 && r < 0.02) return { m: mats.diamond, id: "maden" };
+            if (depth <= 50 && r < 0.03) return { m: mats.gold, id: "maden" };
+            if (depth <= 75 && r < 0.05) return { m: mats.iron, id: "maden" };
+            if (depth <= 95 && r < 0.08) return { m: mats.coal, id: "maden" };
+            
+            if (depth > 92) return { m: mats.dirt, id: "toprak" };
+            return depth <= 50 ? { m: mats.deepStone, id: "toprak" } : { m: mats.stone, id: "toprak" };
+        }
+
+        function createChunk(cx, cz) {
+            const key = `${cx},${cz}`;
+            if (chunks[key]) return;
+            for (let x = 0; x < chunkSize; x++) {
+                for (let z = 0; z < chunkSize; z++) {
+                    const wx = cx * chunkSize + x;
+                    const wz = cz * chunkSize + z;
+                    addBlock(wx, 0, wz, mats.grass, "toprak");
+                    for (let dy = -1; dy >= -120; dy--) {
+                        const b = generateBlock(dy);
+                        addBlock(wx, dy, wz, b.m, b.id);
+                    }
+                    if (Math.random() < 0.03) spawnTree(wx, 1, wz);
+                }
+            }
+            chunks[key] = true;
+        }
+
+        function spawnTree(x, y, z) {
+            for(let i=0; i<3; i++) addBlock(x, y+i, z, mats.wood, "odun");
+            for(let lx=-1; lx<=1; lx++) for(let lz=-1; lz<=1; lz++) addBlock(x+lx, y+3, z+lz, mats.leaf, "yaprak");
+        }
+
+        // KONTROLLER
+        camera.position.set(0, 2, 5);
+        const keys = {};
+        window.onkeydown = (e) => {
+            keys[e.code] = true;
+            if (e.key >= 1 && e.key <= 4) selectSlot(e.key - 1);
+            if (e.code === 'KeyE') placeBlock();
+        };
+        window.onkeyup = (e) => keys[e.code] = false;
+
+        function selectSlot(i) {
+            selectedSlot = i;
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+            document.getElementById('slot-'+i).classList.add('selected');
+        }
+
+        function placeBlock() {
+            const type = slots[selectedSlot];
+            if (inventory[type] <= 0) return;
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            const inter = ray.intersectObjects(blocks);
+            if (inter.length > 0) {
+                const p = inter[0].object.position;
+                const n = inter[0].face.normal;
+                const m = type === "toprak" ? mats.dirt : (type === "odun" ? mats.wood : (type === "neteryan" ? mats.neteryan : mats.iron));
+                addBlock(p.x+n.x, p.y+n.y, p.z+n.z, m, type);
+                inventory[type]--;
+                updateUI();
+            }
+        }
+
+        window.onmousedown = (e) => {
+            if (e.button === 0 && document.pointerLockElement) {
+                const ray = new THREE.Raycaster();
+                ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                const inter = ray.intersectObjects(blocks);
+                if (inter.length > 0) {
+                    const obj = inter[0].object;
+                    if (obj.userData.type !== "yaprak") {
+                        inventory[obj.userData.type]++;
+                        updateUI();
+                    }
+                    scene.remove(obj);
+                    blocks.splice(blocks.indexOf(obj), 1);
+                }
+            }
+        };
+
+        function updateUI() {
+            slots.forEach((s, i) => document.getElementById('cnt-'+i).innerText = inventory[s]);
+        }
+
+        // OYUN DÖNGÜSÜ
+        let frames = 0, lastTime = performance.now();
+        function animate() {
+            requestAnimationFrame(animate);
+            const s = 0.15;
+            if (keys['KeyW']) camera.translateZ(-s);
+            if (keys['KeyS']) camera.translateZ(s);
+            if (keys['KeyA']) camera.translateX(-s);
+            if (keys['KeyD']) camera.translateX(s);
+            camera.position.y = 2; // Sabit boy
+
+            const cx = Math.floor(camera.position.x / chunkSize);
+            const cz = Math.floor(camera.position.z / chunkSize);
+            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) createChunk(cx+i, cz+j);
+
+            // UI
+            frames++;
+            const now = performance.now();
+            if (now > lastTime + 1000) {
+                document.getElementById('fps').innerText = frames;
+                frames = 0; lastTime = now;
+            }
+            document.getElementById('pos-x').innerText = Math.floor(camera.position.x);
+            document.getElementById('pos-z').innerText = Math.floor(camera.position.z);
+            const depth = Math.floor(camera.position.y - 2) + 100;
+            document.getElementById('depth').innerText = depth;
+            
+            // Derine indikçe sisi karart
+            const fogColor = depth < 50 ? 0x050505 : 0x87ceeb;
+            scene.fog.color.setHex(fogColor);
+            if(depth < 50) renderer.setClearColor(0x050505); else renderer.setClearColor(0x87ceeb);
+
+            renderer.render(scene, camera);
+        }
+
+        document.getElementById('download-btn').onclick = (e) => {
+            e.stopPropagation();
+        };
+        document.getElementById('overlay').onclick = (e) => {
+            if (e.target.id === 'download-btn') return;
+            document.body.requestPointerLock();
+            document.getElementById('overlay').style.display = 'none';
+        };
+
+        document.addEventListener('mousemove', (e) => {
+            if (document.pointerLockElement) {
+                camera.rotation.y -= e.movementX * 0.002;
+                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+            }
+        });
+        animate();
+    </script>
+</body>
+</html>
