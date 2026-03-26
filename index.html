@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>index.html | Farmant Studios</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+        canvas { display: block; }
+        
+        /* GİRİŞ METİNLERİ */
+        #welcome-header {
+            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 1000; pointer-events: none;
+        }
+        .big-welcome { color: white; font-size: 45px; font-weight: bold; margin: 0; text-shadow: 0 0 15px #bc13fe; }
+        .small-yellow { color: yellow; font-size: 22px; margin: 5px 0; font-style: italic; font-weight: bold; }
+        .trust-text { color: #000; font-size: 18px; font-weight: bold; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 50px; display: inline-block; margin-top: 10px; }
+
+        /* SÜRÜMLER PANELİ */
+        #version-menu {
+            position: absolute; top: 20px; right: 20px; z-index: 1001; text-align: right;
+        }
+        #version-btn {
+            background: #bc13fe; color: white; border: 2px solid white; padding: 12px 24px;
+            cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 0 15px #bc13fe;
+        }
+        #version-list {
+            display: none; background: rgba(15, 15, 15, 0.98); border: 2px solid #bc13fe;
+            margin-top: 10px; padding: 15px; border-radius: 10px; width: 220px;
+        }
+        .version-item { display: flex; justify-content: space-between; align-items: center; color: #0f0; padding: 10px; border-bottom: 1px solid #333; }
+        .download-btn { background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; text-decoration: none; font-size: 11px; }
+
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-header">
+        <h1 class="big-welcome">HOŞGELDİNİZ</h1>
+        <p class="small-yellow">SEFALAR GETİRDİNİZ</p>
+        <div class="trust-text">DAHA İYİ DAHA ŞIK FAN YAPIMI :) DAHA KORKU DEĞİL :(</div>
+    </div>
+
+    <div id="version-menu">
+        <button id="version-btn" onclick="toggleVersions()">📂 SÜRÜMLER</button>
+        <div id="version-list">
+            <div class="version-item"><span>ALPHA 0.01</span><a href="#" class="download-btn" onclick="alert('Alpha 0.01 indiriliyor...')">İNDİR</a></div>
+            <div class="version-item"><span>ALPHA 0.02</span><a href="#" class="download-btn" onclick="alert('Alpha 0.02 indiriliyor...')">İNDİR</a></div>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+        import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+
+        window.toggleVersions = function() {
+            const vList = document.getElementById('version-list');
+            vList.style.display = (vList.style.display === 'block') ? 'none' : 'block';
+        }
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020202);
+        scene.fog = new THREE.FogExp2(0x020202, 0.15);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({ antialias: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new PointerLockControls(camera, document.body);
+        document.body.addEventListener('click', (e) => { if(e.target.id !== 'version-btn' && !e.target.classList.contains('download-btn')) controls.lock(); });
+
+        const floor = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), 2500);
+        let i = 0;
+        const dummy = new THREE.Object3D();
+        for(let x=-25; x<25; x++) { for(let z=-25; z<25; z++) { dummy.position.set(x, -1, z); dummy.updateMatrix(); floor.setMatrixAt(i++, dummy.matrix); } }
+        scene.add(floor);
+
+        const player = new THREE.Group();
+        player.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 1, 0.4), new THREE.MeshBasicMaterial({color: 0x000000})));
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), new THREE.MeshBasicMaterial({color: 0xbc13fe}));
+        const lArm = arm.clone(); lArm.position.set(-0.45, 0.1, 0);
+        const rArm = arm.clone(); rArm.position.set(0.45, 0.1, 0);
+        player.add(lArm, rArm, new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({color: 0x000000})));
+        scene.add(player);
+        camera.position.set(0, 1.8, 4.5);
+        player.add(camera);
+        player.add(new THREE.PointLight(0xbc13fe, 3, 15));
+        scene.add(new THREE.AmbientLight(0x222222));
+
+        const keys = {};
+        window.addEventListener('keydown', (e) => keys[e.code] = true);
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            if(controls.isLocked) {
+                const step = 8 * clock.getDelta();
+                if(keys['KeyW']) controls.moveForward(step);
+                if(keys['KeyS']) controls.moveForward(-step);
+                if(keys['KeyA']) controls.moveRight(-step);
+                if(keys['KeyD']) controls.moveRight(step);
+                player.position.copy(controls.getObject().position);
+                player.position.y -= 1.6;
+                player.rotation.y = controls.getObject().rotation.y;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
