@@ -3,113 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmant Studios | Horror-Mini</title>
+    <title>Farmant Studios | Korku-Mini</title>
     <style>
-        /* Farmant Studios Stil Ayarları */
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0d0216; /* Koyu Mor/Siyah Tema */
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #0d0216; color: #fff;
+            font-family: 'Segoe UI', sans-serif; overflow: hidden;
         }
 
-        header {
-            text-align: center;
-            padding: 50px 20px;
-            background: linear-gradient(180deg, #1a0533 0%, #0d0216 100%);
-            width: 100%;
+        /* 1. GİRİŞ EKRANI (Açılışta Burası Görünür) */
+        #menu-screen {
+            position: fixed; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a0533 0%, #05010a 100%);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100; transition: 0.5s;
         }
 
-        h1 { font-size: 3rem; color: #bc13fe; text-shadow: 0 0 15px #bc13fe; }
-        p { font-size: 1.2rem; color: #ccc; }
+        h1 { font-size: 4rem; color: #bc13fe; text-shadow: 0 0 30px #bc13fe; margin: 0; }
+        p { font-size: 1.2rem; color: #888; margin-bottom: 30px; }
 
-        /* Sürümler Butonu */
-        .btn-container { margin: 20px; }
-        .btn {
-            background-color: #bc13fe;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            border-radius: 5px;
+        .start-btn {
+            background-color: #bc13fe; color: white;
+            border: none; padding: 20px 50px;
+            font-size: 1.8rem; font-weight: bold;
+            cursor: pointer; border-radius: 50px;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
             transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
         }
-        .btn:hover { background-color: #8b00cc; transform: scale(1.05); }
+        .start-btn:hover { background-color: #e044ff; transform: scale(1.1); box-shadow: 0 0 40px #bc13fe; }
 
-        /* Oyun Alanı Simülasyonu */
-        #game-canvas {
-            width: 80%;
-            height: 400px;
-            border: 3px solid #bc13fe;
-            margin: 40px 0;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            cursor: crosshair;
+        /* 2. OYUN EKRANI (İlk Başta Gizli) */
+        #game-container {
+            display: none; width: 100%; height: 100%;
+            background: #000; position: relative;
         }
-        
-        .game-msg { color: #555; font-style: italic; }
 
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #444;
+        #crosshair {
+            position: absolute; top: 50%; left: 50%;
+            width: 10px; height: 10px; border: 2px solid white;
+            border-radius: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; z-index: 10;
         }
+
+        footer { position: absolute; bottom: 10px; width: 100%; text-align: center; color: #333; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <header>
+    <div id="menu-screen">
         <h1>FARMANT STUDIOS</h1>
-        <p>Korku-Mini Deneyimine Hoş Geldiniz</p>
+        <p>Korku-Mini: Karanlık Başlıyor...</p>
+        <button class="start-btn" onclick="launchGame()">🕹️ OYUNA BAŞLA</button>
+        <div style="margin-top: 20px; color: #555;">Kontroller: WASD + Mouse</div>
+    </div>
+
+    <div id="game-container">
+        <div id="crosshair"></div>
+        <div id="game-msg" style="position:absolute; top:20px; left:20px; color:#bc13fe;">Farmant Studios Aktif</div>
         
-        <div class="btn-container">
-            <a href="#game-start" class="btn" onclick="startGame()">SÜRÜMLERİ OYNA</a>
-        </div>
-    </header>
-
-    <div id="game-start"></div>
-
-    <div id="game-canvas">
-        <p class="game-msg">[ Oyun Alanı: Tıkla ve Kontrolleri Dene ]</p>
-        <div style="position: absolute; bottom: 10px; right: 10px; color: #bc13fe; font-size: 12px;">
-            Pointer Lock Active: ON
-        </div>
+        <footer>Farmant Studios - 2026 | Fan Yapımı</footer>
     </div>
-
-    <div>
-        <h3>Kontroller</h3>
-        <ul>
-            <li><strong>W-A-S-D:</strong> Hareket</li>
-            <li><strong>MOUSE:</strong> Bakış (Pürüzsüz Kontrol)</li>
-            <li><strong>ESC:</strong> Çıkış</li>
-        </ul>
-    </div>
-
-    <footer>
-        Farmant Studios - 2026 | Bu bir fan yapımıdır.
-    </footer>
 
     <script>
-        // Sürümler butonuna basınca yapılacak işlem
-        function startGame() {
-            alert("Farmant Studios: Oyun Başlatılıyor! Hazır mısın?");
-            document.getElementById('game-canvas').scrollIntoView({ behavior: 'smooth' });
+        function launchGame() {
+            // Menüyü sakla, oyunu göster
+            document.getElementById('menu-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('menu-screen').style.display = 'none';
+                document.getElementById('game-container').style.display = 'block';
+                
+                // BURASI ÖNEMLİ: Oyun kodun buradaysa, oyunun "Start" fonksiyonunu çağırabilirsin.
+                initGame(); 
+            }, 500);
         }
 
-        // Buraya senin orijinal oyun scriptlerini (Pointer Lock vs.) ekleyebilirsin
-        console.log("Farmant Studios Sistemleri Aktif.");
+        function initGame() {
+            console.log("Farmant Studios: Oyun Motoru Çalıştırıldı!");
+            // Kanka, senin o pürüzsüz mouse ve hareket kodlarını 
+            // tam buraya yapıştırırsan butona basınca hepsi aktif olur!
+        }
     </script>
 
 </body>
