@@ -2,88 +2,260 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmant Studios | Korku-Mini</title>
+    <title>Farmant Voxel - Ultimate Edition</title>
     <style>
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d0216; color: #fff;
-            font-family: 'Segoe UI', sans-serif; overflow: hidden;
-        }
+        /* OYUNUN KENDİ STİLLERİ */
+        body { margin: 0; overflow: hidden; background-color: #87ceeb; font-family: 'Consolas', monospace; }
+        canvas { display: block; }
 
-        /* 1. GİRİŞ EKRANI (Açılışta Burası Görünür) */
+        /* GİRİŞ EKRANI STİLİ (Yeni Eklendi) */
         #menu-screen {
-            position: fixed; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1a0533 0%, #05010a 100%);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            z-index: 100; transition: 0.5s;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; transition: 0.8s;
         }
-
-        h1 { font-size: 4rem; color: #bc13fe; text-shadow: 0 0 30px #bc13fe; margin: 0; }
-        p { font-size: 1.2rem; color: #888; margin-bottom: 30px; }
-
+        #menu-screen h1 { font-size: 4rem; color: #bc13fe; text-shadow: 0 0 30px #bc13fe; margin: 0; }
         .start-btn {
-            background-color: #bc13fe; color: white;
-            border: none; padding: 20px 50px;
-            font-size: 1.8rem; font-weight: bold;
-            cursor: pointer; border-radius: 50px;
-            box-shadow: 0 0 20px rgba(188, 19, 254, 0.6);
-            transition: 0.3s;
+            background-color: #bc13fe; color: white; border: none; padding: 20px 60px;
+            font-size: 1.8rem; font-weight: bold; cursor: pointer; border-radius: 50px;
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.6); transition: 0.3s; margin-top: 30px;
         }
-        .start-btn:hover { background-color: #e044ff; transform: scale(1.1); box-shadow: 0 0 40px #bc13fe; }
+        .start-btn:hover { background-color: #e044ff; transform: scale(1.1); box-shadow: 0 0 50px #bc13fe; }
 
-        /* 2. OYUN EKRANI (İlk Başta Gizli) */
-        #game-container {
-            display: none; width: 100%; height: 100%;
-            background: #000; position: relative;
-        }
-
-        #crosshair {
-            position: absolute; top: 50%; left: 50%;
-            width: 10px; height: 10px; border: 2px solid white;
-            border-radius: 50%; transform: translate(-50%, -50%);
-            pointer-events: none; z-index: 10;
-        }
-
-        footer { position: absolute; bottom: 10px; width: 100%; text-align: center; color: #333; font-size: 12px; }
+        /* UI PANELLERİ */
+        #ui-left { position: absolute; top: 10px; left: 10px; color: #0f0; background: rgba(0,0,0,0.8); padding: 10px; z-index: 10; border-radius: 5px; font-size: 12px; border-left: 3px solid #0f0; }
+        #ui-depth { position: absolute; top: 10px; right: 10px; color: #fff; background: #1a1a1a; padding: 12px; z-index: 10; font-size: 18px; border: 2px solid #555; border-radius: 5px; font-weight: bold; }
+        #health { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 10; }
+        .heart { color: #ff0000; font-size: 22px; text-shadow: 2px 2px #000; }
+        #hotbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(0,0,0,0.7); padding: 8px; border: 2px solid #444; border-radius: 4px; z-index: 10; }
+        .slot { width: 55px; height: 55px; border: 2px solid #888; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; position: relative; font-size: 9px; text-align: center; }
+        .slot.selected { border-color: #00ff00; background: rgba(0,255,0,0.2); box-shadow: 0 0 10px #0f0; }
+        .count { position: absolute; bottom: 2px; right: 4px; font-size: 12px; color: #ff0; font-weight: bold; }
+        #error-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(139, 0, 0, 0.95); color: white; z-index: 10000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%); pointer-events: none; }
+        #crosshair::before { content: ""; position: absolute; top: 8px; left: 0; width: 18px; height: 2px; background: rgba(255,255,255,0.8); }
+        #crosshair::after { content: ""; position: absolute; left: 8px; top: 0; width: 2px; height: 18px; background: rgba(255,255,255,0.8); }
     </style>
 </head>
 <body>
 
     <div id="menu-screen">
         <h1>FARMANT STUDIOS</h1>
-        <p>Korku-Mini: Karanlık Başlıyor...</p>
-        <button class="start-btn" onclick="launchGame()">🕹️ OYUNA BAŞLA</button>
-        <div style="margin-top: 20px; color: #555;">Kontroller: WASD + Mouse</div>
+        <p style="color: #888;">Ultimate Voxel Experience</p>
+        <button class="start-btn" onclick="startGame()">🕹️ OYUNA BAŞLA</button>
+        <p style="margin-top: 20px; color: #555; font-size: 0.9rem;">WASD: Hareket | Mouse: Bakış/Kazma | 1-4: Envanter | E: Blok Koy</p>
     </div>
 
-    <div id="game-container">
-        <div id="crosshair"></div>
-        <div id="game-msg" style="position:absolute; top:20px; left:20px; color:#bc13fe;">Farmant Studios Aktif</div>
-        
-        <footer>Farmant Studios - 2026 | Fan Yapımı</footer>
+    <div id="error-screen">
+        <h1 style="font-size: 40px;">⚠️ OYUN ZORTLADI!</h1>
+        <p id="error-msg" style="background: #000; padding: 15px; border-radius: 5px;"></p>
     </div>
 
-    <script>
-        function launchGame() {
-            // Menüyü sakla, oyunu göster
+    <div id="ui-left">
+        X: <span id="pos-x">0</span> | Z: <span id="pos-z">0</span><br>
+        FPS: <span id="fps">0</span> | DURUM: <span id="st">BEKLENİYOR</span>
+    </div>
+
+    <div id="ui-depth">SEVİYE: <span id="depth">100</span></div>
+
+    <div id="health">
+        <span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span>
+        <span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span><span class="heart">❤</span>
+    </div>
+
+    <div id="hotbar">
+        <div id="slot-0" class="slot selected">Toprak<div class="count" id="cnt-0">0</div></div>
+        <div id="slot-1" class="slot">Odun<div class="count" id="cnt-1">0</div></div>
+        <div id="slot-2" class="slot">Maden<div class="count" id="cnt-2">0</div></div>
+        <div id="slot-3" class="slot">Neteryan<div class="count" id="cnt-3">0</div></div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+        // --- GİRİŞ KONTROLÜ ---
+        window.startGame = function() {
             document.getElementById('menu-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('menu-screen').style.display = 'none';
-                document.getElementById('game-container').style.display = 'block';
-                
-                // BURASI ÖNEMLİ: Oyun kodun buradaysa, oyunun "Start" fonksiyonunu çağırabilirsin.
-                initGame(); 
-            }, 500);
+                document.body.requestPointerLock();
+                isGameRunning = true;
+            }, 800);
+        };
+
+        let isGameRunning = false;
+
+        window.onerror = (m, u, l) => {
+            document.getElementById('error-screen').style.display = 'flex';
+            document.getElementById('error-msg').innerText = `Hata: ${m}\nSatır: ${l}`;
+        };
+
+        const inventory = { toprak: 0, odun: 0, maden: 0, neteryan: 0 };
+        const slots = ["toprak", "odun", "maden", "neteryan"];
+        let selectedSlot = 0;
+        const chunks = {};
+        const chunkSize = 8;
+        const blocks = [];
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const sun = new THREE.DirectionalLight(0xffffff, 1);
+        sun.position.set(10, 50, 10);
+        scene.add(sun);
+
+        const geo = new THREE.BoxGeometry(1, 1, 1);
+        const mats = {
+            grass: new THREE.MeshLambertMaterial({ color: 0x2ecc71 }),
+            dirt: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
+            stone: new THREE.MeshLambertMaterial({ color: 0x777777 }),
+            deepStone: new THREE.MeshLambertMaterial({ color: 0x222222 }),
+            wood: new THREE.MeshLambertMaterial({ color: 0x5d4037 }),
+            leaf: new THREE.MeshLambertMaterial({ color: 0x1b5e20 }),
+            coal: new THREE.MeshLambertMaterial({ color: 0x111111 }),
+            iron: new THREE.MeshLambertMaterial({ color: 0xced4da }),
+            gold: new THREE.MeshLambertMaterial({ color: 0xffd700 }),
+            diamond: new THREE.MeshLambertMaterial({ color: 0x00ffff }),
+            neteryan: new THREE.MeshLambertMaterial({ color: 0x2b0040 })
+        };
+
+        function getBlockByDepth(y) {
+            const depth = y + 100; 
+            const rand = Math.random();
+            if (depth <= -50 && rand < 0.01) return { mat: mats.neteryan, id: "neteryan" };
+            if (depth <= 0 && rand < 0.02) return { mat: mats.diamond, id: "maden" };
+            if (depth <= 20 && rand < 0.03) return { mat: mats.gold, id: "maden" };
+            if (depth <= 50 && rand < 0.05) return { mat: mats.iron, id: "maden" };
+            if (depth <= 85 && rand < 0.08) return { mat: mats.coal, id: "maden" };
+            if (depth > 90) return { mat: mats.dirt, id: "toprak" };
+            return depth <= 0 ? { mat: mats.deepStone, id: "toprak" } : { mat: mats.stone, id: "toprak" };
         }
 
-        function initGame() {
-            console.log("Farmant Studios: Oyun Motoru Çalıştırıldı!");
-            // Kanka, senin o pürüzsüz mouse ve hareket kodlarını 
-            // tam buraya yapıştırırsan butona basınca hepsi aktif olur!
+        function addBlock(x, y, z, mat, type) {
+            const b = new THREE.Mesh(geo, mat);
+            b.position.set(x, y, z);
+            b.userData = { type: type };
+            const e = new THREE.EdgesGeometry(geo);
+            const l = new THREE.LineSegments(e, new THREE.LineBasicMaterial({ color: 0x000, transparent: true, opacity: 0.1 }));
+            b.add(l);
+            scene.add(b);
+            blocks.push(b);
         }
+
+        function generateChunk(cx, cz) {
+            const key = `${cx},${cz}`;
+            if (chunks[key]) return;
+            for (let x = 0; x < chunkSize; x++) {
+                for (let z = 0; z < chunkSize; z++) {
+                    const wx = cx * chunkSize + x;
+                    const wz = cz * chunkSize + z;
+                    addBlock(wx, 0, wz, mats.grass, "toprak");
+                    for (let dy = -1; dy >= -10; dy--) { // Performans için derinliği şimdilik azalttık
+                        const info = getBlockByDepth(dy);
+                        addBlock(wx, dy, wz, info.mat, info.id);
+                    }
+                }
+            }
+            chunks[key] = true;
+        }
+
+        camera.position.set(0, 2, 5);
+        const keys = {};
+        window.onkeydown = (e) => {
+            keys[e.code] = true;
+            if(e.key >= 1 && e.key <= 4) selectSlot(e.key - 1);
+            if(e.code === 'KeyE') placeBlock();
+        };
+        window.onkeyup = (e) => keys[e.code] = false;
+
+        function selectSlot(i) {
+            selectedSlot = i;
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+            document.getElementById('slot-'+i).classList.add('selected');
+        }
+
+        window.onmousedown = (e) => {
+            if(e.button === 0 && document.pointerLockElement) {
+                const ray = new THREE.Raycaster();
+                ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                const inter = ray.intersectObjects(blocks);
+                if(inter.length > 0) {
+                    const obj = inter[0].object;
+                    const type = obj.userData.type;
+                    if(type !== "yaprak") { inventory[type]++; updateUI(); }
+                    scene.remove(obj);
+                    blocks.splice(blocks.indexOf(obj), 1);
+                }
+            }
+        };
+
+        function placeBlock() {
+            const type = slots[selectedSlot];
+            if(inventory[type] <= 0) return;
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            const inter = ray.intersectObjects(blocks);
+            if(inter.length > 0) {
+                const p = inter[0].object.position;
+                const n = inter[0].face.normal;
+                const mat = type === "toprak" ? mats.dirt : (type === "odun" ? mats.wood : (type === "neteryan" ? mats.neteryan : mats.iron));
+                addBlock(p.x+n.x, p.y+n.y, p.z+n.z, mat, type);
+                inventory[type]--;
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            slots.forEach((s, i) => document.getElementById('cnt-'+i).innerText = inventory[s]);
+        }
+
+        let frames = 0, lastTime = performance.now();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(!isGameRunning) return;
+
+            const s = 0.15;
+            if(keys['KeyW']) camera.translateZ(-s);
+            if(keys['KeyS']) camera.translateZ(s);
+            if(keys['KeyA']) camera.translateX(-s);
+            if(keys['KeyD']) camera.translateX(s);
+            camera.position.y = 2; 
+
+            const cx = Math.floor(camera.position.x / chunkSize);
+            const cz = Math.floor(camera.position.z / chunkSize);
+            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) generateChunk(cx+i, cz+j);
+
+            frames++;
+            const now = performance.now();
+            if(now > lastTime + 1000) {
+                document.getElementById('fps').innerText = frames;
+                document.getElementById('st').innerText = frames > 50 ? "AKICI" : "ZORTLAYABİLİR";
+                frames = 0; lastTime = now;
+            }
+            document.getElementById('pos-x').innerText = Math.round(camera.position.x);
+            document.getElementById('pos-z').innerText = Math.round(camera.position.z);
+            document.getElementById('depth').innerText = Math.floor(camera.position.y - 2) + 100;
+
+            renderer.render(scene, camera);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if(document.pointerLockElement) {
+                camera.rotation.y -= e.movementX * 0.002;
+                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+            }
+        });
+        animate();
     </script>
-
 </body>
 </html>
