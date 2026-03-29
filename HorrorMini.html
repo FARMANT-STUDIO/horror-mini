@@ -2,55 +2,40 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Farmant Voxel - Alpha 0.04 ULTIMATE</title>
+    <title>Farmant Voxel - Alpha 0.02</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #87ceeb; font-family: 'Courier New', monospace; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #87ceeb; font-family: 'Segoe UI', sans-serif; user-select: none; }
         canvas { display: block; }
         
-        /* --- SÜRÜMLER PANELİ --- */
-        #v-btn { position: fixed; top: 15px; right: 15px; background: white; padding: 10px 15px; border: none; cursor: pointer; z-index: 1000; font-weight: bold; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        #v-panel { position: fixed; top: 65px; right: 15px; width: 220px; background: white; color: black; padding: 15px; display: none; flex-direction: column; gap: 10px; z-index: 1001; border-radius: 8px; }
-        .v-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .v-go { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; background: #2ecc71; }
+        /* HUD - Sürüm Adı 0.02 Olarak Güncellendi */
+        #hud { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; z-index: 10; }
+        .bar { display: flex; gap: 2px; font-size: 20px; text-shadow: 1px 1px #000; }
+        #hotbar { display: flex; gap: 4px; background: rgba(0,0,0,0.8); padding: 6px; border: 2px solid #444; border-radius: 4px; }
+        .slot { width: 40px; height: 44px; border: 1px solid #555; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 8px; color: #eee; position: relative; }
+        .slot.selected { border: 2px solid #bc13fe; box-shadow: 0 0 8px #bc13fe; }
 
-        /* --- SURVIVAL HUD --- */
-        #hud { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; z-index: 10; }
-        .bar { display: flex; gap: 2px; font-size: 24px; text-shadow: 2px 2px #000; }
-        #hotbar { display: flex; gap: 5px; background: rgba(0,0,0,0.6); padding: 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; }
-        .slot { width: 45px; height: 50px; border: 1px solid #555; background: rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; position: relative; color: #fff; }
-        .slot.selected { border: 2px solid #0f0; background: rgba(0,255,0,0.1); }
-        .count { position: absolute; bottom: 2px; right: 3px; color: #ff0; font-weight: bold; }
-
-        #flash { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 10000; transition: opacity 0.1s; }
+        #blood-overlay { position: fixed; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(200,0,0,0.7) 100%); display: none; pointer-events: none; z-index: 1000; }
         #start-menu { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20000; }
+        .btn { background: #bc13fe; color: white; border: none; padding: 15px 45px; font-size: 22px; cursor: pointer; border-radius: 4px; box-shadow: 0 0 20px #bc13fe; }
     </style>
 </head>
 <body>
 
-    <div id="flash"></div>
+    <div id="blood-overlay"></div>
     <div id="start-menu">
-        <h1 style="color:#bc13fe; font-size: 60px; text-shadow: 0 0 30px #bc13fe; margin:0;">FARMANT</h1>
-        <p style="color:#666; margin-bottom:30px;">Alpha 0.04 - Ataların Atası</p>
-        <button onclick="start()" style="background:#bc13fe; color:white; border:none; padding:20px 60px; font-size:24px; cursor:pointer; border-radius:50px; box-shadow: 0 0 20px #bc13fe;">OYUNA GİR</button>
-        <p style="color:#444; margin-top:20px;">Kır: Sol Tık | Blok Koy: Ü Tuşu</p>
-    </div>
-
-    <button id="v-btn" onclick="toggleV()">SÜRÜMLER ⚙️</button>
-    <div id="v-panel">
-        <div class="v-row"><span>Alpha 0.02</span><button class="v-go" style="background:#888;">AKTİF</button></div>
-        <div class="v-row"><span>Alpha 0.01</span><button class="v-go" onclick="location.reload()">GEÇ</button></div>
+        <h1 style="color:#bc13fe; font-size: 55px; letter-spacing: 8px; margin:0;">FARMANT</h1>
+        <p style="color:#555; margin-bottom:30px;">Alpha 0.02 - RESMİ SÜRÜM</p>
+        <button class="btn" onclick="startGame()">OYUNA BAŞLA</button>
+        <p style="color:#444; margin-top:20px; font-size:11px;">ESC: ACİL ÇIKIŞ | Ü: BLOK KOY | 20sn Sonra Ghost Gelir</p>
     </div>
 
     <div id="hud">
-        <div class="bar" style="color:red;">❤❤❤❤❤❤❤❤❤❤</div>
-        <div class="bar" style="color:#8b4513;">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
+        <div class="bar" style="color:#ff2e2e;">❤❤❤❤❤❤❤❤❤❤</div>
+        <div class="bar" style="color:#ff9f43;">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
         <div id="hotbar">
-            <div class="slot selected">Toprak<div class="count" id="c-toprak">10</div></div>
-            <div class="slot">Odun<div class="count" id="c-odun">0</div></div>
-            <div class="slot">Maden<div class="count" id="c-maden">0</div></div>
-            <div class="slot">Et<div class="count" id="c-et">0</div></div>
-            <div class="slot">Tabela<div class="count" id="c-tabela">0</div></div>
-            <div class="slot">Tahta<div class="count" id="c-tahta">0</div></div>
+            <div class="slot selected">Toprak</div><div class="slot">Odun</div>
+            <div class="slot">Maden</div><div class="slot">Tahta</div>
+            <div class="slot">Et</div><div class="slot">Tabela</div>
             <div class="slot">..</div><div class="slot">..</div><div class="slot">..</div><div class="slot">..</div>
         </div>
     </div>
@@ -58,162 +43,161 @@
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
-        let scene, camera, renderer, entity, timer = 0, isGameStarted = false;
-        const blocks = [], animals = [], keys = {};
-        const inventory = { toprak:10, odun:0, maden:0, et:0, tabela:0, tahta:0 };
+        let scene, camera, renderer, ghost, timer = 0, isLive = false, isHorror = false;
+        let vY = 0;
+        const gravity = 0.0075, jump = 0.15, chunkSize = 16, dDist = 2;
+        const blocks = [], mobs = [], keys = {}, worldChunks = {};
 
-        window.toggleV = () => {
-            const p = document.getElementById('v-panel');
-            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-        };
-
-        window.start = () => {
+        window.startGame = () => {
             document.getElementById('start-menu').style.display = 'none';
             document.body.requestPointerLock();
-            isGameStarted = true;
+            isLive = true;
             init();
         };
 
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x87ceeb);
-            scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
+            scene.fog = new THREE.Fog(0x87ceeb, 15, 50);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 1.8, 5);
+            camera.position.set(0, 15, 0);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-            sun.position.set(10, 20, 10);
-            scene.add(sun, new THREE.AmbientLight(0xffffff, 0.5));
+            const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.3);
+            scene.add(light);
 
-            generateWorld();
-            spawnAnimals();
-            animate();
+            loop();
         }
 
-        function generateWorld() {
-            const grassMat = new THREE.MeshLambertMaterial({color: 0x2ecc71});
-            const woodMat = new THREE.MeshLambertMaterial({color: 0x5d4037});
-            const leafMat = new THREE.MeshLambertMaterial({color: 0x1b5e20});
-
-            for(let x=-25; x<25; x++) {
-                for(let z=-25; z<25; z++) {
-                    let h = Math.floor(Math.sin(x*0.15)*Math.cos(z*0.15)*4);
-                    if(Math.abs(x)<6 && Math.abs(z)<6) h=0; // Başlangıç düzlüğü
-
-                    addBlock(x, h - 0.5, z, grassMat, 'toprak');
-
-                    // Ağaçlar
-                    if(h >= 0 && Math.random() < 0.02 && Math.abs(x) > 6) {
-                        for(let i=0; i<3; i++) addBlock(x, h+i+0.5, z, woodMat, 'odun');
-                        const leaves = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), leafMat);
-                        leaves.position.set(x, h+3.5, z); scene.add(leaves);
-                    }
-                }
+        // ESC İLE GOOGLE'A KAÇIŞ
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                window.location.href = "https://www.google.com";
             }
-            // Deniz
-            const sea = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({color: 0x0066ff, transparent:true, opacity:0.6}));
-            sea.rotation.x = -Math.PI/2; sea.position.y = -1.2; scene.add(sea);
-        }
-
-        function addBlock(x, y, z, mat, type) {
-            const b = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mat);
-            b.position.set(x, y, z);
-            b.userData = { type };
-            scene.add(b);
-            blocks.push(b);
-        }
-
-        function spawnAnimals() {
-            for(let i=0; i<5; i++) {
-                const a = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.7,0.8), new THREE.MeshLambertMaterial({color: 0xffffff}));
-                a.position.set(Math.random()*15-7, 0.4, Math.random()*15-7);
-                a.userData = { type: 'animal' };
-                scene.add(a); animals.push(a);
-            }
-        }
-
-        // KIRMA (Sol Tık)
-        window.onmousedown = (e) => {
-            if(!isGameStarted || !document.pointerLockElement) return;
-            const ray = new THREE.Raycaster();
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            const inter = ray.intersectObjects([...blocks, ...animals]);
-            if(inter.length > 0 && inter[0].distance < 5) {
-                const o = inter[0].object;
-                if(o.userData.type === 'animal') { inventory.et++; scene.remove(o); }
-                else { inventory[o.userData.type]++; scene.remove(o); blocks.splice(blocks.indexOf(o), 1); }
-                updateUI();
-            }
-        };
-
-        // KOYMA (Ü Tuşu)
-        window.onkeydown = (e) => {
             keys[e.code] = true;
-            if(e.key === 'ü' || e.key === 'Ü') {
-                if(inventory.toprak > 0) {
-                    const ray = new THREE.Raycaster();
-                    ray.setFromCamera(new THREE.Vector2(0,0), camera);
-                    const inter = ray.intersectObjects(blocks);
-                    if(inter.length > 0 && inter[0].distance < 5) {
-                        const pos = inter[0].object.position.clone();
-                        pos.add(inter[0].face.normal);
-                        addBlock(pos.x, pos.y, pos.z, new THREE.MeshLambertMaterial({color: 0x8b4513}), 'toprak');
-                        inventory.toprak--; updateUI();
-                    }
+        });
+
+        function createChunk(cx, cz) {
+            const id = `${cx},${cz}`;
+            if(worldChunks[id]) return;
+            const sX = cx * chunkSize, sZ = cz * chunkSize;
+            const gMat = new THREE.MeshLambertMaterial({color: 0x2ecc71});
+            const sMat = new THREE.MeshLambertMaterial({color: 0x666666});
+
+            for(let x=0; x<chunkSize; x++) {
+                for(let z=0; z<chunkSize; z++) {
+                    const wx = sX + x, wz = sZ + z;
+                    let h = Math.floor(Math.sin(wx*0.18) * Math.cos(wz*0.18) * 4);
+                    
+                    // 2x2 Gizemli Tüneller
+                    if(Math.abs(wx) === 12 && Math.abs(wz) === 12) h -= 5;
+
+                    const b = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), h < -1 ? sMat : gMat);
+                    b.position.set(wx, h, wz);
+                    scene.add(b);
+                    blocks.push(b);
                 }
             }
-        };
-
-        function updateUI() {
-            for(let k in inventory) {
-                const el = document.getElementById('c-'+k);
-                if(el) el.innerText = inventory[k];
-            }
+            worldChunks[id] = true;
+            if(Math.random() > 0.85) spawnAnimal(sX+8, 6, sZ+8);
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
-            if(!isGameStarted) return;
+        function spawnAnimal(x, y, z) {
+            const mob = new THREE.Group();
+            const mat = new THREE.MeshLambertMaterial({color: 0x5d4037});
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 1.1), mat);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
+            head.position.set(0, 0.4, 0.6);
+            mob.add(body, head);
+            mob.position.set(x, y, z);
+            scene.add(mob);
+            mobs.push(mob);
+        }
+
+        function spawnGhost() {
+            ghost = new THREE.Group();
+            const gBody = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.3), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            const gHead = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            gHead.position.y = 0.9;
+            ghost.add(gBody, gHead);
+            ghost.position.set(camera.position.x + 15, 2, camera.position.z - 15);
+            scene.add(ghost);
+        }
+
+        function triggerHorror() {
+            isHorror = true;
+            document.getElementById('blood-overlay').style.display = 'block';
+            scene.fog.color.set(0x220000);
+            scene.background.set(0x0a0000);
+            mobs.forEach(m => m.children.forEach(c => c.material.color.set(0xffffff)));
+        }
+
+        function loop() {
+            requestAnimationFrame(loop);
+            if(!isLive) return;
             timer++;
-            // Entity Spawn (20. saniye)
-            if(timer === 1200 && !entity) {
-                entity = new THREE.Group();
-                const b = new THREE.Mesh(new THREE.BoxGeometry(0.6,1.2,0.3), new THREE.MeshBasicMaterial({color:0xffffff}));
-                const h = new THREE.Mesh(new THREE.BoxGeometry(0.4,0.4,0.4), new THREE.MeshBasicMaterial({color:0xffffff}));
-                h.position.y = 0.8; entity.add(b, h);
-                entity.position.set(camera.position.x+12, 0.6, camera.position.z-12);
-                scene.add(entity);
+
+            // 20. SANİYE GHOST (1200 frame / 60fps = 20sn)
+            if(timer === 1200 && !ghost) spawnGhost();
+
+            // YERÇEKİMİ
+            vY -= gravity;
+            camera.position.y += vY;
+            const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
+            const hit = ray.intersectObjects(blocks);
+            if(hit.length > 0 && hit[0].distance < 1.75) {
+                camera.position.y = hit[0].point.y + 1.75;
+                vY = 0;
+                if(keys['Space']) vY = jump;
             }
-            if(entity) {
-                entity.lookAt(camera.position.x, 0.6, camera.position.z);
-                if(camera.position.distanceTo(entity.position) < 6) {
-                    document.getElementById('flash').style.opacity = '1';
-                    setTimeout(() => document.getElementById('flash').style.opacity = '0', 100);
-                    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.4,0.1), new THREE.MeshLambertMaterial({color:0x8b4513}));
-                    sign.position.set(entity.position.x, 0.5, entity.position.z);
-                    scene.add(sign); inventory.tabela++; updateUI();
-                    scene.remove(entity); entity = null;
+
+            // CHUNKS
+            const cCX = Math.floor(camera.position.x / chunkSize);
+            const cCZ = Math.floor(camera.position.z / chunkSize);
+            for(let i=-dDist; i<=dDist; i++) {
+                for(let j=-dDist; j<=dDist; j++) createChunk(cCX+i, cCZ+j);
+            }
+
+            // GHOST
+            if(ghost) {
+                ghost.lookAt(camera.position.x, 2, camera.position.z);
+                if(camera.position.distanceTo(ghost.position) < 5 && !isHorror) triggerHorror();
+            }
+
+            // Ü TUŞU - BLOK KOYMA
+            if(keys['KeyU'] || keys['BracketRight']) {
+                const bRay = new THREE.Raycaster();
+                bRay.setFromCamera(new THREE.Vector2(0,0), camera);
+                const bHit = bRay.intersectObjects(blocks);
+                if(bHit.length > 0 && bHit[0].distance < 4.5) {
+                    const p = bHit[0].object.position.clone().add(bHit[0].face.normal);
+                    const nb = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({color: 0x8b4513}));
+                    nb.position.copy(p);
+                    scene.add(nb); blocks.push(nb);
+                    keys['KeyU'] = false; 
                 }
             }
-            const s = 0.12;
-            if(keys['KeyW']) camera.translateZ(-s);
-            if(keys['KeyS']) camera.translateZ(s);
-            if(keys['KeyA']) camera.translateX(-s);
-            if(keys['KeyD']) camera.translateX(s);
-            camera.position.y = 1.8; // Beton Yerçekimi
+
+            const speed = isHorror ? 0.07 : 0.15;
+            if(keys['KeyW']) camera.translateZ(-speed);
+            if(keys['KeyS']) camera.translateZ(speed);
+            if(keys['KeyA']) camera.translateX(-speed);
+            if(keys['KeyD']) camera.translateX(speed);
+
             renderer.render(scene, camera);
         }
+
         window.onkeyup = (e) => keys[e.code] = false;
         document.addEventListener('mousemove', (e) => {
             if(document.pointerLockElement) {
-                camera.rotation.y -= e.movementX * 0.002;
-                camera.rotation.x -= e.movementY * 0.002;
-                camera.rotation.x = Math.max(-1.4, Math.min(1.4, camera.rotation.x));
+                camera.rotation.y -= e.movementX * 0.0022;
+                camera.rotation.x -= e.movementY * 0.0022;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
             }
         });
     </script>
