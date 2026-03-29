@@ -2,40 +2,35 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Farmant Voxel - Alpha 0.02.6 SURVIVAL</title>
+    <title>Farmant Voxel - Alpha 0.02 FINAL PHYSICS</title>
     <style>
         body { margin: 0; overflow: hidden; background: #87ceeb; font-family: 'Segoe UI', sans-serif; user-select: none; }
         canvas { display: block; }
-        
-        #hud { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; z-index: 10; }
-        .bar { display: flex; gap: 2px; font-size: 20px; text-shadow: 2px 2px #000; }
-        #health-bar { color: #ff2e2e; }
-        #hunger-bar { color: #ff9f43; } /* İşte o eksik olan açlık barı! */
-        
-        #hotbar { display: flex; gap: 4px; background: rgba(0,0,0,0.85); padding: 8px; border: 2px solid #444; border-radius: 5px; }
-        .slot { width: 42px; height: 46px; border: 1px solid #555; background: rgba(255,255,255,0.05); color: #fff; font-size: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .slot.sel { border: 2px solid #fff; box-shadow: 0 0 10px #fff; }
-
-        #blood { position: fixed; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(150,0,0,0.8) 100%); display: none; pointer-events: none; z-index: 1000; }
-        #menu { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-        .btn { background: #bc13fe; color: white; border: none; padding: 15px 50px; font-size: 24px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        #hud { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; z-index: 100; }
+        .bar { display: flex; gap: 2px; font-size: 20px; text-shadow: 2px 2px #000; line-height: 1; }
+        #hotbar { display: flex; gap: 4px; background: rgba(0,0,0,0.8); padding: 8px; border: 2px solid #444; border-radius: 4px; margin-top: 5px; }
+        .slot { width: 42px; height: 46px; border: 1px solid #555; background: rgba(255,255,255,0.1); color: white; font-size: 9px; display: flex; align-items: center; justify-content: center; }
+        #menu { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
+        .btn { background: #bc13fe; color: white; border: none; padding: 15px 50px; font-size: 24px; cursor: pointer; border-radius: 4px; font-weight: bold; box-shadow: 0 0 20px #bc13fe; }
     </style>
 </head>
 <body>
-    <div id="blood"></div>
     <div id="menu">
-        <h1 style="color:#bc13fe; font-size: 60px; margin:0;">FARMANT</h1>
-        <p style="color:#555; margin-bottom:30px;">Alpha 0.02.6 - AÇLIK EKLENDİ</p>
-        <button class="btn" onclick="start()">BAŞLAT</button>
-        <p style="color:#444; margin-top:20px; font-size:12px;">ESC: GOOGLE | SOL TIK: VUR/YE | 20sn GHOST</p>
+        <h1 style="color:#bc13fe; font-size: 60px; margin: 0;">FARMANT</h1>
+        <p style="color:#555; margin-bottom: 25px;">Alpha 0.02 - GERÇEK HİTBOX GELDİ</p>
+        <button class="btn" onclick="start()">OYUNA GİR</button>
+        <p style="color:#444; margin-top:15px;">ESC: Google Kaçışı | Sol Tık: Hayvan Avla/Et Ye</p>
     </div>
 
     <div id="hud">
-        <div id="health-bar" class="bar">❤❤❤❤❤❤❤❤❤❤</div>
-        <div id="hunger-bar" class="bar">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
+        <div id="hp" class="bar" style="color: #ff2e2e;">❤❤❤❤❤❤❤❤❤❤</div>
+        <div id="hunger" class="bar" style="color: #ff9f43;">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
         <div id="hotbar">
-            <div class="slot sel">Çimen</div><div class="slot">Toprak</div><div class="slot">Taş</div><div class="slot">Maden</div><div id="et-slot" class="slot">Et: 0</div>
-            <div class="slot">..</div><div class="slot">..</div><div class="slot">..</div><div class="slot">..</div><div class="slot">..</div>
+            <div class="slot" style="border-color:white">KAZMA</div>
+            <div id="et-slot" class="slot">ET: 0</div>
+            <div class="slot">TOPRAK</div>
+            <div class="slot">TAŞ</div>
+            <div class="slot">MADEN</div>
         </div>
     </div>
 
@@ -43,129 +38,194 @@
         import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
         let scene, camera, renderer, ghost, timer = 0, isLive = false;
-        let health = 10, hunger = 10, etCount = 0;
-        let vVel = 0; const grav = 0.008, jump = 0.16, chunkSize = 12;
+        let hp = 10, food = 10, etCount = 0, vVel = 0;
+        const grav = 0.009, jump = 0.18, chunkSize = 10;
         const blocks = [], mobs = [], keys = {}, world = {};
+        
+        // Karakter boyutu (AABB)
+        const playerSize = { w: 0.6, h: 1.8, d: 0.6 };
 
         const mats = {
             grass: new THREE.MeshLambertMaterial({color: 0x2ecc71}),
             dirt: new THREE.MeshLambertMaterial({color: 0x8b4513}),
             stone: new THREE.MeshLambertMaterial({color: 0x7f8c8d}),
-            ore: new THREE.MeshLambertMaterial({color: 0x34495e}),
-            water: new THREE.MeshLambertMaterial({color: 0x3498db, transparent: true, opacity: 0.7})
+            ore: new THREE.MeshLambertMaterial({color: 0x34495e})
         };
 
-        window.start = () => { 
-            document.getElementById('menu').style.display='none'; 
-            document.body.requestPointerLock(); 
-            isLive = true; init(); 
+        window.start = () => {
+            document.getElementById('menu').style.display = 'none';
+            document.body.requestPointerLock();
+            isLive = true;
+            init();
         };
 
         function init() {
-            scene = new THREE.Scene(); scene.background = new THREE.Color(0x87ceeb);
-            scene.fog = new THREE.Fog(0x87ceeb, 5, 40);
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+            scene.fog = new THREE.Fog(0x87ceeb, 2, 35);
+
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 35, 0);
+            camera.position.set(0, 15, 0);
+
             renderer = new THREE.WebGLRenderer({ antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-            scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
+
+            scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.8));
             loop();
         }
 
-        function buildChunk(cx, cz) {
-            const id = `${cx},${cz}`; if(world[id]) return;
+        function createChunk(cx, cz) {
+            const id = `${cx},${cz}`;
+            if(world[id]) return;
             for(let x=0; x<chunkSize; x++) {
                 for(let z=0; z<chunkSize; z++) {
-                    const wx = cx*chunkSize+x, wz = cz*chunkSize+z;
-                    let h = Math.floor(Math.sin(wx*0.12)*Math.cos(wz*0.12)*8);
+                    const wx = cx*chunkSize + x;
+                    const wz = cz*chunkSize + z;
+                    let h = Math.floor(Math.sin(wx*0.15)*Math.cos(wz*0.15)*7);
+                    
                     for(let y = h; y > h-5; y--) {
                         let m = mats.stone;
-                        if(y === h) m = h < -4 ? mats.water : mats.grass;
+                        if(y === h) m = mats.grass;
                         else if(y > h-2) m = mats.dirt;
+                        if(y < h-2 && Math.random() < 0.1) m = mats.ore;
+
                         const b = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), m);
-                        b.position.set(wx, y, wz); scene.add(b); blocks.push(b);
+                        b.position.set(wx, y, wz);
+                        // Hitbox için verileri ekle
+                        b.userData.isBlock = true;
+                        scene.add(b);
+                        blocks.push(b);
                     }
                 }
             }
             world[id] = true;
-            if(Math.random() > 0.85) spawnAnimal(cx*chunkSize+6, 15, cz*chunkSize+6);
+            if(Math.random() > 0.8) spawnMob(cx*chunkSize+5, 12, cz*chunkSize+5);
         }
 
-        function spawnAnimal(x, y, z) {
-            const g = new THREE.Group();
-            const b = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 1.2), new THREE.MeshLambertMaterial({color: 0x5d4037}));
-            const h = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshLambertMaterial({color: 0x5d4037}));
-            h.position.set(0, 0.5, 0.6); g.add(b, h); g.position.set(x, y, z);
-            scene.add(g); mobs.push(g);
+        function spawnMob(x, y, z) {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), new THREE.MeshLambertMaterial({color: 0x5d4037}));
+            m.position.set(x, y, z);
+            m.userData.isMob = true;
+            scene.add(m);
+            mobs.push(m);
         }
 
-        function checkHit(pos) {
-            const pBox = new THREE.Box3().setFromCenterAndSize(pos, new THREE.Vector3(0.7, 1.8, 0.7));
-            for(let b of blocks) if(new THREE.Box3().setFromObject(b).intersectsBox(pBox)) return true;
-            for(let m of mobs) if(new THREE.Box3().setFromObject(m).intersectsBox(pBox)) return true;
+        // --- GERÇEK SERT HİTBOX KONTROLÜ ---
+        function checkCollision(newPos) {
+            const pBox = new THREE.Box3().setFromCenterAndSize(
+                new THREE.Vector3(newPos.x, newPos.y - 0.4, newPos.z), 
+                new THREE.Vector3(playerSize.w, playerSize.h, playerSize.d)
+            );
+            
+            // Sadece yakındaki blokları kontrol et (Performans için)
+            for(let i=0; i<blocks.length; i++) {
+                const b = blocks[i];
+                if(Math.abs(b.position.x - newPos.x) < 2 && Math.abs(b.position.z - newPos.z) < 2) {
+                    const bBox = new THREE.Box3().setFromObject(b);
+                    if(pBox.intersectsBox(bBox)) return true;
+                }
+            }
+            for(let i=0; i<mobs.length; i++) {
+                const mBox = new THREE.Box3().setFromObject(mobs[i]);
+                if(pBox.intersectsBox(mBox)) return true;
+            }
             return false;
         }
 
-        function updateHUD() {
-            document.getElementById('health-bar').innerText = "❤".repeat(Math.max(0, health));
-            document.getElementById('hunger-bar').innerText = "🍖".repeat(Math.max(0, hunger));
-            document.getElementById('et-slot').innerText = "Et: " + etCount;
-        }
-
         function loop() {
-            requestAnimationFrame(loop); if(!isLive) return; timer++;
+            requestAnimationFrame(loop);
+            if(!isLive) return;
+            timer++;
 
-            // Açlık Mekaniği: Her 15 saniyede bir acık (900 frame)
-            if(timer % 900 === 0 && hunger > 0) { hunger--; updateHUD(); }
-            if(hunger <= 0 && timer % 120 === 0) { health--; updateHUD(); if(health <= 0) location.reload(); }
+            // Açlık & Can
+            if(timer % 1200 === 0 && food > 0) { food--; updateHUD(); }
+            if(food <= 0 && timer % 300 === 0) { hp--; updateHUD(); if(hp<=0) location.reload(); }
 
+            // Ghost
             if(timer === 1200 && !ghost) {
-                ghost = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.8, 0.2), new THREE.MeshBasicMaterial({color:0xffffff}));
-                ghost.position.set(camera.position.x+10, 10, camera.position.z-10); scene.add(ghost);
+                ghost = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.2), new THREE.MeshBasicMaterial({color: 0xffffff}));
+                ghost.position.set(camera.position.x+7, 5, camera.position.z-7);
+                scene.add(ghost);
             }
 
+            // --- FİZİK MOTORU ---
             vVel -= grav;
-            let nY = camera.position.clone(); nY.y += vVel;
-            if(!checkHit(nY)) camera.position.y += vVel;
-            else { vVel = 0; if(keys['Space']) { vVel = jump; if(timer%10===0) hunger -= 0.1; } }
+            let targetY = camera.position.clone();
+            targetY.y += vVel;
 
-            const s = 0.16; let m = new THREE.Vector3();
-            if(keys['KeyW']) m.z -= s; if(keys['KeyS']) m.z += s;
-            if(keys['KeyA']) m.x -= s; if(keys['KeyD']) m.x += s;
-            m.applyQuaternion(camera.quaternion); m.y = 0;
-            if(!checkHit(camera.position.clone().add(m))) camera.position.add(m);
+            if(!checkCollision(targetY)) {
+                camera.position.y += vVel;
+            } else {
+                if(vVel < 0) { // Yere çarptıysa
+                    vVel = 0;
+                    if(keys['Space']) vVel = jump;
+                } else { // Kafayı tavana çarptıysa
+                    vVel = -0.01;
+                }
+            }
 
-            const ccx = Math.floor(camera.position.x/chunkSize), ccz = Math.floor(camera.position.z/chunkSize);
-            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) buildChunk(ccx+i, ccz+j);
+            // --- HAREKET MOTORU ---
+            const speed = 0.14;
+            let moveDir = new THREE.Vector3();
+            if(keys['KeyW']) moveDir.z -= 1;
+            if(keys['KeyS']) moveDir.z += 1;
+            if(keys['KeyA']) moveDir.x -= 1;
+            if(keys['KeyD']) moveDir.x += 1;
+            
+            moveDir.applyQuaternion(camera.quaternion);
+            moveDir.y = 0;
+            moveDir.normalize().multiplyScalar(speed);
 
-            mobs.forEach((a, index) => { 
-                a.position.x += Math.sin(timer*0.01 + index)*0.02; 
-                a.lookAt(camera.position.x, a.position.y, camera.position.z); 
-            });
+            // Adım adım kontrol (Duvarlara yapışmamak için)
+            let nextX = camera.position.clone(); nextX.x += moveDir.x;
+            if(!checkCollision(nextX)) camera.position.x += moveDir.x;
+
+            let nextZ = camera.position.clone(); nextZ.z += moveDir.z;
+            if(!checkCollision(nextZ)) camera.position.z += moveDir.z;
+
+            // Chunk sistemi
+            const cx = Math.floor(camera.position.x/chunkSize);
+            const cz = Math.floor(camera.position.z/chunkSize);
+            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) createChunk(cx+i, cz+j);
+
+            mobs.forEach(m => { m.position.x += Math.sin(timer*0.03)*0.01; });
+            if(ghost) ghost.lookAt(camera.position);
 
             renderer.render(scene, camera);
         }
 
-        // Sol Tık: Vur / Yemek Ye
-        window.onmousedown = (e) => {
-            if(!isLive) return;
+        function updateHUD() {
+            document.getElementById('hp').innerText = "❤".repeat(hp);
+            document.getElementById('hunger').innerText = "🍖".repeat(food);
+            document.getElementById('et-slot').innerText = "ET: " + etCount;
+        }
+
+        window.onmousedown = () => {
             const ray = new THREE.Raycaster();
             ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            const inter = ray.intersectObjects(mobs, true);
-            if(inter.length > 0 && inter[0].distance < 3) {
-                const mob = inter[0].object.parent;
-                scene.remove(mob);
-                mobs.splice(mobs.indexOf(mob), 1);
+            const hits = ray.intersectObjects(mobs);
+            if(hits.length > 0 && hits[0].distance < 4) {
+                scene.remove(hits[0].object);
+                mobs.splice(mobs.indexOf(hits[0].object), 1);
                 etCount++; updateHUD();
-            } else if(etCount > 0 && hunger < 10) { // Et ye
-                etCount--; hunger = Math.min(10, hunger + 2); updateHUD();
+            } else if(etCount > 0 && food < 10) {
+                etCount--; food = Math.min(10, food + 2); updateHUD();
             }
         };
 
-        window.onkeydown = (e) => { if(e.key === "Escape") window.location.href = "https://google.com"; keys[e.code] = true; };
+        window.onkeydown = (e) => { 
+            if(e.key === "Escape") window.location.href = "https://google.com";
+            keys[e.code] = true; 
+        };
         window.onkeyup = (e) => keys[e.code] = false;
-        document.addEventListener('mousemove', (e) => { if(document.pointerLockElement) { camera.rotation.y -= e.movementX*0.002; camera.rotation.x -= e.movementY*0.002; camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x)); }});
+        document.addEventListener('mousemove', (e) => {
+            if(document.pointerLockElement) {
+                camera.rotation.y -= e.movementX * 0.0025;
+                camera.rotation.x -= e.movementY * 0.0025;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+            }
+        });
     </script>
 </body>
 </html>
