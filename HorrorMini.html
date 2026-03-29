@@ -2,112 +2,220 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>index.html | Farmant Studios</title>
+    <title>Farmant Voxel - Alpha 0.04 ULTIMATE</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; overflow: hidden; background: #87ceeb; font-family: 'Courier New', monospace; user-select: none; }
         canvas { display: block; }
         
-        /* GİRİŞ METİNLERİ */
-        #welcome-header {
-            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 1000; pointer-events: none;
-        }
-        .big-welcome { color: white; font-size: 45px; font-weight: bold; margin: 0; text-shadow: 0 0 15px #bc13fe; }
-        .small-yellow { color: yellow; font-size: 22px; margin: 5px 0; font-style: italic; font-weight: bold; }
-        .trust-text { color: #000; font-size: 18px; font-weight: bold; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 50px; display: inline-block; margin-top: 10px; }
+        /* --- SÜRÜMLER PANELİ --- */
+        #v-btn { position: fixed; top: 15px; right: 15px; background: white; padding: 10px 15px; border: none; cursor: pointer; z-index: 1000; font-weight: bold; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        #v-panel { position: fixed; top: 65px; right: 15px; width: 220px; background: white; color: black; padding: 15px; display: none; flex-direction: column; gap: 10px; z-index: 1001; border-radius: 8px; }
+        .v-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .v-go { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; background: #2ecc71; }
 
-        /* SÜRÜMLER PANELİ */
-        #version-menu {
-            position: absolute; top: 20px; right: 20px; z-index: 1001; text-align: right;
-        }
-        #version-btn {
-            background: #bc13fe; color: white; border: 2px solid white; padding: 12px 24px;
-            cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 0 15px #bc13fe;
-        }
-        #version-list {
-            display: none; background: rgba(15, 15, 15, 0.98); border: 2px solid #bc13fe;
-            margin-top: 10px; padding: 15px; border-radius: 10px; width: 220px;
-        }
-        .version-item { display: flex; justify-content: space-between; align-items: center; color: #0f0; padding: 10px; border-bottom: 1px solid #333; }
-        .download-btn { background: #28a745; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; text-decoration: none; font-size: 11px; }
+        /* --- SURVIVAL HUD --- */
+        #hud { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; z-index: 10; }
+        .bar { display: flex; gap: 2px; font-size: 24px; text-shadow: 2px 2px #000; }
+        #hotbar { display: flex; gap: 5px; background: rgba(0,0,0,0.6); padding: 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; }
+        .slot { width: 45px; height: 50px; border: 1px solid #555; background: rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; position: relative; color: #fff; }
+        .slot.selected { border: 2px solid #0f0; background: rgba(0,255,0,0.1); }
+        .count { position: absolute; bottom: 2px; right: 3px; color: #ff0; font-weight: bold; }
 
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
+        #flash { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 10000; transition: opacity 0.1s; }
+        #start-menu { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 20000; }
     </style>
 </head>
 <body>
 
-    <div id="welcome-header">
-        <h1 class="big-welcome">HOŞGELDİNİZ</h1>
-        <p class="small-yellow">SEFALAR GETİRDİNİZ</p>
-        <div class="trust-text">DAHA İYİ DAHA ŞIK FAN YAPIMI :) DAHA KORKU DEĞİL :(</div>
+    <div id="flash"></div>
+    <div id="start-menu">
+        <h1 style="color:#bc13fe; font-size: 60px; text-shadow: 0 0 30px #bc13fe; margin:0;">FARMANT</h1>
+        <p style="color:#666; margin-bottom:30px;">Alpha 0.04 - Ataların Atası</p>
+        <button onclick="start()" style="background:#bc13fe; color:white; border:none; padding:20px 60px; font-size:24px; cursor:pointer; border-radius:50px; box-shadow: 0 0 20px #bc13fe;">OYUNA GİR</button>
+        <p style="color:#444; margin-top:20px;">Kır: Sol Tık | Blok Koy: Ü Tuşu</p>
     </div>
 
-    <div id="version-menu">
-        <button id="version-btn" onclick="toggleVersions()">📂 SÜRÜMLER</button>
-        <div id="version-list">
-            <div class="version-item"><span>ALPHA 0.01</span><a href="#" class="download-btn" onclick="alert('Alpha 0.01 indiriliyor...')">İNDİR</a></div>
-            <div class="version-item"><span>ALPHA 0.02</span><a href="#" class="download-btn" onclick="alert('Alpha 0.02 indiriliyor...')">İNDİR</a></div>
+    <button id="v-btn" onclick="toggleV()">SÜRÜMLER ⚙️</button>
+    <div id="v-panel">
+        <div class="v-row"><span>Alpha 0.02</span><button class="v-go" style="background:#888;">AKTİF</button></div>
+        <div class="v-row"><span>Alpha 0.01</span><button class="v-go" onclick="location.reload()">GEÇ</button></div>
+    </div>
+
+    <div id="hud">
+        <div class="bar" style="color:red;">❤❤❤❤❤❤❤❤❤❤</div>
+        <div class="bar" style="color:#8b4513;">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
+        <div id="hotbar">
+            <div class="slot selected">Toprak<div class="count" id="c-toprak">10</div></div>
+            <div class="slot">Odun<div class="count" id="c-odun">0</div></div>
+            <div class="slot">Maden<div class="count" id="c-maden">0</div></div>
+            <div class="slot">Et<div class="count" id="c-et">0</div></div>
+            <div class="slot">Tabela<div class="count" id="c-tabela">0</div></div>
+            <div class="slot">Tahta<div class="count" id="c-tahta">0</div></div>
+            <div class="slot">..</div><div class="slot">..</div><div class="slot">..</div><div class="slot">..</div>
         </div>
     </div>
 
-    <div id="crosshair"></div>
-
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-        import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
 
-        window.toggleVersions = function() {
-            const vList = document.getElementById('version-list');
-            vList.style.display = (vList.style.display === 'block') ? 'none' : 'block';
+        let scene, camera, renderer, entity, timer = 0, isGameStarted = false;
+        const blocks = [], animals = [], keys = {};
+        const inventory = { toprak:10, odun:0, maden:0, et:0, tabela:0, tahta:0 };
+
+        window.toggleV = () => {
+            const p = document.getElementById('v-panel');
+            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+        };
+
+        window.start = () => {
+            document.getElementById('start-menu').style.display = 'none';
+            document.body.requestPointerLock();
+            isGameStarted = true;
+            init();
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+            scene.fog = new THREE.FogExp2(0x87ceeb, 0.04);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.8, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(10, 20, 10);
+            scene.add(sun, new THREE.AmbientLight(0xffffff, 0.5));
+
+            generateWorld();
+            spawnAnimals();
+            animate();
         }
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020202);
-        scene.fog = new THREE.FogExp2(0x020202, 0.15);
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        const controls = new PointerLockControls(camera, document.body);
-        document.body.addEventListener('click', (e) => { if(e.target.id !== 'version-btn' && !e.target.classList.contains('download-btn')) controls.lock(); });
+        function generateWorld() {
+            const grassMat = new THREE.MeshLambertMaterial({color: 0x2ecc71});
+            const woodMat = new THREE.MeshLambertMaterial({color: 0x5d4037});
+            const leafMat = new THREE.MeshLambertMaterial({color: 0x1b5e20});
 
-        const floor = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), 2500);
-        let i = 0;
-        const dummy = new THREE.Object3D();
-        for(let x=-25; x<25; x++) { for(let z=-25; z<25; z++) { dummy.position.set(x, -1, z); dummy.updateMatrix(); floor.setMatrixAt(i++, dummy.matrix); } }
-        scene.add(floor);
+            for(let x=-25; x<25; x++) {
+                for(let z=-25; z<25; z++) {
+                    let h = Math.floor(Math.sin(x*0.15)*Math.cos(z*0.15)*4);
+                    if(Math.abs(x)<6 && Math.abs(z)<6) h=0; // Başlangıç düzlüğü
 
-        const player = new THREE.Group();
-        player.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 1, 0.4), new THREE.MeshBasicMaterial({color: 0x000000})));
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), new THREE.MeshBasicMaterial({color: 0xbc13fe}));
-        const lArm = arm.clone(); lArm.position.set(-0.45, 0.1, 0);
-        const rArm = arm.clone(); rArm.position.set(0.45, 0.1, 0);
-        player.add(lArm, rArm, new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({color: 0x000000})));
-        scene.add(player);
-        camera.position.set(0, 1.8, 4.5);
-        player.add(camera);
-        player.add(new THREE.PointLight(0xbc13fe, 3, 15));
-        scene.add(new THREE.AmbientLight(0x222222));
+                    addBlock(x, h - 0.5, z, grassMat, 'toprak');
 
-        const keys = {};
-        window.addEventListener('keydown', (e) => keys[e.code] = true);
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
+                    // Ağaçlar
+                    if(h >= 0 && Math.random() < 0.02 && Math.abs(x) > 6) {
+                        for(let i=0; i<3; i++) addBlock(x, h+i+0.5, z, woodMat, 'odun');
+                        const leaves = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), leafMat);
+                        leaves.position.set(x, h+3.5, z); scene.add(leaves);
+                    }
+                }
+            }
+            // Deniz
+            const sea = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({color: 0x0066ff, transparent:true, opacity:0.6}));
+            sea.rotation.x = -Math.PI/2; sea.position.y = -1.2; scene.add(sea);
+        }
 
-        const clock = new THREE.Clock();
+        function addBlock(x, y, z, mat, type) {
+            const b = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mat);
+            b.position.set(x, y, z);
+            b.userData = { type };
+            scene.add(b);
+            blocks.push(b);
+        }
+
+        function spawnAnimals() {
+            for(let i=0; i<5; i++) {
+                const a = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.7,0.8), new THREE.MeshLambertMaterial({color: 0xffffff}));
+                a.position.set(Math.random()*15-7, 0.4, Math.random()*15-7);
+                a.userData = { type: 'animal' };
+                scene.add(a); animals.push(a);
+            }
+        }
+
+        // KIRMA (Sol Tık)
+        window.onmousedown = (e) => {
+            if(!isGameStarted || !document.pointerLockElement) return;
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            const inter = ray.intersectObjects([...blocks, ...animals]);
+            if(inter.length > 0 && inter[0].distance < 5) {
+                const o = inter[0].object;
+                if(o.userData.type === 'animal') { inventory.et++; scene.remove(o); }
+                else { inventory[o.userData.type]++; scene.remove(o); blocks.splice(blocks.indexOf(o), 1); }
+                updateUI();
+            }
+        };
+
+        // KOYMA (Ü Tuşu)
+        window.onkeydown = (e) => {
+            keys[e.code] = true;
+            if(e.key === 'ü' || e.key === 'Ü') {
+                if(inventory.toprak > 0) {
+                    const ray = new THREE.Raycaster();
+                    ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                    const inter = ray.intersectObjects(blocks);
+                    if(inter.length > 0 && inter[0].distance < 5) {
+                        const pos = inter[0].object.position.clone();
+                        pos.add(inter[0].face.normal);
+                        addBlock(pos.x, pos.y, pos.z, new THREE.MeshLambertMaterial({color: 0x8b4513}), 'toprak');
+                        inventory.toprak--; updateUI();
+                    }
+                }
+            }
+        };
+
+        function updateUI() {
+            for(let k in inventory) {
+                const el = document.getElementById('c-'+k);
+                if(el) el.innerText = inventory[k];
+            }
+        }
+
         function animate() {
             requestAnimationFrame(animate);
-            if(controls.isLocked) {
-                const step = 8 * clock.getDelta();
-                if(keys['KeyW']) controls.moveForward(step);
-                if(keys['KeyS']) controls.moveForward(-step);
-                if(keys['KeyA']) controls.moveRight(-step);
-                if(keys['KeyD']) controls.moveRight(step);
-                player.position.copy(controls.getObject().position);
-                player.position.y -= 1.6;
-                player.rotation.y = controls.getObject().rotation.y;
+            if(!isGameStarted) return;
+            timer++;
+            // Entity Spawn (20. saniye)
+            if(timer === 1200 && !entity) {
+                entity = new THREE.Group();
+                const b = new THREE.Mesh(new THREE.BoxGeometry(0.6,1.2,0.3), new THREE.MeshBasicMaterial({color:0xffffff}));
+                const h = new THREE.Mesh(new THREE.BoxGeometry(0.4,0.4,0.4), new THREE.MeshBasicMaterial({color:0xffffff}));
+                h.position.y = 0.8; entity.add(b, h);
+                entity.position.set(camera.position.x+12, 0.6, camera.position.z-12);
+                scene.add(entity);
             }
+            if(entity) {
+                entity.lookAt(camera.position.x, 0.6, camera.position.z);
+                if(camera.position.distanceTo(entity.position) < 6) {
+                    document.getElementById('flash').style.opacity = '1';
+                    setTimeout(() => document.getElementById('flash').style.opacity = '0', 100);
+                    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.4,0.1), new THREE.MeshLambertMaterial({color:0x8b4513}));
+                    sign.position.set(entity.position.x, 0.5, entity.position.z);
+                    scene.add(sign); inventory.tabela++; updateUI();
+                    scene.remove(entity); entity = null;
+                }
+            }
+            const s = 0.12;
+            if(keys['KeyW']) camera.translateZ(-s);
+            if(keys['KeyS']) camera.translateZ(s);
+            if(keys['KeyA']) camera.translateX(-s);
+            if(keys['KeyD']) camera.translateX(s);
+            camera.position.y = 1.8; // Beton Yerçekimi
             renderer.render(scene, camera);
         }
-        animate();
+        window.onkeyup = (e) => keys[e.code] = false;
+        document.addEventListener('mousemove', (e) => {
+            if(document.pointerLockElement) {
+                camera.rotation.y -= e.movementX * 0.002;
+                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-1.4, Math.min(1.4, camera.rotation.x));
+            }
+        });
     </script>
 </body>
 </html>
