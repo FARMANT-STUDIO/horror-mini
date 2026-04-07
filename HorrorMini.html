@@ -2,171 +2,161 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Farmant Voxel - ALPHA 0.02.8 HARD HITBOX</title>
+    <title>KNKCIM Horror - Baş Geliştirici Paneli</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #87ceeb; font-family: sans-serif; user-select: none; }
-        canvas { display: block; }
-        #hud { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; }
-        .bar { display: flex; gap: 2px; font-size: 22px; text-shadow: 2px 2px #000; }
-        #hotbar { display: flex; gap: 4px; background: rgba(0,0,0,0.8); padding: 8px; border: 2px solid #444; border-radius: 4px; }
-        .slot { width: 40px; height: 44px; border: 1px solid #555; background: rgba(255,255,255,0.1); color: white; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-        #menu { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        .btn { background: #bc13fe; color: white; border: none; padding: 15px 50px; font-size: 24px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
+        #debug-ui {
+            position: absolute; top: 10px; left: 10px;
+            color: #00FF00; font-family: monospace; font-size: 14px;
+            background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 5px;
+            pointer-events: none; /* Tıklamayı engelle */
+        }
+        #loading-screen {
+            position: absolute; width: 100%; height: 100%;
+            background: black; color: white; display: flex;
+            justify-content: center; align-items: center; z-index: 100;
+        }
     </style>
 </head>
 <body>
-    <div id="menu">
-        <h1 style="color:#bc13fe; font-size: 60px;">FARMANT</h1>
-        <button class="btn" onclick="start()">BAŞLAT (GERÇEK FİZİK)</button>
-    </div>
 
-    <div id="hud">
-        <div id="hp" class="bar" style="color: #ff2e2e;">❤❤❤❤❤❤❤❤❤❤</div>
-        <div id="hunger" class="bar" style="color: #ff9f43;">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
-        <div id="hotbar">
-            <div class="slot" style="border-color:white">KAZMA</div>
-            <div class="slot">TOPRAK</div>
-            <div id="et-slot" class="slot">ET: 0</div>
-            <div class="slot">TAŞ</div>
-            <div class="slot">..</div>
-        </div>
-    </div>
+<div id="loading-screen"> HORROR YÜKLENİYOR... CHUNKLAR HAZIRLANIYOR...</div>
+<div id="debug-ui">
+    <div id="fps">FPS: 0</div>
+    <div id="xyz">XYZ: 0 / 0 / 0</div>
+</div>
 
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-
-        let scene, camera, renderer, timer = 0, isLive = false;
-        let hp = 10, hunger = 10, vVel = 0;
-        const grav = 0.009, jump = 0.18, chunkSize = 10;
-        const blocks = [], keys = {}, world = {};
-
-        window.start = () => {
-            document.getElementById('menu').style.display = 'none';
-            document.body.requestPointerLock();
-            isLive = true;
-            init();
-        };
-
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb);
-            scene.fog = new THREE.Fog(0x87ceeb, 2, 40);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 10, 0);
-
-            renderer = new THREE.WebGLRenderer({ antialias: false });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-
-            scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2));
-            loop();
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
         }
+    }
+</script>
 
-        function createChunk(cx, cz) {
-            const id = `${cx},${cz}`;
-            if(world[id]) return;
-            for(let x=0; x<chunkSize; x++) {
-                for(let z=0; z<chunkSize; z++) {
-                    const wx = cx*chunkSize + x;
-                    const wz = cz*chunkSize + z;
-                    let h = Math.floor(Math.sin(wx*0.1)*Math.cos(wz*0.1)*6);
-                    
-                    // Katmanlı dünya (Çimen, Toprak, Taş)
-                    for(let y = h; y > h-3; y--) {
-                        let color = 0x2ecc71; // Yeşil (Çimen)
-                        if(y < h) color = 0x8b4513; // Kahve (Toprak)
-                        if(y < h-1) color = 0x7f8c8d; // Gri (Taş)
+<script type="module">
+    import * as THREE from 'three';
 
-                        const b = new THREE.Mesh(
-                            new THREE.BoxGeometry(1,1,1), 
-                            new THREE.MeshLambertMaterial({color: color})
-                        );
-                        b.position.set(wx, y, wz);
-                        scene.add(b);
-                        blocks.push(b);
-                    }
+    // --- DEĞİŞKENLER ---
+    let scene, camera, renderer, clock;
+    let player = { height: 1.8, speed: 0.2, vY: 0, gravity: 0.01 };
+    let chunks = [];
+    const CHUNK_SIZE = 16;
+    const RENDER_DISTANCE = 3; // Kaç chunk ötesi çizilecek?
+
+    // --- BAŞLATICI ---
+    init();
+
+    function init() {
+        // 1. Sahne ve Sis (FPS Dostu Sis)
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.05); // Uzaktaki bloklar detaylı olmayacak
+
+        // 2. Kamera
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(8, 20, 8);
+
+        // 3. Renderer (Görüntüleyici)
+        renderer = new THREE.WebGLRenderer({ antialias: false }); // FPS için antialias kapalı
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        clock = new THREE.Clock();
+
+        // 4. Dünya Oluşturma (Chunk Sistemi)
+        createWorld();
+
+        // Yükleme ekranını kaldır
+        document.getElementById('loading-screen').style.display = 'none';
+
+        animate();
+    }
+
+    function createWorld() {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshPhongMaterial({ color: 0x44aa44 }); // Çim rengi
+        const stoneMat = new THREE.MeshPhongMaterial({ color: 0x888888 }); // Taş rengi
+
+        // Işıklandırma
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(10, 20, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        // CHUNK DÖNGÜSÜ (Dağlar ve Ovalar)
+        for (let x = 0; x < CHUNK_SIZE; x++) {
+            for (let z = 0; z < CHUNK_SIZE; z++) {
+                // Perlin benzeri yükselti (Sin/Cos ile)
+                let height = Math.floor(Math.sin(x * 0.2) * 3 + Math.cos(z * 0.2) * 2 + 10);
+                
+                for (let y = 0; y < height; y++) {
+                    const block = new THREE.Mesh(geometry, y > height - 2 ? material : stoneMat);
+                    block.position.set(x, y, z);
+                    scene.add(block);
+                }
+
+                // 5 BLOK YÜKSEKLİĞİNDE AĞAÇ (Rastgele)
+                if (x === 5 && z === 5) {
+                    spawnTree(x, height, z);
                 }
             }
-            world[id] = true;
+        }
+    }
+
+    function spawnTree(x, y, z) {
+        const logMat = new THREE.MeshPhongMaterial({ color: 0x5C4033 });
+        const leafMat = new THREE.MeshPhongMaterial({ color: 0x228B22 });
+        const geom = new THREE.BoxGeometry(1, 1, 1);
+
+        for (let i = 0; i < 5; i++) {
+            const log = new THREE.Mesh(geom, logMat);
+            log.position.set(x, y + i, z);
+            scene.add(log);
+        }
+        // Yaprak
+        const leaf = new THREE.Mesh(geom, leafMat);
+        leaf.position.set(x, y + 5, z);
+        leaf.scale.set(3, 2, 3);
+        scene.add(leaf);
+    }
+
+    // --- OYUN DÖNGÜSÜ ---
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Fizik: Yer Çekimi
+        player.vY -= player.gravity;
+        camera.position.y += player.vY;
+
+        // Basit Zemin Çarpışması
+        if (camera.position.y < 12) {
+            camera.position.y = 12;
+            player.vY = 0;
         }
 
-        // --- KRİTİK HİTBOX FONKSİYONU ---
-        function checkCollision(pos) {
-            const pBox = new THREE.Box3().setFromCenterAndSize(
-                new THREE.Vector3(pos.x, pos.y - 0.5, pos.z),
-                new THREE.Vector3(0.6, 1.8, 0.6)
-            );
-            
-            for(let i=0; i<blocks.length; i++) {
-                // Sadece yakındaki blokları kontrol et (Performans için)
-                if(Math.abs(blocks[i].position.x - pos.x) < 2 && Math.abs(blocks[i].position.z - pos.z) < 2) {
-                    const bBox = new THREE.Box3().setFromObject(blocks[i]);
-                    if(pBox.intersectsBox(bBox)) return true;
-                }
-            }
-            return false;
-        }
+        // Debug UI Güncelleme
+        updateDebugUI();
 
-        function loop() {
-            requestAnimationFrame(loop);
-            if(!isLive) return;
-            timer++;
+        renderer.render(scene, camera);
+    }
 
-            // Dikey Hareket (Yerçekimi & Zıplama)
-            vVel -= grav;
-            let targetY = camera.position.clone();
-            targetY.y += vVel;
+    function updateDebugUI() {
+        document.getElementById('xyz').innerText = 
+            `XYZ: ${camera.position.x.toFixed(2)} / ${camera.position.y.toFixed(2)} / ${camera.position.z.toFixed(2)}`;
+        
+        // FPS Hesaplama (Basit)
+        const fps = Math.round(1 / clock.getDelta());
+        if(fps !== Infinity) document.getElementById('fps').innerText = `FPS: ${fps}`;
+    }
 
-            if(!checkCollision(targetY)) {
-                camera.position.y += vVel;
-            } else {
-                if(vVel < 0) { // Yere bastı
-                    vVel = 0;
-                    if(keys['Space']) vVel = jump;
-                } else { vVel = -0.01; } // Kafayı tavana vurdu
-            }
+    // Pencere Boyutu Değişirse
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
-            // Yatay Hareket (W,A,S,D)
-            const speed = 0.15;
-            let move = new THREE.Vector3();
-            if(keys['KeyW']) move.z -= 1;
-            if(keys['KeyS']) move.z += 1;
-            if(keys['KeyA']) move.x -= 1;
-            if(keys['KeyD']) move.x += 1;
-            
-            move.applyQuaternion(camera.quaternion);
-            move.y = 0;
-            move.normalize().multiplyScalar(speed);
-
-            // X Ekseninde çarpışma kontrolü
-            let nextX = camera.position.clone(); nextX.x += move.x;
-            if(!checkCollision(nextX)) camera.position.x += move.x;
-
-            // Z Ekseninde çarpışma kontrolü
-            let nextZ = camera.position.clone(); nextZ.z += move.z;
-            if(!checkCollision(nextZ)) camera.position.z += move.z;
-
-            // Sonsuz Dünya
-            const cx = Math.floor(camera.position.x/chunkSize);
-            const cz = Math.floor(camera.position.z/chunkSize);
-            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) createChunk(cx+i, cz+j);
-
-            renderer.render(scene, camera);
-        }
-
-        window.onkeydown = (e) => { 
-            if(e.key === "Escape") window.location.href = "https://google.com";
-            keys[e.code] = true; 
-        };
-        window.onkeyup = (e) => keys[e.code] = false;
-        document.addEventListener('mousemove', (e) => {
-            if(document.pointerLockElement) {
-                camera.rotation.y -= e.movementX * 0.0025;
-                camera.rotation.x -= e.movementY * 0.0025;
-                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-            }
-        });
-    </script>
+</script>
 </body>
 </html>
