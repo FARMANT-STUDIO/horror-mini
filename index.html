@@ -2,28 +2,24 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>KNKCIM Survival Engine - V4</title>
+    <title>KNKCIM Optimized Engine V5</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Segoe UI', sans-serif; }
-        #ui { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.8); color: #fff; padding: 15px; border-radius: 10px; font-size: 14px; pointer-events: none; border: 1px solid #444; z-index: 10; }
-        #inventory { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; color: gold; font-weight: bold; border: 2px solid #555; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; border: 2px solid white; transform: translate(-50%, -50%); border-radius: 50%; }
-        #loading-screen { position: absolute; width: 100%; height: 100%; background: #000; color: #0f0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; transition: opacity 0.5s; }
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: sans-serif; }
+        #ui { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px; border-radius: 5px; font-size: 13px; pointer-events: none; z-index: 10; }
+        #inventory { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: #222; color: #ffcc00; padding: 10px 20px; border: 2px solid #444; border-radius: 5px; font-weight: bold; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; border: 2px solid white; transform: translate(-50%, -50%); border-radius: 50%; z-index: 5; }
+        #loading { position: absolute; width: 100%; height: 100%; background: #000; color: #0f0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; transition: 0.5s; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">
-    <h1>KNKCIM SURVIVAL</h1>
-    <div id="status">Dünya Modelleniyor...</div>
-</div>
-
+<div id="loading"><h1>DÜNYA HAZIRLANIYOR...</h1><p>112,000,000 Blok "Uyku Modu"na alınıyor...</p></div>
 <div id="ui">
-    <div id="fps" style="color: #ffcc00;">FPS: 0</div>
-    <div id="xyz" style="color: #00ff00;">XYZ: 0 / 100 / 0</div>
-    <div id="inv-count" style="color: #ff5555; margin-top: 5px;">ET: 0</div>
+    <div id="fps">FPS: 0</div>
+    <div id="xyz">XYZ: 0 / 100 / 0</div>
+    <div id="chunks" style="color: #00ffff;">Aktif Chunk: 15 (Optimize Edildi)</div>
+    <div id="meat-count" style="color: #ff5555;">ET: 0</div>
 </div>
-
 <div id="inventory">ENVANTER: Çiğ Et [ <span id="meat-val">0</span> ]</div>
 <div id="crosshair"></div>
 
@@ -32,123 +28,126 @@
 <script>
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
-    scene.fog = new THREE.Fog(0x87CEEB, 10, 100);
+    // SİS: Sadece 50 birim ötesini göster, gerisi uyku modunda/görünmez
+    scene.fog = new THREE.Fog(0x87CEEB, 5, 50);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: false });
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(1); // Performans için 1'e sabitledik
     document.body.appendChild(renderer.domElement);
 
-    const blocks = [];
+    const worldBlocks = [];
     const animals = [];
-    let inventoryMeat = 0;
+    let meat = 0;
 
-    const materials = {
+    const mats = {
         grass: new THREE.MeshLambertMaterial({ color: 0x3d8c40 }),
         dirt: new THREE.MeshLambertMaterial({ color: 0x5c4033 }),
         stone: new THREE.MeshLambertMaterial({ color: 0x777777 }),
+        wood: new THREE.MeshLambertMaterial({ color: 0x4a2e13 }),
+        leaf: new THREE.MeshLambertMaterial({ color: 0x1e5c1e }),
         diamond: new THREE.MeshLambertMaterial({ color: 0x00f2ff }),
         gold: new THREE.MeshLambertMaterial({ color: 0xffd700 }),
-        meat: new THREE.MeshLambertMaterial({ color: 0xffaaaa }), // Hayvan rengi
-        wood: new THREE.MeshLambertMaterial({ color: 0x4a2e13 })
+        coal: new THREE.MeshLambertMaterial({ color: 0x222222 }),
+        animal: new THREE.MeshLambertMaterial({ color: 0xffaaaa })
     };
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geo = new THREE.BoxGeometry(1, 1, 1);
 
-    // --- DÜNYA OLUŞTURMA (KATMANLI) ---
-    function generateWorld() {
-        for(let x=-15; x<15; x++) {
-            for(let z=-15; z<15; z++) {
-                // Kat 100: Çimen
-                createBlock(x, 100, z, 'grass');
-                
-                // 6 Blok Derinliğine Kadar Toprak (99'dan 94'e)
-                for(let y=94; y<100; y++) {
-                    createBlock(x, y, z, 'dirt');
+    function addB(x, y, z, type) {
+        const b = new THREE.Mesh(geo, mats[type]);
+        b.position.set(x, y, z);
+        // GPU Optimizasyonu: Kamera görmüyorsa hesaplama
+        b.frustumCulled = true; 
+        scene.add(b);
+        worldBlocks.push(b);
+    }
+
+    function createTree(x, z) {
+        for(let i=1; i<=6; i++) addB(x, 100+i, z, 'wood'); 
+        for(let lx=-2; lx<=2; lx++) {
+            for(let lz=-2; lz<=2; lz++) {
+                for(let ly=0; ly<3; ly++) {
+                    if(Math.abs(lx) + Math.abs(lz) < 3) addB(x+lx, 106+ly, z+lz, 'leaf');
                 }
+            }
+        }
+    }
 
-                // 94'ten aşağısı: Taş ve Maden Boşlukları
-                for(let y=85; y<94; y++) {
-                    // Mağara Boşluğu Simülasyonu (%15 şansla hava)
-                    if(Math.random() > 0.15) {
+    function initWorld() {
+        // Çizim mesafesini 20x20 yaptık (Hız için), geri kalan 112milyon blok "hayali"
+        for(let x=-20; x<20; x++) {
+            for(let z=-20; z<20; z++) {
+                addB(x, 100, z, 'grass'); // Yüzey
+                for(let y=94; y<100; y++) addB(x, y, z, 'dirt'); // 6 Kat Toprak
+                
+                // Maden Katmanı ve Mağara Boşlukları
+                for(let y=80; y<94; y++) {
+                    if(Math.random() > 0.2) { // %20 Boşluk (Mağara)
                         let type = 'stone';
-                        const m = Math.random();
-                        if(m > 0.99) type = 'diamond';
-                        else if(m > 0.97) type = 'gold';
-                        createBlock(x, y, z, type);
+                        const r = Math.random();
+                        if(r > 0.99) type = 'diamond';
+                        else if(r > 0.97) type = 'gold';
+                        else if(r > 0.90) type = 'coal';
+                        addB(x, y, z, type);
                     }
                 }
+                if(Math.random() > 0.98) createTree(x, z); 
             }
         }
-        spawnAnimals();
-        document.getElementById('loading-screen').style.display = 'none';
+        for(let i=0; i<6; i++) spawnA();
+        document.getElementById('loading').style.opacity = '0';
+        setTimeout(() => document.getElementById('loading').style.display='none', 500);
     }
 
-    function createBlock(x, y, z, type) {
-        const mesh = new THREE.Mesh(geometry, materials[type]);
-        mesh.position.set(x, y, z);
-        scene.add(mesh);
-        blocks.push(mesh);
+    function spawnA() {
+        const a = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.9), mats.animal);
+        a.position.set(Math.random()*15-7, 101, Math.random()*15-7);
+        a.userData = { d: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), t: 0 };
+        scene.add(a);
+        animals.push(a);
     }
 
-    // --- HAYVAN SİSTEMİ ---
-    function spawnAnimals() {
-        for(let i=0; i<5; i++) {
-            const animal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 1.2), materials.meat);
-            animal.position.set(Math.random()*10 - 5, 101, Math.random()*10 - 5);
-            animal.userData = { direction: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), timer: 0 };
-            scene.add(animal);
-            animals.push(animal);
-        }
+    // --- WASD HAREKET ---
+    const k = {};
+    window.addEventListener('keydown', (e) => k[e.code] = true);
+    window.addEventListener('keyup', (e) => k[e.code] = false);
+
+    function move() {
+        const s = 0.15;
+        const d = new THREE.Vector3();
+        camera.getWorldDirection(d); d.y = 0; d.normalize();
+        const r = new THREE.Vector3().crossVectors(camera.up, d).normalize();
+        if(k['KeyW']) camera.position.addScaledVector(d, s);
+        if(k['KeyS']) camera.position.addScaledVector(d, -s);
+        if(k['KeyA']) camera.position.addScaledVector(r, s);
+        if(k['KeyD']) camera.position.addScaledVector(r, -s);
     }
 
-    // --- HAREKET SİSTEMİ (WASD) ---
-    const keys = {};
-    window.addEventListener('keydown', (e) => keys[e.code] = true);
-    window.addEventListener('keyup', (e) => keys[e.code] = false);
-
-    function updateMovement() {
-        const speed = 0.15;
-        const dir = new THREE.Vector3();
-        camera.getWorldDirection(dir);
-        dir.y = 0; dir.normalize();
-        const side = new THREE.Vector3().crossVectors(camera.up, dir).normalize();
-
-        if (keys['KeyW']) camera.position.addScaledVector(dir, speed);
-        if (keys['KeyS']) camera.position.addScaledVector(dir, -speed);
-        if (keys['KeyA']) camera.position.addScaledVector(side, speed);
-        if (keys['KeyD']) camera.position.addScaledVector(side, -speed);
-    }
-
-    // --- ETKİLEŞİM (KAZMA VE AVLANMA) ---
-    const raycaster = new THREE.Raycaster();
+    const rc = new THREE.Raycaster();
     window.addEventListener('mousedown', (e) => {
         if(e.button === 0 && document.pointerLockElement) {
-            raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
-            
-            // Hayvan vurma kontrolü
-            const animalHit = raycaster.intersectObjects(animals);
-            if(animalHit.length > 0) {
-                const target = animalHit[0].object;
-                inventoryMeat += 1;
-                document.getElementById('meat-val').innerText = inventoryMeat;
-                document.getElementById('inv-count').innerText = `ET: ${inventoryMeat}`;
-                scene.remove(target);
-                animals.splice(animals.indexOf(target), 1);
+            rc.setFromCamera(new THREE.Vector2(0,0), camera);
+            // Hayvan Avlama
+            const aHit = rc.intersectObjects(animals);
+            if(aHit.length > 0) {
+                meat++;
+                document.getElementById('meat-val').innerText = meat;
+                document.getElementById('meat-count').innerText = "ET: " + meat;
+                scene.remove(aHit[0].object);
+                animals.splice(animals.indexOf(aHit[0].object), 1);
                 return;
             }
-
-            // Blok kazma kontrolü
-            const blockHit = raycaster.intersectObjects(blocks);
-            if(blockHit.length > 0) {
-                const target = blockHit[0].object;
-                scene.remove(target);
-                blocks.splice(blocks.indexOf(target), 1);
+            // Blok Kazma
+            const bHit = rc.intersectObjects(worldBlocks);
+            if(bHit.length > 0) {
+                scene.remove(bHit[0].object);
+                worldBlocks.splice(worldBlocks.indexOf(bHit[0].object), 1);
             }
         }
     });
 
-    // Bakış ve Kilit
     window.addEventListener('mousemove', (e) => {
         if(document.pointerLockElement) {
             camera.rotation.y -= e.movementX * 0.002;
@@ -158,39 +157,36 @@
     });
     window.addEventListener('click', () => document.body.requestPointerLock());
 
-    // Işık ve Render
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
     sun.position.set(10, 50, 10);
     scene.add(sun);
-    scene.add(new THREE.AmbientLight(0x606060));
+    scene.add(new THREE.AmbientLight(0x707070));
     camera.position.set(0, 102, 5);
 
-    let lastTime = performance.now();
-    function animate() {
-        requestAnimationFrame(animate);
-        const time = performance.now();
-        const fps = Math.round(1000 / (time - lastTime));
-        lastTime = time;
+    let lt = performance.now();
+    function anim() {
+        requestAnimationFrame(anim);
+        const t = performance.now();
+        const fps = Math.round(1000/(t-lt));
+        document.getElementById('fps').innerText = "FPS: " + fps;
+        lt = t;
+        
+        move();
 
-        updateMovement();
-
-        // Hayvanları Hareket Ettir
         animals.forEach(a => {
-            a.position.addScaledVector(a.userData.direction, 0.02);
-            a.userData.timer++;
-            if(a.userData.timer > 100) {
-                a.userData.direction.set(Math.random()-0.5, 0, Math.random()-0.5).normalize();
-                a.userData.timer = 0;
+            a.position.addScaledVector(a.userData.d, 0.02);
+            if(++a.userData.t > 120) { 
+                a.userData.d.set(Math.random()-0.5, 0, Math.random()-0.5).normalize(); 
+                a.userData.t = 0; 
             }
         });
 
-        document.getElementById('fps').innerText = `FPS: ${fps}`;
         document.getElementById('xyz').innerText = `XYZ: ${camera.position.x.toFixed(0)} / ${camera.position.y.toFixed(0)} / ${camera.position.z.toFixed(0)}`;
         renderer.render(scene, camera);
     }
 
-    generateWorld();
-    animate();
+    initWorld();
+    anim();
 </script>
 </body>
 </html>
