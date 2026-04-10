@@ -2,191 +2,203 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>KNKCIM Optimized Engine V5</title>
+    <title>Horror Mini - Alpha 0.03</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: sans-serif; }
-        #ui { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 10px; border-radius: 5px; font-size: 13px; pointer-events: none; z-index: 10; }
-        #inventory { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: #222; color: #ffcc00; padding: 10px 20px; border: 2px solid #444; border-radius: 5px; font-weight: bold; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; border: 2px solid white; transform: translate(-50%, -50%); border-radius: 50%; z-index: 5; }
-        #loading { position: absolute; width: 100%; height: 100%; background: #000; color: #0f0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; transition: 0.5s; }
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; user-select: none; }
+        
+        /* --- ANA MENÜ ARAYÜZÜ --- */
+        #gui-wrapper { position: absolute; width: 100%; height: 100%; z-index: 100; display: block; background: radial-gradient(circle, #111 0%, #000 100%); }
+        .alpha-tag { position: absolute; top: 10px; left: 10px; color: #444; font-size: 12px; font-weight: bold; }
+        .main-header { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); text-align: center; }
+        .main-header h1 { color: #cc0000; font-size: 4rem; margin: 0; text-shadow: 0 0 20px #ff0000; letter-spacing: 10px; }
+        .account-box { color: #555; margin-top: 15px; border: 1px solid #222; padding: 8px; display: inline-block; font-size: 14px; }
+        
+        .menu-button { position: absolute; top: 50%; background: none; border: 2px solid #cc0000; color: #cc0000; padding: 20px 45px; font-size: 1.2rem; cursor: pointer; transition: 0.4s; font-family: inherit; }
+        .btn-left { left: 60px; }
+        .btn-right { right: 60px; }
+        .menu-button:hover { background: #cc0000; color: #000; box-shadow: 0 0 30px #ff0000; }
+        
+        .footer-copy { position: absolute; bottom: 10px; right: 15px; color: #222; font-size: 11px; }
+
+        /* --- OYUN İÇİ HUD --- */
+        #hud-display { display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 50; }
+        .stats-row { display: flex; gap: 40px; color: #eee; font-size: 1.8rem; text-shadow: 2px 2px #000; }
+        #reticle { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.4); font-size: 28px; z-index: 50; pointer-events: none; }
+        #version-overlay { display: none; position: absolute; top: 10px; left: 10px; color: rgba(255,255,255,0.2); font-size: 12px; z-index: 50; }
+
+        /* --- KORKU UYARISI --- */
+        #scare-overlay { display: none; position: fixed; width: 100%; height: 100%; background: #000; color: #ff0000; z-index: 500; align-items: center; justify-content: center; font-size: 5rem; font-weight: bold; letter-spacing: -2px; }
     </style>
 </head>
 <body>
 
-<div id="loading"><h1>DÜNYA HAZIRLANIYOR...</h1><p>112,000,000 Blok "Uyku Modu"na alınıyor...</p></div>
-<div id="ui">
-    <div id="fps">FPS: 0</div>
-    <div id="xyz">XYZ: 0 / 100 / 0</div>
-    <div id="chunks" style="color: #00ffff;">Aktif Chunk: 15 (Optimize Edildi)</div>
-    <div id="meat-count" style="color: #ff5555;">ET: 0</div>
-</div>
-<div id="inventory">ENVANTER: Çiğ Et [ <span id="meat-val">0</span> ]</div>
-<div id="crosshair"></div>
+    <div id="scare-overlay">O SENİ İZLİYOR</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div id="gui-wrapper">
+        <div class="alpha-tag">HORROR MİNİ PROCEST OLD ALPHA 0.03</div>
+        <div class="main-header">
+            <h1>HORROR MİNİ</h1>
+            <div class="account-box">HESAP BİLGİLERİ</div>
+        </div>
+        <button class="menu-button btn-left" onclick="launchGame()">TEK OYUNCULU</button>
+        <button class="menu-button btn-right" onclick="triggerScare()">ÇOK OYUNCULU</button>
+        <div class="footer-copy">FARMANT STUDİONUN TÜM HAKLARI SAKLIDIR</div>
+    </div>
 
-<script>
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB);
-    // SİS: Sadece 50 birim ötesini göster, gerisi uyku modunda/görünmez
-    scene.fog = new THREE.Fog(0x87CEEB, 5, 50);
+    <div id="reticle">+</div>
+    <div id="version-overlay">ALPHA 0.03</div>
+    <div id="hud-display">
+        <div class="stats-row">
+            <div>❤️ x10</div>
+            <div id="hunger-meter">🍗 x10</div>
+        </div>
+    </div>
 
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(1); // Performans için 1'e sabitledik
-    document.body.appendChild(renderer.domElement);
+    <script>
+        // --- SİSTEM AYARLARI ---
+        let SEED = Math.floor(Math.random() * 1000000); // Dinamik Seed
+        const CHUNK_SIZE = 16;
+        const RENDER_DISTANCE = 15; // 15 Chunk kapasitesi
 
-    const worldBlocks = [];
-    const animals = [];
-    let meat = 0;
+        function seededRand(s) {
+            let x = Math.sin(s) * 10000;
+            return x - Math.floor(x);
+        }
 
-    const mats = {
-        grass: new THREE.MeshLambertMaterial({ color: 0x3d8c40 }),
-        dirt: new THREE.MeshLambertMaterial({ color: 0x5c4033 }),
-        stone: new THREE.MeshLambertMaterial({ color: 0x777777 }),
-        wood: new THREE.MeshLambertMaterial({ color: 0x4a2e13 }),
-        leaf: new THREE.MeshLambertMaterial({ color: 0x1e5c1e }),
-        diamond: new THREE.MeshLambertMaterial({ color: 0x00f2ff }),
-        gold: new THREE.MeshLambertMaterial({ color: 0xffd700 }),
-        coal: new THREE.MeshLambertMaterial({ color: 0x222222 }),
-        animal: new THREE.MeshLambertMaterial({ color: 0xffaaaa })
-    };
+        // --- OYUN DEĞİŞKENLERİ ---
+        let scene, camera, renderer, stalker, clock = new THREE.Clock();
+        let hunger = 10, hungerTimer = 0;
+        let activeKeys = {};
+        let isRunning = false;
 
-    const geo = new THREE.BoxGeometry(1, 1, 1);
+        function triggerScare() {
+            const overlay = document.getElementById('scare-overlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.display = 'none', 2500);
+        }
 
-    function addB(x, y, z, type) {
-        const b = new THREE.Mesh(geo, mats[type]);
-        b.position.set(x, y, z);
-        // GPU Optimizasyonu: Kamera görmüyorsa hesaplama
-        b.frustumCulled = true; 
-        scene.add(b);
-        worldBlocks.push(b);
-    }
+        function launchGame() {
+            document.getElementById('gui-wrapper').style.display = 'none';
+            document.getElementById('hud-display').style.display = 'block';
+            document.getElementById('reticle').style.display = 'block';
+            document.getElementById('version-overlay').style.display = 'block';
+            
+            initEngine();
+            isRunning = true;
+        }
 
-    function createTree(x, z) {
-        for(let i=1; i<=6; i++) addB(x, 100+i, z, 'wood'); 
-        for(let lx=-2; lx<=2; lx++) {
-            for(let lz=-2; lz<=2; lz++) {
-                for(let ly=0; ly<3; ly++) {
-                    if(Math.abs(lx) + Math.abs(lz) < 3) addB(x+lx, 106+ly, z+lz, 'leaf');
+        function initEngine() {
+            // Sahne Kurulumu
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x010101);
+            scene.fog = new THREE.FogExp2(0x010101, 0.12);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Oyuncu Işığı (El Feneri Etkisi)
+            const pointLight = new THREE.PointLight(0xffffff, 1.2, 18);
+            camera.add(pointLight);
+            scene.add(camera);
+
+            generateChunkWorld();
+            spawnStalker();
+
+            camera.position.set(0, 1.7, 0);
+
+            // Giriş Dinleyicileri
+            window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
+            window.addEventListener('keyup', (e) => activeKeys[e.code] = false);
+            window.addEventListener('mousemove', (e) => {
+                if(document.pointerLockElement) {
+                    camera.rotation.y -= e.movementX * 0.0025;
+                    camera.rotation.x -= e.movementY * 0.0025;
+                    camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
                 }
-            }
-        }
-    }
+            });
+            document.body.onclick = () => { if(isRunning) renderer.domElement.requestPointerLock(); };
 
-    function initWorld() {
-        // Çizim mesafesini 20x20 yaptık (Hız için), geri kalan 112milyon blok "hayali"
-        for(let x=-20; x<20; x++) {
-            for(let z=-20; z<20; z++) {
-                addB(x, 100, z, 'grass'); // Yüzey
-                for(let y=94; y<100; y++) addB(x, y, z, 'dirt'); // 6 Kat Toprak
-                
-                // Maden Katmanı ve Mağara Boşlukları
-                for(let y=80; y<94; y++) {
-                    if(Math.random() > 0.2) { // %20 Boşluk (Mağara)
-                        let type = 'stone';
-                        const r = Math.random();
-                        if(r > 0.99) type = 'diamond';
-                        else if(r > 0.97) type = 'gold';
-                        else if(r > 0.90) type = 'coal';
-                        addB(x, y, z, type);
-                    }
+            mainLoop();
+        }
+
+        function generateChunkWorld() {
+            const geo = new THREE.BoxGeometry(1, 1, 1);
+            let s = SEED;
+            let range = (RENDER_DISTANCE * CHUNK_SIZE) / 2;
+
+            for(let i = 0; i < 2500; i++) {
+                let rx = Math.floor(seededRand(s++) * (range * 2)) - range;
+                let rz = Math.floor(seededRand(s++) * (range * 2)) - range;
+                let val = seededRand(s++);
+
+                let mat;
+                if(val > 0.98) mat = new THREE.MeshBasicMaterial({color: 0xff3300}); // Lav
+                else if(val > 0.95) mat = new THREE.MeshBasicMaterial({color: 0x0022ff}); // Su
+                else if(val > 0.88) { // Havada Ağaç (Yapraksız)
+                    const log = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4, 0.4), new THREE.MeshBasicMaterial({color: 0x221100}));
+                    log.position.set(rx, 3.5, rz);
+                    scene.add(log);
+                    continue;
                 }
-                if(Math.random() > 0.98) createTree(x, z); 
+                else mat = new THREE.MeshBasicMaterial({color: 0x2a2a2a}); // Taş/Zemin
+
+                const b = new THREE.Mesh(geo, mat);
+                b.position.set(rx, -1, rz);
+                scene.add(b);
             }
         }
-        for(let i=0; i<6; i++) spawnA();
-        document.getElementById('loading').style.opacity = '0';
-        setTimeout(() => document.getElementById('loading').style.display='none', 500);
-    }
 
-    function spawnA() {
-        const a = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.9), mats.animal);
-        a.position.set(Math.random()*15-7, 101, Math.random()*15-7);
-        a.userData = { d: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), t: 0 };
-        scene.add(a);
-        animals.push(a);
-    }
-
-    // --- WASD HAREKET ---
-    const k = {};
-    window.addEventListener('keydown', (e) => k[e.code] = true);
-    window.addEventListener('keyup', (e) => k[e.code] = false);
-
-    function move() {
-        const s = 0.15;
-        const d = new THREE.Vector3();
-        camera.getWorldDirection(d); d.y = 0; d.normalize();
-        const r = new THREE.Vector3().crossVectors(camera.up, d).normalize();
-        if(k['KeyW']) camera.position.addScaledVector(d, s);
-        if(k['KeyS']) camera.position.addScaledVector(d, -s);
-        if(k['KeyA']) camera.position.addScaledVector(r, s);
-        if(k['KeyD']) camera.position.addScaledVector(r, -s);
-    }
-
-    const rc = new THREE.Raycaster();
-    window.addEventListener('mousedown', (e) => {
-        if(e.button === 0 && document.pointerLockElement) {
-            rc.setFromCamera(new THREE.Vector2(0,0), camera);
-            // Hayvan Avlama
-            const aHit = rc.intersectObjects(animals);
-            if(aHit.length > 0) {
-                meat++;
-                document.getElementById('meat-val').innerText = meat;
-                document.getElementById('meat-count').innerText = "ET: " + meat;
-                scene.remove(aHit[0].object);
-                animals.splice(animals.indexOf(aHit[0].object), 1);
-                return;
-            }
-            // Blok Kazma
-            const bHit = rc.intersectObjects(worldBlocks);
-            if(bHit.length > 0) {
-                scene.remove(bHit[0].object);
-                worldBlocks.splice(worldBlocks.indexOf(bHit[0].object), 1);
-            }
+        function spawnStalker() {
+            stalker = new THREE.Mesh(
+                new THREE.BoxGeometry(0.6, 2, 0.6),
+                new THREE.MeshBasicMaterial({color: 0xffffff})
+            );
+            stalker.position.set(25, 0.5, -25);
+            scene.add(stalker);
         }
-    });
 
-    window.addEventListener('mousemove', (e) => {
-        if(document.pointerLockElement) {
-            camera.rotation.y -= e.movementX * 0.002;
-            camera.rotation.x -= e.movementY * 0.002;
-            camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-        }
-    });
-    window.addEventListener('click', () => document.body.requestPointerLock());
+        function mainLoop() {
+            requestAnimationFrame(mainLoop);
+            let delta = clock.getDelta();
 
-    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-    sun.position.set(10, 50, 10);
-    scene.add(sun);
-    scene.add(new THREE.AmbientLight(0x707070));
-    camera.position.set(0, 102, 5);
+            // Hareket Kontrolü
+            let currentSpeed = activeKeys['ShiftLeft'] ? 9 : 4.5;
+            let moveZ = (activeKeys['KeyW'] ? -1 : 0) + (activeKeys['KeyS'] ? 1 : 0);
+            let moveX = (activeKeys['KeyA'] ? -1 : 0) + (activeKeys['KeyD'] ? 1 : 0);
 
-    let lt = performance.now();
-    function anim() {
-        requestAnimationFrame(anim);
-        const t = performance.now();
-        const fps = Math.round(1000/(t-lt));
-        document.getElementById('fps').innerText = "FPS: " + fps;
-        lt = t;
-        
-        move();
+            if(moveZ !== 0) camera.translateZ(moveZ * currentSpeed * delta);
+            if(moveX !== 0) camera.translateX(moveX * currentSpeed * delta);
+            
+            // Eğilme Mekaniği
+            camera.position.y = activeKeys['ControlLeft'] ? 0.9 : 1.7;
 
-        animals.forEach(a => {
-            a.position.addScaledVector(a.userData.d, 0.02);
-            if(++a.userData.t > 120) { 
-                a.userData.d.set(Math.random()-0.5, 0, Math.random()-0.5).normalize(); 
-                a.userData.t = 0; 
+            // Açlık Sistemi
+            hungerTimer += delta;
+            if(hungerTimer > 12) {
+                if(hunger > 0) hunger--;
+                document.getElementById('hunger-meter').innerText = "🍗 x" + hunger;
+                hungerTimer = 0;
             }
-        });
 
-        document.getElementById('xyz').innerText = `XYZ: ${camera.position.x.toFixed(0)} / ${camera.position.y.toFixed(0)} / ${camera.position.z.toFixed(0)}`;
-        renderer.render(scene, camera);
-    }
+            // Stalker Mantığı (Görüş ve Mesafe)
+            let dist = camera.position.distanceTo(stalker.position);
+            stalker.visible = (dist > 5.5); // 5 blok yaklaşınca kaybolur
+            if(stalker.visible) stalker.lookAt(camera.position);
 
-    initWorld();
-    anim();
-</script>
+            renderer.render(scene, camera);
+        }
+
+        window.onresize = () => {
+            if(camera) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        };
+    </script>
 </body>
 </html>
