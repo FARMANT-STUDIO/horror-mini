@@ -7,92 +7,83 @@
     <style>
         body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; user-select: none; }
         
-        /* --- ANA MENÜ ARAYÜZÜ --- */
-        #gui-wrapper { position: absolute; width: 100%; height: 100%; z-index: 100; display: block; background: radial-gradient(circle, #111 0%, #000 100%); }
-        .alpha-tag { position: absolute; top: 10px; left: 10px; color: #444; font-size: 12px; font-weight: bold; }
-        .main-header { position: absolute; top: 10%; left: 50%; transform: translateX(-50%); text-align: center; }
-        .main-header h1 { color: #cc0000; font-size: 4rem; margin: 0; text-shadow: 0 0 20px #ff0000; letter-spacing: 10px; }
-        .account-box { color: #555; margin-top: 15px; border: 1px solid #222; padding: 8px; display: inline-block; font-size: 14px; }
-        
-        .menu-button { position: absolute; top: 50%; background: none; border: 2px solid #cc0000; color: #cc0000; padding: 20px 45px; font-size: 1.2rem; cursor: pointer; transition: 0.4s; font-family: inherit; }
-        .btn-left { left: 60px; }
-        .btn-right { right: 60px; }
-        .menu-button:hover { background: #cc0000; color: #000; box-shadow: 0 0 30px #ff0000; }
-        
-        .footer-copy { position: absolute; bottom: 10px; right: 15px; color: #222; font-size: 11px; }
+        /* --- MENÜ --- */
+        #gui { position: absolute; width: 100%; height: 100%; z-index: 100; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .version-info { position: absolute; top: 10px; left: 10px; color: #444; font-size: 12px; }
+        .main-title { color: #cc0000; font-size: 3.5rem; text-align: center; text-shadow: 0 0 15px red; margin-bottom: 40px; }
+        .btn { border: 2px solid #cc0000; color: #cc0000; background: none; padding: 15px 35px; cursor: pointer; margin: 10px; transition: 0.3s; font-family: inherit; }
+        .btn:hover { background: #cc0000; color: #000; box-shadow: 0 0 20px red; }
+        .copyright { position: absolute; bottom: 10px; right: 10px; color: #222; font-size: 10px; }
 
-        /* --- OYUN İÇİ HUD --- */
-        #hud-display { display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 50; }
-        .stats-row { display: flex; gap: 40px; color: #eee; font-size: 1.8rem; text-shadow: 2px 2px #000; }
-        #reticle { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.4); font-size: 28px; z-index: 50; pointer-events: none; }
-        #version-overlay { display: none; position: absolute; top: 10px; left: 10px; color: rgba(255,255,255,0.2); font-size: 12px; z-index: 50; }
-
-        /* --- KORKU UYARISI --- */
-        #scare-overlay { display: none; position: fixed; width: 100%; height: 100%; background: #000; color: #ff0000; z-index: 500; align-items: center; justify-content: center; font-size: 5rem; font-weight: bold; letter-spacing: -2px; }
+        /* --- OYUN İÇİ --- */
+        #debug { position: absolute; top: 10px; left: 10px; color: #0f0; font-size: 12px; z-index: 50; display: none; background: rgba(0,0,0,0.6); padding: 8px; line-height: 1.6; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 22px; z-index: 50; display: none; opacity: 0.5; }
+        #hud { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; z-index: 50; display: none; text-align: center; }
+        #warning { display: none; position: fixed; width: 100%; height: 100%; background: #000; color: red; z-index: 200; align-items: center; justify-content: center; font-size: 4rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="scare-overlay">O SENİ İZLİYOR</div>
+    <div id="warning">O SENİ İZLİYOR</div>
 
-    <div id="gui-wrapper">
-        <div class="alpha-tag">HORROR MİNİ PROCEST OLD ALPHA 0.03</div>
-        <div class="main-header">
-            <h1>HORROR MİNİ</h1>
-            <div class="account-box">HESAP BİLGİLERİ</div>
+    <div id="gui">
+        <div class="version-info">HORROR MİNİ PROCEST OLD ALPHA 0.03</div>
+        <h1 class="main-title">HORROR MİNİ<br><span style="font-size: 1rem; color: #333;">HESAP BİLGİLERİ</span></h1>
+        <div>
+            <button class="btn" onclick="startGame()">TEK OYUNCULU</button>
+            <button class="btn" onclick="triggerWarning()">ÇOK OYUNCULU</button>
         </div>
-        <button class="menu-button btn-left" onclick="launchGame()">TEK OYUNCULU</button>
-        <button class="menu-button btn-right" onclick="triggerScare()">ÇOK OYUNCULU</button>
-        <div class="footer-copy">FARMANT STUDİONUN TÜM HAKLARI SAKLIDIR</div>
+        <div class="copyright">FARMANT STUDİONUN TÜM HAKLARI SAKLIDIR</div>
     </div>
 
-    <div id="reticle">+</div>
-    <div id="version-overlay">ALPHA 0.03</div>
-    <div id="hud-display">
-        <div class="stats-row">
-            <div>❤️ x10</div>
-            <div id="hunger-meter">🍗 x10</div>
-        </div>
+    <div id="debug">
+        FPS: <span id="fps">0</span><br>
+        XYZ: <span id="xyz">0 / 0 / 0</span><br>
+        SEED: <span id="seed-val">0</span>
+    </div>
+
+    <div id="crosshair">+</div>
+
+    <div id="hud">
+        <div style="font-size: 1.5rem;">❤️ x10 | 🍗 <span id="h-val">10</span></div>
     </div>
 
     <script>
-        // --- SİSTEM AYARLARI ---
-        let SEED = Math.floor(Math.random() * 1000000); // Dinamik Seed
+        // --- AYARLAR ---
+        let SEED = Math.floor(Math.random() * 999999);
         const CHUNK_SIZE = 16;
-        const RENDER_DISTANCE = 15; // 15 Chunk kapasitesi
+        const RENDER_DIST = 40; // 15 chunk alanını simüle eden genişlik
 
-        function seededRand(s) {
-            let x = Math.sin(s) * 10000;
-            return x - Math.floor(x);
-        }
-
-        // --- OYUN DEĞİŞKENLERİ ---
+        // --- GLOBAL DEĞİŞKENLER ---
         let scene, camera, renderer, stalker, clock = new THREE.Clock();
-        let hunger = 10, hungerTimer = 0;
-        let activeKeys = {};
-        let isRunning = false;
+        let animals = [], keys = {}, velocity = new THREE.Vector3(), canJump = false;
+        let hunger = 10, hTimer = 0, frameCount = 0, lastTime = performance.now();
 
-        function triggerScare() {
-            const overlay = document.getElementById('scare-overlay');
-            overlay.style.display = 'flex';
-            setTimeout(() => overlay.style.display = 'none', 2500);
+        // Seed'e göre yükseklik belirleme (Engebeli Arazi)
+        function getH(x, z) {
+            let v = Math.sin(x * 0.15 + SEED) * Math.cos(z * 0.15 + SEED) * 2.5;
+            return Math.floor(v);
         }
 
-        function launchGame() {
-            document.getElementById('gui-wrapper').style.display = 'none';
-            document.getElementById('hud-display').style.display = 'block';
-            document.getElementById('reticle').style.display = 'block';
-            document.getElementById('version-overlay').style.display = 'block';
-            
-            initEngine();
-            isRunning = true;
+        function triggerWarning() {
+            const w = document.getElementById('warning');
+            w.style.display = 'flex';
+            setTimeout(() => w.style.display = 'none', 2000);
         }
 
-        function initEngine() {
-            // Sahne Kurulumu
+        function startGame() {
+            document.getElementById('gui').style.display = 'none';
+            document.getElementById('debug').style.display = 'block';
+            document.getElementById('hud').style.display = 'block';
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('seed-val').innerText = SEED;
+            init();
+        }
+
+        function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x010101);
-            scene.fog = new THREE.FogExp2(0x010101, 0.12);
+            scene.background = new THREE.Color(0x020202);
+            scene.fog = new THREE.FogExp2(0x020202, 0.1);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             
@@ -100,105 +91,142 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // Oyuncu Işığı (El Feneri Etkisi)
-            const pointLight = new THREE.PointLight(0xffffff, 1.2, 18);
-            camera.add(pointLight);
+            const light = new THREE.PointLight(0xffffff, 1.5, 20);
+            camera.add(light);
             scene.add(camera);
 
-            generateChunkWorld();
+            createWorld();
             spawnStalker();
+            spawnAnimals(15);
 
-            camera.position.set(0, 1.7, 0);
+            camera.position.set(0, 10, 0);
 
-            // Giriş Dinleyicileri
-            window.addEventListener('keydown', (e) => activeKeys[e.code] = true);
-            window.addEventListener('keyup', (e) => activeKeys[e.code] = false);
+            // Kontroller
+            window.addEventListener('keydown', (e) => keys[e.code] = true);
+            window.addEventListener('keyup', (e) => keys[e.code] = false);
             window.addEventListener('mousemove', (e) => {
                 if(document.pointerLockElement) {
-                    camera.rotation.y -= e.movementX * 0.0025;
-                    camera.rotation.x -= e.movementY * 0.0025;
-                    camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+                    camera.rotation.y -= e.movementX * 0.002;
+                    camera.rotation.x -= e.movementY * 0.002;
+                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
                 }
             });
-            document.body.onclick = () => { if(isRunning) renderer.domElement.requestPointerLock(); };
+            document.body.onclick = () => { if(renderer) renderer.domElement.requestPointerLock(); };
 
-            mainLoop();
+            animate();
         }
 
-        function generateChunkWorld() {
+        function createWorld() {
             const geo = new THREE.BoxGeometry(1, 1, 1);
-            let s = SEED;
-            let range = (RENDER_DISTANCE * CHUNK_SIZE) / 2;
-
-            for(let i = 0; i < 2500; i++) {
-                let rx = Math.floor(seededRand(s++) * (range * 2)) - range;
-                let rz = Math.floor(seededRand(s++) * (range * 2)) - range;
-                let val = seededRand(s++);
-
-                let mat;
-                if(val > 0.98) mat = new THREE.MeshBasicMaterial({color: 0xff3300}); // Lav
-                else if(val > 0.95) mat = new THREE.MeshBasicMaterial({color: 0x0022ff}); // Su
-                else if(val > 0.88) { // Havada Ağaç (Yapraksız)
-                    const log = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4, 0.4), new THREE.MeshBasicMaterial({color: 0x221100}));
-                    log.position.set(rx, 3.5, rz);
-                    scene.add(log);
-                    continue;
+            for(let x = -RENDER_DIST; x < RENDER_DIST; x++) {
+                for(let z = -RENDER_DIST; z < RENDER_DIST; z++) {
+                    let h = getH(x, z);
+                    // Katmanlı blok yapısı
+                    for(let y = h - 2; y <= h; y++) {
+                        let color = (y === h) ? 0x1a1a1a : 0x0a0a0a;
+                        const mat = new THREE.MeshBasicMaterial({color: color});
+                        const block = new THREE.Mesh(geo, mat);
+                        block.position.set(x, y, z);
+                        scene.add(block);
+                    }
+                    // Nadir ağaçlar
+                    if(x % 12 === 0 && z % 12 === 0 && Math.random() > 0.6) {
+                        const log = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4, 0.4), new THREE.MeshBasicMaterial({color: 0x221100}));
+                        log.position.set(x, h + 2, z);
+                        scene.add(log);
+                    }
                 }
-                else mat = new THREE.MeshBasicMaterial({color: 0x2a2a2a}); // Taş/Zemin
+            }
+        }
 
-                const b = new THREE.Mesh(geo, mat);
-                b.position.set(rx, -1, rz);
-                scene.add(b);
+        function spawnAnimals(count) {
+            for(let i=0; i<count; i++) {
+                const group = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 1.2), new THREE.MeshBasicMaterial({color: 0x3d2b1f}));
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshBasicMaterial({color: 0x3d2b1f}));
+                head.position.set(0, 0.3, 0.6);
+                group.add(body, head);
+                
+                let rx = (Math.random() * 40) - 20;
+                let rz = (Math.random() * 40) - 20;
+                group.position.set(rx, getH(rx, rz) + 0.5, rz);
+                
+                // Hayvan verisi: hedef pozisyon ve hız
+                group.userData = { targetX: rx, targetZ: rz, timer: 0 };
+                animals.push(group);
+                scene.add(group);
             }
         }
 
         function spawnStalker() {
-            stalker = new THREE.Mesh(
-                new THREE.BoxGeometry(0.6, 2, 0.6),
-                new THREE.MeshBasicMaterial({color: 0xffffff})
-            );
-            stalker.position.set(25, 0.5, -25);
+            stalker = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2, 0.6), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            stalker.position.set(10, 5, -15);
             scene.add(stalker);
         }
 
-        function mainLoop() {
-            requestAnimationFrame(mainLoop);
-            let delta = clock.getDelta();
+        function animate() {
+            requestAnimationFrame(animate);
+            let dt = clock.getDelta();
 
-            // Hareket Kontrolü
-            let currentSpeed = activeKeys['ShiftLeft'] ? 9 : 4.5;
-            let moveZ = (activeKeys['KeyW'] ? -1 : 0) + (activeKeys['KeyS'] ? 1 : 0);
-            let moveX = (activeKeys['KeyA'] ? -1 : 0) + (activeKeys['KeyD'] ? 1 : 0);
-
-            if(moveZ !== 0) camera.translateZ(moveZ * currentSpeed * delta);
-            if(moveX !== 0) camera.translateX(moveX * currentSpeed * delta);
-            
-            // Eğilme Mekaniği
-            camera.position.y = activeKeys['ControlLeft'] ? 0.9 : 1.7;
-
-            // Açlık Sistemi
-            hungerTimer += delta;
-            if(hungerTimer > 12) {
-                if(hunger > 0) hunger--;
-                document.getElementById('hunger-meter').innerText = "🍗 x" + hunger;
-                hungerTimer = 0;
+            // FPS
+            frameCount++;
+            if(performance.now() - lastTime >= 1000) {
+                document.getElementById('fps').innerText = frameCount;
+                frameCount = 0;
+                lastTime = performance.now();
             }
 
-            // Stalker Mantığı (Görüş ve Mesafe)
+            // HAREKET & FİZİK
+            let speed = keys['ShiftLeft'] ? 10 : 5;
+            let moveDir = new THREE.Vector3();
+            if(keys['KeyW']) moveDir.z -= 1; if(keys['KeyS']) moveDir.z += 1;
+            if(keys['KeyA']) moveDir.x -= 1; if(keys['KeyD']) moveDir.x += 1;
+            moveDir.normalize().applyQuaternion(camera.quaternion);
+
+            velocity.x = moveDir.x * speed;
+            velocity.z = moveDir.z * speed;
+
+            // Yerçekimi
+            let curH = getH(Math.round(camera.position.x), Math.round(camera.position.z)) + 1.7;
+            if(camera.position.y > curH) {
+                velocity.y -= 25 * dt;
+                canJump = false;
+            } else {
+                velocity.y = Math.max(0, velocity.y);
+                camera.position.y = curH;
+                canJump = true;
+            }
+            if(keys['Space'] && canJump) velocity.y = 9;
+
+            camera.position.add(velocity.clone().multiplyScalar(dt));
+            document.getElementById('xyz').innerText = `${Math.round(camera.position.x)} / ${Math.round(camera.position.y)} / ${Math.round(camera.position.z)}`;
+
+            // HAYVAN HAREKETLERİ
+            animals.forEach(a => {
+                a.userData.timer -= dt;
+                if(a.userData.timer <= 0) {
+                    a.userData.targetX = a.position.x + (Math.random() * 10 - 5);
+                    a.userData.targetZ = a.position.z + (Math.random() * 10 - 5);
+                    a.userData.timer = Math.random() * 5 + 2;
+                }
+                // Yumuşak hareket
+                a.position.x += (a.userData.targetX - a.position.x) * 0.2 * dt;
+                a.position.z += (a.userData.targetZ - a.position.z) * 0.2 * dt;
+                a.position.y = getH(Math.round(a.position.x), Math.round(a.position.z)) + 0.6;
+                a.lookAt(a.userData.targetX, a.position.y, a.userData.targetZ);
+            });
+
+            // STALKER
             let dist = camera.position.distanceTo(stalker.position);
-            stalker.visible = (dist > 5.5); // 5 blok yaklaşınca kaybolur
+            stalker.visible = dist > 6;
             if(stalker.visible) stalker.lookAt(camera.position);
+
+            // AÇLIK
+            hTimer += dt;
+            if(hTimer > 15) { if(hunger > 0) hunger--; document.getElementById('h-val').innerText = hunger; hTimer = 0; }
 
             renderer.render(scene, camera);
         }
-
-        window.onresize = () => {
-            if(camera) {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-        };
     </script>
 </body>
 </html>
