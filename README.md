@@ -1,7 +1,7 @@
 
 KORKU MINI: BİLGİSAYAR EDİTİON
 Resmi Versiyon: Alpha 0.03 | Geliştirici: Farmant Studios
-Horror Mini, procedural (yordamsal) olarak üretilen sonsuz bir evrende geçen, hayatta kalma ve inşa odaklı bir Voxel Tabanlı Korku Simülasyonudur. Bu yazılım, gelişmiş chunk yönetim sistemleri ve dinamik çevre etkileşimleri üzerine inşa edilmiş bağımsız bir oyun motoru projesidir.
+Horror Mini, procedural (yordamsal) olarak üretilen sonsuz bir evrende geçen ve inşa odaklı bir Voxel Tabanlı Korku Simülasyonudur. Bu yazılım, gelişmiş chunk yönetim sistemleri ve dinamik çevre etkileşimleri üzerine inşa edilmiş bağımsız bir oyun motoru projesidir.
 
 🛠️ Teknik Özellikler ve Mekanikler
 Sınırsız Dünya Üretimi (Infinite Terrain): Matematiksel algoritmalarla eş zamanlı olarak üretilen, ucu bucağı olmayan bir oyun alanı.
