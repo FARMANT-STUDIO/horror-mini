@@ -2,42 +2,34 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>HORROR MINI - Deep Alpha</title>
+    <title>HORROR MINI - STRLXY-B9Q Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Courier New', Courier, monospace; }
         #ui-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.9); z-index: 10;
+            background: rgba(0,0,0,0.85); z-index: 10;
         }
         #logo {
-            color: #ff0000; font-size: 64px; font-weight: bold;
-            text-shadow: 4px 4px #500; margin-bottom: 40px;
-            animation: glitch 0.3s infinite;
+            color: #ff0000; font-size: 70px; font-weight: bold;
+            text-shadow: 4px 4px #000; margin-bottom: 40px;
+            letter-spacing: 5px; animation: glitch 0.2s infinite;
         }
         .menu-btn {
-            background: #111; color: #eee; border: 2px solid #444;
-            padding: 12px 25px; font-size: 18px; cursor: pointer;
-            margin: 8px; width: 320px; text-transform: uppercase;
+            background: #eee; color: #111; border: none;
+            padding: 15px 40px; font-size: 22px; cursor: pointer;
+            margin: 10px; width: 380px; font-weight: bold; transition: 0.2s;
         }
-        .menu-btn:hover { background: #800; border-color: #fff; }
-        
-        #save-list { display: none; }
-        .save-slot { 
-            background: #1a1a1a; border: 1px border #333; 
-            padding: 15px; margin: 5px; cursor: pointer; color: #777; width: 300px;
-        }
-        .save-slot:hover { border-color: #ff0000; color: #fff; }
-
-        @keyframes glitch {
-            0% { transform: skew(0deg); }
-            50% { transform: skew(2deg); color: #aa0000; }
-            100% { transform: skew(-1deg); }
-        }
+        .menu-btn:hover { background: #ff0000; color: white; transform: scale(1.05); }
         #crosshair {
             position: absolute; top: 50%; left: 50%;
-            width: 15px; height: 15px; border: 1px solid white;
+            width: 20px; height: 20px; border: 2px solid white;
             transform: translate(-50%, -50%); pointer-events: none; display: none;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            50% { transform: translate(-2px, 2px); color: #aa0000; }
+            100% { transform: translate(2px, -2px); }
         }
     </style>
 </head>
@@ -45,20 +37,11 @@
 
     <div id="ui-overlay">
         <div id="logo">HORROR MINI</div>
-        <div id="main-menu">
-            <button class="menu-btn" onclick="openSinglePlayer()">TEK OYUNCULU</button>
-        </div>
-        <div id="save-prompt" style="display:none; text-align:center;">
-            <p style="color:white; margin-bottom:20px;">Daha önceden oynadığınız (WORLD 1 SAVE) dünyanıza geri dönmek ister misiniz?</p>
-            <button class="menu-btn" onclick="startGame(true)">EVET</button>
-            <button class="menu-btn" onclick="showSaveList()">HAYIR</button>
-        </div>
-        <div id="save-list">
-            <div class="save-slot" onclick="startGame(false)">[BOŞ SLOT 1] - YENİ DÜNYA</div>
-            <div class="save-slot" onclick="startGame(false)">[BOŞ SLOT 2]</div>
-            <button class="menu-btn" onclick="backToMenu()">GERİ</button>
+        <div id="menu-content">
+            <button class="menu-btn" onclick="handleSinglePlayer()">TEK OYUNCULU</button>
         </div>
     </div>
+
     <div id="crosshair"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -70,79 +53,103 @@
         let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
         let velocity = new THREE.Vector3();
 
+        // BLOK MATERYALLERİ (Tam Liste)
+        const mats = {
+            grass: new THREE.MeshStandardMaterial({ color: 0x567d46 }),
+            dirt: new THREE.MeshStandardMaterial({ color: 0x8b4513 }),
+            stone: new THREE.MeshStandardMaterial({ color: 0x777777 }),
+            sand: new THREE.MeshStandardMaterial({ color: 0xedc9af }),
+            pyramid: new THREE.MeshStandardMaterial({ color: 0xd4af37 }), // Piramit Taşı
+            coal: new THREE.MeshStandardMaterial({ color: 0x1a1a1a }), // Maden
+            trunk: new THREE.MeshStandardMaterial({ color: 0x4d2926 }), // Ağaç Odunu
+            water: new THREE.MeshStandardMaterial({ color: 0x00aaff, transparent: true, opacity: 0.6 })
+        };
+
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x010101);
-            scene.fog = new THREE.FogExp2(0x010101, 0.08); // Yoğun sis
+            scene.background = new THREE.Color(0x87CEEB); // Aydınlık Gökyüzü
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const ambientLight = new THREE.AmbientLight(0x202020, 1); 
-            scene.add(ambientLight);
+            // Işıklandırma
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(15, 30, 15);
+            scene.add(sun);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
             generateWorld();
             spawnStalker();
 
-            camera.position.set(0, 10, 0); 
+            camera.position.set(0, 15, 0);
+            
             window.addEventListener('resize', onWindowResize);
             document.addEventListener('keydown', (e) => handleKey(e.code, true));
             document.addEventListener('keyup', (e) => handleKey(e.code, false));
         }
 
         function generateWorld() {
-            const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-            const stoneMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
-            const coalMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a });
-            const woodMat = new THREE.MeshStandardMaterial({ color: 0x3d2b1f });
-            const sandMat = new THREE.MeshStandardMaterial({ color: 0xc2b280 });
-            const waterMat = new THREE.MeshStandardMaterial({ color: 0x001133, transparent: true, opacity: 0.7 });
+            const geo = new THREE.BoxGeometry(1, 1, 1);
+            const size = 35;
 
-            const worldSize = 40;
-            const waterLevel = 1;
-
-            for(let x = -worldSize; x < worldSize; x++) {
-                for(let z = -worldSize; z < worldSize; z++) {
+            for(let x = -size; x < size; x++) {
+                for(let z = -size; z < size; z++) {
                     
-                    let h = Math.floor(Math.random() * 2);
-                    if (Math.abs(x) > 20 || Math.abs(z) > 20) h += Math.floor(Math.random() * 10); // Dağlar
+                    // Dağ ve Engebe
+                    let noise = Math.sin(x * 0.15) * Math.cos(z * 0.15) * 3;
+                    let h = Math.floor(noise + 4);
+                    if (Math.abs(x) > 22 || Math.abs(z) > 22) h += Math.floor(Math.random() * 7);
 
-                    // Zemin Blokları
                     for(let y = 0; y <= h; y++) {
-                        let mat = stoneMat;
-                        if (y > 0 && Math.random() < 0.05) mat = coalMat; // Maden damarı
+                        let curMat = mats.stone;
+                        
+                        // Katman Mantığı
+                        if (y === h) curMat = mats.grass;
+                        else if (y > h - 3) curMat = mats.dirt;
 
-                        const block = new THREE.Mesh(boxGeo, mat);
-                        block.position.set(x, y, z);
-                        scene.add(block);
-                        blocks.push(block);
+                        // Maden Damarları (Taş katmanında %6 şans)
+                        if (y < h - 3 && Math.random() < 0.06) curMat = mats.coal;
+
+                        const b = new THREE.Mesh(geo, curMat);
+                        b.position.set(x, y, z);
+                        scene.add(b);
+                        blocks.push(b);
                     }
 
-                    // DENİZ VE KUM PİRAMİDİ (%1 ihtimal)
-                    if (h < waterLevel) {
-                        const water = new THREE.Mesh(boxGeo, waterMat);
-                        water.position.set(x, waterLevel, z);
-                        scene.add(water);
+                    // Deniz ve Kıyı Alanları
+                    if (h < 2) {
+                        const s = new THREE.Mesh(geo, mats.sand);
+                        s.position.set(x, 1, z);
+                        scene.add(s);
+                        blocks.push(s);
 
-                        if (Math.random() < 0.005) { // Çok düşük olasılık
-                            for(let py=0; py<3; py++) {
+                        const w = new THREE.Mesh(geo, mats.water);
+                        w.position.set(x, 1.2, z);
+                        scene.add(w);
+
+                        // NADİR KUM PİRAMİDİ (%0.3 Şans)
+                        if(Math.random() < 0.003) {
+                            for(let py=0; py<4; py++) {
                                 for(let px=-py; px<=py; px++) {
-                                    const p = new THREE.Mesh(boxGeo, sandMat);
-                                    p.position.set(x+px, waterLevel+py, z);
-                                    scene.add(p);
-                                    blocks.push(p);
+                                    for(let pz=-py; pz<=py; pz++) {
+                                        const p = new THREE.Mesh(geo, mats.pyramid);
+                                        p.position.set(x+px, 2+py, z+pz);
+                                        scene.add(p);
+                                        blocks.push(p);
+                                    }
                                 }
                             }
                         }
                     }
 
-                    // AĞAÇLAR (Yapraksız)
-                    if (h >= waterLevel && Math.random() < 0.02) {
-                        for(let th=1; th<5; th++) {
-                            const trunk = new THREE.Mesh(boxGeo, woodMat);
-                            trunk.position.set(x, h + th, z);
+                    // AĞAÇLAR (Yapraksız Alpha Tarzı)
+                    if (h >= 4 && Math.random() < 0.012) {
+                        let treeHeight = 4 + Math.floor(Math.random()*2);
+                        for(let t=1; t<=treeHeight; t++) {
+                            const trunk = new THREE.Mesh(geo, mats.trunk);
+                            trunk.position.set(x, h+t, z);
                             scene.add(trunk);
                             blocks.push(trunk);
                         }
@@ -150,25 +157,58 @@
                 }
             }
 
-            // 2X2 TÜNELLER (Rastgele kazılmış tüneller)
-            for(let t=0; t<3; t++) {
-                let tx = (Math.random()-0.5)*30;
-                let tz = (Math.random()-0.5)*30;
-                for(let i=0; i<15; i++) {
-                    // Tünel aslında blokların arasından boşluk açmaktır ama 
-                    // basitlik için buraya karanlık tünel yapısı ekliyoruz
-                    const tBlock = new THREE.Mesh(boxGeo, stoneMat);
-                    tBlock.position.set(tx, 1, tz+i); 
-                    // Tünel efekti için boşluk mantığı basitleştirildi
+            // 2x2 TÜNELLER (Dağların içine rastgele)
+            for(let i=0; i<3; i++) {
+                let tx = Math.floor((Math.random()-0.5)*20);
+                let tz = Math.floor((Math.random()-0.5)*20);
+                for(let l=0; l<10; l++) {
+                    // Tünel yapısı aslında "boşluktur" ancak görsel amaçlı karanlık taşlar diziyoruz
+                    const t = new THREE.Mesh(geo, mats.coal); 
+                    t.position.set(tx, 1, tz+l);
+                    // (Gerçek oyunda buraları boşaltarak koridor yapabilirsin)
                 }
             }
         }
 
+        // AKILLI KAYIT SİSTEMİ
+        function handleSinglePlayer() {
+            const hasSave = localStorage.getItem('HorrorMini_SaveData');
+            const menuContent = document.getElementById('menu-content');
+
+            if (hasSave) {
+                menuContent.innerHTML = `
+                    <p style="color:white; text-align:center; font-size:18px;">Daha önceden oynadığınız (WORLD 1 SAVE) dünyanıza<br>geri dönmek ister misiniz?</p>
+                    <button class="menu-btn" onclick="startGame()">EVET</button>
+                    <button class="menu-btn" onclick="showSaveList()">HAYIR</button>
+                `;
+            } else {
+                startGame(); // İlk kez giriyorsa direkt başla
+            }
+        }
+
+        function showSaveList() {
+            document.getElementById('menu-content').innerHTML = `
+                <div style="color:#777; margin-bottom:15px; text-align:center;">KAYITLI DÜNYALAR</div>
+                <button class="menu-btn" onclick="startGame()">[YENİ DÜNYA OLUŞTUR]</button>
+                <div class="menu-btn" style="background:#333; color:#555; text-align:center; cursor:default;">BOŞ SLOT</div>
+                <div class="menu-btn" style="background:#333; color:#555; text-align:center; cursor:default;">BOŞ SLOT</div>
+                <button class="menu-btn" style="background:#555" onclick="location.reload()">GERİ</button>
+            `;
+        }
+
+        function startGame() {
+            localStorage.setItem('HorrorMini_SaveData', 'true'); // Kaydı işaretle
+            document.getElementById('ui-overlay').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'block';
+            document.body.requestPointerLock();
+            isGameStarted = true;
+        }
+
         function spawnStalker() {
             const stalkerGeo = new THREE.BoxGeometry(0.6, 1.8, 0.6);
-            const stalkerMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Bembeyaz
+            const stalkerMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
             stalker = new THREE.Mesh(stalkerGeo, stalkerMat);
-            stalker.position.set(25, 2, 25);
+            stalker.position.set(40, 5, 40);
             scene.add(stalker);
         }
 
@@ -182,31 +222,28 @@
 
         function update() {
             if(!isGameStarted) return;
-
-            const speed = 0.12;
+            const speed = 0.15;
             if (moveForward) camera.translateZ(-speed);
             if (moveBackward) camera.translateZ(speed);
             if (moveLeft) camera.translateX(-speed);
             if (moveRight) camera.translateX(speed);
 
-            // Stalker (Beyaz Karakter) Takibi - Uzaktan İzleme
+            // Stalker sürekli oyuncuya odaklanır
             stalker.lookAt(camera.position);
-            let dist = stalker.position.distanceTo(camera.position);
-            if(dist < 5) { // Çok yaklaşırsan ışınlanır
-                stalker.position.set((Math.random()-0.5)*60, 5, (Math.random()-0.5)*60);
-            }
 
-            // Raycast Yer Çekimi
+            // Fizik: Yer Çekimi ve Hitbox
             const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0, -1, 0));
             const hit = ray.intersectObjects(blocks);
-
             if (hit.length > 0 && hit[0].distance < 1.7) {
                 velocity.y = 0;
-                camera.position.y = hit[0].point.y + 1.7;
+                camera.position.y = hit[0].point.y + 1.7; // Blok üzerinde kal
             } else {
-                velocity.y -= 0.008;
+                velocity.y -= 0.01; // Boşluğa adım atınca düş
             }
             camera.position.y += velocity.y;
+            
+            // Haritadan düşerse resetle
+            if(camera.position.y < -5) camera.position.set(0, 15, 0);
         }
 
         function animate() {
@@ -215,43 +252,24 @@
             renderer.render(scene, camera);
         }
 
-        function openSinglePlayer() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('save-prompt').style.display = 'block';
-        }
-        function showSaveList() {
-            document.getElementById('save-prompt').style.display = 'none';
-            document.getElementById('save-list').style.display = 'block';
-        }
-        function startGame(isLoad) {
-            document.getElementById('ui-overlay').style.display = 'none';
-            document.getElementById('crosshair').style.display = 'block';
-            document.body.requestPointerLock();
-            isGameStarted = true;
-        }
         function exitGame() {
             isGameStarted = false;
             document.exitPointerLock();
-            document.getElementById('ui-overlay').style.display = 'flex';
-            document.getElementById('main-menu').style.display = 'block';
-            document.getElementById('save-list').style.display = 'none';
-            document.getElementById('save-prompt').style.display = 'none';
-            document.getElementById('crosshair').style.display = 'none';
+            location.reload(); // Menüye dön
         }
-        function backToMenu() {
-            document.getElementById('save-list').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'block';
-        }
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
+        // Fare ile Bakış Kontrolü
         document.body.addEventListener('mousemove', (e) => {
             if(document.pointerLockElement === document.body) {
-                camera.rotation.y -= e.movementX * 0.002;
-                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.y -= e.movementX * 0.0025;
+                camera.rotation.x -= e.movementY * 0.0025;
+                camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
             }
         });
 
