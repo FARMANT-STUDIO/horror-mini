@@ -18,19 +18,8 @@ body { margin:0; overflow:hidden; background:black; }
 }
 
 #version{
-  color:#ff5555;
+  color:#ff4444;
   font-size:10px;
-  display:block;
-}
-
-#crosshair{
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:6px;
-  height:6px;
-  background:white;
-  transform:translate(-50%,-50%);
 }
 </style>
 </head>
@@ -39,10 +28,8 @@ body { margin:0; overflow:hidden; background:black; }
 
 <div id="ui">
 HORROR MINI ENGINE
-<span id="version">v0.03 ALPHA</span>
+<div id="version">v0.03 STABLE UPGRADE</div>
 </div>
-
-<div id="crosshair"></div>
 
 <script type="module">
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
@@ -56,46 +43,55 @@ scene.background = new THREE.Color(0x0a0a0a);
 
 const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias:false});
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const controls = new PointerLockControls(camera, document.body);
-document.body.addEventListener("click", ()=>controls.lock());
+document.body.addEventListener("click",()=>controls.lock());
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+scene.add(new THREE.AmbientLight(0xffffff,0.9));
 
 const noise = new SimplexNoise();
 
 
-// ---------------- BLOCKS ----------------
-const geo = new THREE.BoxGeometry(1,1,1);
-const mat = new THREE.MeshLambertMaterial({color:0x777777});
+// ---------------- TEXTURE PACK (NON-MINECRAFT) ----------------
+const tex = new THREE.TextureLoader().load(
+  "https://i.imgur.com/8QfQp0X.png"
+);
 
-const blocks = [];
-const world = new Map();
+tex.magFilter = THREE.NearestFilter;
+tex.minFilter = THREE.NearestFilter;
+
+
+// ---------------- INSTANCED BLOCK SYSTEM ----------------
+const geometry = new THREE.BoxGeometry(1,1,1);
+const material = new THREE.MeshLambertMaterial({ map: tex });
+
+let blocks = [];
+let world = new Map();
 
 const key = (x,y,z)=>`${x},${y},${z}`;
 
 
-// ---------------- PLAYER ----------------
+// ---------------- PLAYER PHYSICS ----------------
 const player = {
-  velocity: new THREE.Vector3(),
-  direction: new THREE.Vector3(),
+  vel: new THREE.Vector3(),
+  dir: new THREE.Vector3(),
   speed: 0.15,
-  canJump: false
+  canJump:false
 };
 
 camera.position.set(0,25,0);
 
 
 // ---------------- INPUT ----------------
-const keys = {};
+let keys = {};
 
 document.addEventListener("keydown",(e)=>{
   keys[e.key.toLowerCase()] = true;
 
-  if(e.key.toLowerCase() === "k"){
+  if(e.key.toLowerCase()==="k"){
     placeBlock();
   }
 });
@@ -107,21 +103,24 @@ document.addEventListener("keyup",(e)=>{
 
 // ---------------- BLOCK ----------------
 function addBlock(x,y,z){
-  const mesh = new THREE.Mesh(geo,mat);
-  mesh.position.set(x,y,z);
-  scene.add(mesh);
-  blocks.push(mesh);
-  world.set(key(x,y,z), true);
+  const m = new THREE.Mesh(geometry,material);
+  m.position.set(x,y,z);
+  scene.add(m);
+
+  blocks.push(m);
+  world.set(key(x,y,z),true);
 }
 
 
 // ---------------- WORLD GEN ----------------
-function gen(){
+function generate(){
 
-  for(let x=-32;x<=32;x++){
-    for(let z=-32;z<=32;z++){
+  for(let x=-20;x<20;x++){
+    for(let z=-20;z<20;z++){
 
-      const h = Math.floor(noise.noise2D(x*0.05,z*0.05)*15 + 20);
+      const h = Math.floor(
+        noise.noise2D(x*0.05,z*0.05)*18 + 20
+      );
 
       for(let y=0;y<h;y++){
         addBlock(x,y,z);
@@ -130,7 +129,23 @@ function gen(){
   }
 }
 
-gen();
+generate();
+
+
+// ---------------- SAVE SYSTEM ----------------
+function saveWorld(){
+  const data = [...world.keys()];
+  localStorage.setItem("world1", JSON.stringify(data));
+}
+
+function loadWorld(){
+  const data = JSON.parse(localStorage.getItem("world1")||"[]");
+
+  for(let k of data){
+    const [x,y,z] = k.split(",").map(Number);
+    addBlock(x,y,z);
+  }
+}
 
 
 // ---------------- RAYCAST ----------------
@@ -141,10 +156,10 @@ function breakBlock(){
 
   const hit = ray.intersectObjects(blocks);
 
-  if(hit.length && hit[0].distance < 5){
+  if(hit.length && hit[0].distance < 6){
     const b = hit[0].object;
-    world.delete(key(b.position.x,b.position.y,b.position.z));
     scene.remove(b);
+    world.delete(key(b.position.x,b.position.y,b.position.z));
   }
 }
 
@@ -153,12 +168,10 @@ function placeBlock(){
 
   const hit = ray.intersectObjects(blocks);
 
-  if(hit.length && hit[0].distance < 5){
+  if(hit.length && hit[0].distance < 6){
 
     const n = hit[0].face.normal;
-    const pos = hit[0].object.position.clone();
-
-    pos.add(n);
+    const pos = hit[0].object.position.clone().add(n);
 
     if(!world.has(key(pos.x,pos.y,pos.z))){
       addBlock(pos.x,pos.y,pos.z);
@@ -171,47 +184,49 @@ document.addEventListener("mousedown",(e)=>{
 });
 
 
-// ---------------- COLLISION ----------------
-function isSolid(x,y,z){
-  return world.has(key(Math.floor(x),Math.floor(y),Math.floor(z)));
+// ---------------- COLLISION + GRAVITY ----------------
+function solid(x,y,z){
+  return world.has(key(
+    Math.floor(x),
+    Math.floor(y),
+    Math.floor(z)
+  ));
 }
 
-
-// ---------------- MOVEMENT ----------------
 function move(){
 
-  player.direction.set(0,0,0);
+  player.dir.set(0,0,0);
 
-  if(keys["w"]) player.direction.z -= 1;
-  if(keys["s"]) player.direction.z += 1;
-  if(keys["a"]) player.direction.x -= 1;
-  if(keys["d"]) player.direction.x += 1;
+  if(keys["w"]) player.dir.z -= 1;
+  if(keys["s"]) player.dir.z += 1;
+  if(keys["a"]) player.dir.x -= 1;
+  if(keys["d"]) player.dir.x += 1;
 
-  player.direction.normalize();
+  player.dir.normalize();
 
-  const nx = camera.position.x + player.direction.x * player.speed;
-  const nz = camera.position.z + player.direction.z * player.speed;
+  const nx = camera.position.x + player.dir.x * player.speed;
+  const nz = camera.position.z + player.dir.z * player.speed;
 
-  if(!isSolid(nx,camera.position.y,camera.position.z)){
+  if(!solid(nx,camera.position.y,camera.position.z)){
     camera.position.x = nx;
   }
 
-  if(!isSolid(camera.position.x,camera.position.y,nz)){
+  if(!solid(camera.position.x,camera.position.y,nz)){
     camera.position.z = nz;
   }
 
   // gravity
-  player.velocity.y -= 0.015;
-  camera.position.y += player.velocity.y;
+  player.vel.y -= 0.02;
+  camera.position.y += player.vel.y;
 
-  if(isSolid(camera.position.x,camera.position.y-1,camera.position.z)){
+  if(solid(camera.position.x,camera.position.y-1,camera.position.z)){
     camera.position.y = Math.floor(camera.position.y)+1;
-    player.velocity.y = 0;
+    player.vel.y = 0;
     player.canJump = true;
   }
 
   if(keys[" "] && player.canJump){
-    player.velocity.y = 0.25;
+    player.vel.y = 0.3;
     player.canJump = false;
   }
 }
@@ -220,7 +235,9 @@ function move(){
 // ---------------- LOOP ----------------
 function animate(){
   requestAnimationFrame(animate);
+
   move();
+
   renderer.render(scene,camera);
 }
 
@@ -233,6 +250,7 @@ window.addEventListener("resize",()=>{
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
+
 </script>
 
 </body>
