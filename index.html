@@ -5,7 +5,7 @@
 <title>Horror Mini v0.03</title>
 
 <style>
-body { margin:0; overflow:hidden; background:black; }
+body { margin:0; overflow:hidden; background:#000; }
 
 #ui{
   position:absolute;
@@ -13,23 +13,25 @@ body { margin:0; overflow:hidden; background:black; }
   left:10px;
   color:#0f0;
   font-family:monospace;
-  font-size:14px;
   z-index:10;
 }
 
-#version{
-  color:#ff4444;
-  font-size:10px;
+#crosshair{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:6px;
+  height:6px;
+  background:white;
+  transform:translate(-50%,-50%);
 }
 </style>
 </head>
 
 <body>
 
-<div id="ui">
-HORROR MINI ENGINE
-<div id="version">v0.03 STABLE UPGRADE</div>
-</div>
+<div id="ui">HORROR MINI v0.03 - SEA UPDATE</div>
+<div id="crosshair"></div>
 
 <script type="module">
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
@@ -37,7 +39,7 @@ import { PointerLockControls } from "https://unpkg.com/three@0.160.0/examples/js
 import { SimplexNoise } from "https://cdn.skypack.dev/simplex-noise";
 
 
-// ---------------- CORE ----------------
+// ================= CORE =================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a0a);
 
@@ -55,55 +57,31 @@ scene.add(new THREE.AmbientLight(0xffffff,0.9));
 const noise = new SimplexNoise();
 
 
-// ---------------- TEXTURE PACK (NON-MINECRAFT) ----------------
+// ================= TEXTURE =================
 const tex = new THREE.TextureLoader().load(
   "https://i.imgur.com/8QfQp0X.png"
 );
-
 tex.magFilter = THREE.NearestFilter;
 tex.minFilter = THREE.NearestFilter;
 
+const mat = new THREE.MeshLambertMaterial({ map: tex });
+const geo = new THREE.BoxGeometry(1,1,1);
 
-// ---------------- INSTANCED BLOCK SYSTEM ----------------
-const geometry = new THREE.BoxGeometry(1,1,1);
-const material = new THREE.MeshLambertMaterial({ map: tex });
 
-let blocks = [];
-let world = new Map();
+// ================= WORLD =================
+const blocks = [];
+const world = new Map();
 
 const key = (x,y,z)=>`${x},${y},${z}`;
 
 
-// ---------------- PLAYER PHYSICS ----------------
-const player = {
-  vel: new THREE.Vector3(),
-  dir: new THREE.Vector3(),
-  speed: 0.15,
-  canJump:false
-};
-
-camera.position.set(0,25,0);
+// ================= SEA LEVEL =================
+const SEA = 18;
 
 
-// ---------------- INPUT ----------------
-let keys = {};
-
-document.addEventListener("keydown",(e)=>{
-  keys[e.key.toLowerCase()] = true;
-
-  if(e.key.toLowerCase()==="k"){
-    placeBlock();
-  }
-});
-
-document.addEventListener("keyup",(e)=>{
-  keys[e.key.toLowerCase()] = false;
-});
-
-
-// ---------------- BLOCK ----------------
+// ================= BLOCK =================
 function addBlock(x,y,z){
-  const m = new THREE.Mesh(geometry,material);
+  const m = new THREE.Mesh(geo,mat);
   m.position.set(x,y,z);
   scene.add(m);
 
@@ -112,79 +90,43 @@ function addBlock(x,y,z){
 }
 
 
-// ---------------- WORLD GEN ----------------
-function generate(){
+// ================= WORLD GEN (SEA ADDED) =================
+function gen(){
 
   for(let x=-20;x<20;x++){
     for(let z=-20;z<20;z++){
 
-      const h = Math.floor(
-        noise.noise2D(x*0.05,z*0.05)*18 + 20
-      );
+      const h =
+        noise.noise2D(x*0.05,z*0.05)*18 +
+        noise.noise2D(x*0.02,z*0.02)*10 +
+        20;
 
       for(let y=0;y<h;y++){
         addBlock(x,y,z);
+      }
+
+      // 🌊 DENİZ (VOXEL WATER)
+      if(h < SEA){
+        for(let y=h;y<SEA;y++){
+          const water = new THREE.Mesh(
+            geo,
+            new THREE.MeshBasicMaterial({color:0x0044ff,transparent:true,opacity:0.5})
+          );
+          water.position.set(x,y,z);
+          scene.add(water);
+
+          blocks.push(water);
+          world.set(key(x,y,z),true);
+        }
       }
     }
   }
 }
 
-generate();
+gen();
 
 
-// ---------------- SAVE SYSTEM ----------------
-function saveWorld(){
-  const data = [...world.keys()];
-  localStorage.setItem("world1", JSON.stringify(data));
-}
-
-function loadWorld(){
-  const data = JSON.parse(localStorage.getItem("world1")||"[]");
-
-  for(let k of data){
-    const [x,y,z] = k.split(",").map(Number);
-    addBlock(x,y,z);
-  }
-}
-
-
-// ---------------- RAYCAST ----------------
-const ray = new THREE.Raycaster();
-
-function breakBlock(){
-  ray.setFromCamera({x:0,y:0},camera);
-
-  const hit = ray.intersectObjects(blocks);
-
-  if(hit.length && hit[0].distance < 6){
-    const b = hit[0].object;
-    scene.remove(b);
-    world.delete(key(b.position.x,b.position.y,b.position.z));
-  }
-}
-
-function placeBlock(){
-  ray.setFromCamera({x:0,y:0},camera);
-
-  const hit = ray.intersectObjects(blocks);
-
-  if(hit.length && hit[0].distance < 6){
-
-    const n = hit[0].face.normal;
-    const pos = hit[0].object.position.clone().add(n);
-
-    if(!world.has(key(pos.x,pos.y,pos.z))){
-      addBlock(pos.x,pos.y,pos.z);
-    }
-  }
-}
-
-document.addEventListener("mousedown",(e)=>{
-  if(e.button===0) breakBlock();
-});
-
-
-// ---------------- COLLISION + GRAVITY ----------------
+// ================= HITBOX SYSTEM =================
 function solid(x,y,z){
   return world.has(key(
     Math.floor(x),
@@ -193,6 +135,31 @@ function solid(x,y,z){
   ));
 }
 
+
+// ================= PLAYER PHYSICS =================
+const player = {
+  vel: new THREE.Vector3(),
+  dir: new THREE.Vector3(),
+  speed: 0.15,
+  canJump:false
+};
+
+camera.position.set(0,30,0);
+
+
+// ================= INPUT =================
+const keys = {};
+
+document.addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()] = true;
+});
+
+document.addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()] = false;
+});
+
+
+// ================= MOVEMENT + COLLISION =================
 function move(){
 
   player.dir.set(0,0,0);
@@ -207,6 +174,7 @@ function move(){
   const nx = camera.position.x + player.dir.x * player.speed;
   const nz = camera.position.z + player.dir.z * player.speed;
 
+  // 🧱 HITBOX (X-Z)
   if(!solid(nx,camera.position.y,camera.position.z)){
     camera.position.x = nx;
   }
@@ -215,42 +183,48 @@ function move(){
     camera.position.z = nz;
   }
 
-  // gravity
-  player.vel.y -= 0.02;
+  // 🌍 GRAVITY
+  player.vel.y -= 0.025;
   camera.position.y += player.vel.y;
 
+  // 🧱 FLOOR HITBOX
   if(solid(camera.position.x,camera.position.y-1,camera.position.z)){
     camera.position.y = Math.floor(camera.position.y)+1;
     player.vel.y = 0;
     player.canJump = true;
   }
 
+  // 🦘 JUMP
   if(keys[" "] && player.canJump){
-    player.vel.y = 0.3;
+    player.vel.y = 0.32;
     player.canJump = false;
+  }
+
+  // 🌊 WATER FRICTION (basit his)
+  if(camera.position.y < SEA){
+    player.speed = 0.08;
+  }else{
+    player.speed = 0.15;
   }
 }
 
 
-// ---------------- LOOP ----------------
+// ================= LOOP =================
 function animate(){
   requestAnimationFrame(animate);
-
   move();
-
   renderer.render(scene,camera);
 }
 
 animate();
 
 
-// ---------------- RESIZE ----------------
+// ================= RESIZE =================
 window.addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
-
 </script>
 
 </body>
