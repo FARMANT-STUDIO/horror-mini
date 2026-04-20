@@ -1,208 +1,249 @@
-import os
-import datetime
-import random
-import math
-from pathlib import Path
-from ursina import *
-from ursina.prefabs.first_person_controller import FirstPersonController
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>FARMANT STUDIOS - HORROR MINI</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #050505; }
+        #ui { 
+            position: absolute; top: 20px; left: 20px; 
+            color: #00ff00; font-family: 'Courier New', monospace; 
+            text-shadow: 2px 2px #000; pointer-events: none;
+            z-index: 10;
+        }
+        #crosshair { 
+            position: absolute; top: 50%; left: 50%; 
+            width: 20px; height: 2px; background: rgba(255,255,255,0.5);
+            transform: translate(-50%, -50%);
+        }
+        #crosshair::after {
+            content: ''; position: absolute; top: -9px; left: 9px;
+            width: 2px; height: 20px; background: rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <span style="font-size: 1.2em; color: #ff0000; font-weight: bold;">FARMANT STUDIOS</span><br>
+        <span style="font-size: 1.5em; letter-spacing: 2px;">HORROR MINI - BILGISAYAR EDITION</span><br>
+        <hr style="border: 1px solid #333;">
+        KONUM: <span id="pos">0, 0, 0</span><br>
+        CHUNKS: <span id="chunkCount">0</span><br>
+        KONTROLLER: [W,A,S,D] Hareket | [K] Blok Koy | [SOL TIK] Kır
+    </div>
+    <div id="crosshair"></div>
 
-# ------------------------------------------------------------------
-# Proje Adı: HORROR MINI - BİLGİSAYAR EDİTİON
-# Sürüm: Alpha 0.03
-# Geliştirici: STRLXY-B9Q (Farmant Studios)
-# Lisans: GNU GPL v3
-# Bu yazılımın tüm hakları Farmant Studios'a aittir.
-# ------------------------------------------------------------------
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 
-# ==========================================
-# 1. SİSTEM VE KAYIT YÖNETİMİ (APPDATA)
-# ==========================================
-def initialize_system():
-    appdata = Path(os.getenv('APPDATA')) / "HorrorMini"
-    for folder in ["Worlds", "Logs", "Chunks"]:
-        (appdata / folder).mkdir(parents=True, exist_ok=True)
-    
-    log_file = appdata / "Logs" / "session_history.txt"
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(f"[{datetime.datetime.now()}] Giriş: Alpha 0.03 - Full Integrated Build Aktif\n")
-    return appdata
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
-save_path = initialize_system()
+        // --- GLOBAL AYARLAR ---
+        const CHUNK_SIZE = 16;
+        const DEEP_LAYERS = 42;
+        const VIEW_DIST = 3; 
 
-# ==========================================
-# 2. OYUN MOTORU VE ATMOSFER AYARLARI
-# ==========================================
-app = Ursina()
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x001100, 0.02); 
 
-window.title = 'HORROR MINI - ALPHA 0.03'
-window.borderless = False
-window.exit_button.visible = False
-window.color = color.black
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        const renderer = new THREE.WebGLRenderer({ antialias: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio * 0.7); 
+        document.body.appendChild(renderer.domElement);
 
-# Sis ve Işıklandırma (Shader Desteği)
-scene.fog_color = color.black
-scene.fog_density = (15, 45)
-Entity.default_shader = lit_with_shadows_shader
-sun = DirectionalLight()
-sun.look_at(Vec3(1, -1, 1))
+        const controls = new PointerLockControls(camera, document.body);
+        document.body.addEventListener('click', () => controls.lock());
 
-mats = {
-    'grass': color.color(120, 0.5, 0.3),
-    'dirt': color.brown,
-    'stone': color.dark_gray,
-    'sand': color.yellow,
-    'gravel': color.light_gray,
-    'water': color.blue,
-    'wood': color.orange,
-    'leaves': color.green
-}
+        // Materyaller (InstancedMesh için ortak kullanılır)
+        const mats = {
+            grass: new THREE.MeshLambertMaterial({ color: 0x3d6117 }),
+            dirt: new THREE.MeshLambertMaterial({ color: 0x4d3319 }),
+            stone: new THREE.MeshLambertMaterial({ color: 0x333333 }),
+            stalker: new THREE.MeshBasicMaterial({ color: 0xffffff })
+        };
+        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
 
-# ==========================================
-# 3. DÜNYA MOTORU VE DINAMIK CHUNK
-# ==========================================
-CHUNK_SIZE = 8
-RENDER_DISTANCE = 5
-loaded_chunks = {} # {(cx, cz): [entity_list]}
+        const chunks = new Map();
 
-def get_height(x, z):
-    # Dağlar, Vadiler ve Oyuklar için Noise Mantığı
-    h = math.sin(x * 0.1) * math.cos(z * 0.1) * 5
-    h += math.sin(x * 0.05) * 10 
-    return floor(h + 5)
+        // --- CHUNK SINIFI (INSTANCED MESH KULLANIMI) ---
+        class Chunk {
+            constructor(cx, cz) {
+                this.cx = cx;
+                this.cz = cz;
+                this.group = new THREE.Group();
+                
+                // Her chunk için 3 ana katman (Yüzey, Toprak, Taş)
+                const countPerLayer = CHUNK_SIZE * CHUNK_SIZE;
+                this.iGrass = new THREE.InstancedMesh(boxGeo, mats.grass, countPerLayer);
+                this.iDirt = new THREE.InstancedMesh(boxGeo, mats.dirt, countPerLayer * 3);
+                this.iStone = new THREE.InstancedMesh(boxGeo, mats.stone, countPerLayer * DEEP_LAYERS);
 
-class Voxel(Button):
-    def __init__(self, position=(0,0,0), mat=mats['grass']):
-        super().__init__(
-            parent=scene, position=position, model='cube', origin_y=0.5,
-            texture='white_cube', color=mat, collider='box',
-            highlight_color=color.red, shader=lit_with_shadows_shader
-        )
+                this.generate();
+            }
 
-    def input(self, key):
-        if self.hovered:
-            # BLOK KIRMA: SOL TIK
-            if key == 'left mouse down':
-                destroy(self)
-            # BLOK KOYMA: K TUŞU
-            if key == 'k':
-                Voxel(position=self.position + mouse.normal, mat=mats['stone'])
+            generate() {
+                const dummy = new THREE.Object3D();
+                let gIdx = 0, dIdx = 0, sIdx = 0;
 
-def spawn_tree(x, y, z, chunk_list):
-    tree_h = random.randint(3, 5)
-    for i in range(tree_h):
-        trunk = Voxel(position=(x, y+i, z), mat=mats['wood'])
-        chunk_list.append(trunk)
-    for lx in range(-1, 2):
-        for ly in range(2):
-            for lz in range(-1, 2):
-                leaf = Voxel(position=(x+lx, y+tree_h+ly, z+lz), mat=mats['leaves'])
-                chunk_list.append(leaf)
+                for (let x = 0; x < CHUNK_SIZE; x++) {
+                    for (let z = 0; z < CHUNK_SIZE; z++) {
+                        const worldX = this.cx * CHUNK_SIZE + x;
+                        const worldZ = this.cz * CHUNK_SIZE + z;
+                        const surfaceY = Math.floor(Math.sin(worldX * 0.1) * 2 + Math.cos(worldZ * 0.1) * 2 + 10);
 
-def create_chunk(cx, cz):
-    chunk_entities = []
-    for x in range(cx * CHUNK_SIZE, (cx + 1) * CHUNK_SIZE):
-        for z in range(cz * CHUNK_SIZE, (cz + 1) * CHUNK_SIZE):
-            h = get_height(x, z)
+                        // 1. Çimen (Yüzey)
+                        dummy.position.set(worldX, surfaceY, worldZ);
+                        dummy.updateMatrix();
+                        this.iGrass.setMatrixAt(gIdx++, dummy.matrix);
+
+                        // 2. Alt Katmanlar (42 Kat)
+                        for (let y = 1; y <= DEEP_LAYERS; y++) {
+                            const depthY = surfaceY - y;
+                            dummy.position.set(worldX, depthY, worldZ);
+                            dummy.updateMatrix();
+
+                            if (y < 4) {
+                                this.iDirt.setMatrixAt(dIdx++, dummy.matrix);
+                            } else {
+                                this.iStone.setMatrixAt(sIdx++, dummy.matrix);
+                            }
+                        }
+                    }
+                }
+                this.iGrass.instanceMatrix.needsUpdate = true;
+                this.iDirt.instanceMatrix.needsUpdate = true;
+                this.iStone.instanceMatrix.needsUpdate = true;
+
+                this.group.add(this.iGrass, this.iDirt, this.iStone);
+            }
+        }
+
+        // --- HAREKET SİSTEMİ ---
+        const keys = {};
+        window.addEventListener('keydown', (e) => keys[e.code] = true);
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        function updateMovement() {
+            const speed = 0.15;
+            if (keys['KeyW']) controls.moveForward(speed);
+            if (keys['KeyS']) controls.moveForward(-speed);
+            if (keys['KeyA']) controls.moveRight(-speed);
+            if (keys['KeyD']) controls.moveRight(speed);
+        }
+
+        // --- BLOK KOYMA (K) VE KIRMA (MOUSE) ---
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyK' && controls.isLocked) {
+                raycastAction(true); // Ekle
+            }
+        });
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && controls.isLocked) {
+                raycastAction(false); // Sil
+            }
+        });
+
+        function raycastAction(isAdding) {
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            // InstancedMesh'ler group içinde olduğu için recursive aramalıyız
+            const hits = ray.intersectObjects(scene.children, true);
             
-            # Biome Kontrolü
-            cur_mat = mats['grass']
-            if h < 2: 
-                cur_mat = mats['sand']
-                water = Voxel(position=(x, 1, z), mat=mats['water'])
-                chunk_entities.append(water)
-            elif random.random() < 0.03: 
-                cur_mat = mats['gravel']
+            if (hits.length > 0) {
+                const hit = hits[0];
+                if (hit.object === stalker) return;
 
-            # Katmanlar
-            top = Voxel(position=(x, h, z), mat=cur_mat)
-            chunk_entities.append(top)
-            
-            if h > 0:
-                under = Voxel(position=(x, h-1, z), mat=mats['dirt'])
-                chunk_entities.append(under)
-                if random.random() > 0.15: # Mağara oyukları için taş katmanı
-                    stone = Voxel(position=(x, h-2, z), mat=mats['stone'])
-                    chunk_entities.append(stone)
+                if (isAdding) {
+                    const pos = new THREE.Vector3().copy(hit.point).add(hit.face.normal.multiplyScalar(0.5)).floor();
+                    const b = new THREE.Mesh(boxGeo, mats.grass); // Eklenenler normal mesh olabilir (sayısı az olduğu için)
+                    b.position.set(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
+                    scene.add(b);
+                } else {
+                    // InstancedMesh kırma zordur, bu yüzden şimdilik objeyi gizliyoruz veya mesh ise siliyoruz
+                    if (hit.object instanceof THREE.InstancedMesh) {
+                        // Basit prototipte instanced blok kırma yerine mesh silmeyi simüle ediyoruz
+                        const instanceId = hit.instanceId;
+                        const tempMatrix = new THREE.Matrix4();
+                        tempMatrix.makeScale(0,0,0); // Bloğu görünmez yap
+                        hit.object.setMatrixAt(instanceId, tempMatrix);
+                        hit.object.instanceMatrix.needsUpdate = true;
+                    } else {
+                        scene.remove(hit.object);
+                    }
+                }
+            }
+        }
 
-            if cur_mat == mats['grass'] and random.random() < 0.02:
-                spawn_tree(x, h+1, z, chunk_entities)
+        // --- STALKER ---
+        const stalker = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.9, 0.8), mats.stalker);
+        scene.add(stalker);
+        stalker.position.set(0, -100, 0);
 
-    loaded_chunks[(cx, cz)] = chunk_entities
+        function handleStalker() {
+            const dist = camera.position.distanceTo(stalker.position);
+            if (dist > 50) {
+                const angle = Math.random() * Math.PI * 2;
+                stalker.position.set(camera.position.x + Math.cos(angle)*25, 12, camera.position.z + Math.sin(angle)*25);
+            }
+            const camDir = new THREE.Vector3();
+            camera.getWorldDirection(camDir);
+            const toStalker = new THREE.Vector3().subVectors(stalker.position, camera.position).normalize();
+            if (camDir.dot(toStalker) > 0.8) stalker.position.y = -100;
+        }
 
-def update_chunks():
-    cx, cz = floor(player.x / CHUNK_SIZE), floor(player.z / CHUNK_SIZE)
-    # Yeni Chunkları Yükle
-    for x in range(cx - RENDER_DISTANCE, cx + RENDER_DISTANCE):
-        for z in range(cz - RENDER_DISTANCE, cz + RENDER_DISTANCE):
-            if (x, z) not in loaded_chunks:
-                create_chunk(x, z)
-    # Uzaktakileri Sil
-    to_del = [c for c in loaded_chunks if abs(c[0]-cx) > RENDER_DISTANCE or abs(c[1]-cz) > RENDER_DISTANCE]
-    for c in to_del:
-        for e in loaded_chunks[c]: destroy(e)
-        del loaded_chunks[c]
+        // --- DINAMIK CHUNK ---
+        function updateChunks() {
+            const curCX = Math.floor(camera.position.x / CHUNK_SIZE);
+            const curCZ = Math.floor(camera.position.z / CHUNK_SIZE);
 
-# ==========================================
-# 4. STALKER (PUSU VE TAKİP)
-# ==========================================
-stalker = Entity(model='cube', color=color.white, scale=(1,2,1), enabled=False)
-stalker_timer = 0
+            for (let x = curCX - VIEW_DIST; x <= curCX + VIEW_DIST; x++) {
+                for (let z = curCZ - VIEW_DIST; z <= curCZ + VIEW_DIST; z++) {
+                    const key = `${x},${z}`;
+                    if (!chunks.has(key)) {
+                        const c = new Chunk(x, z);
+                        chunks.set(key, c);
+                        scene.add(c.group);
+                    }
+                }
+            }
+            document.getElementById('chunkCount').innerText = chunks.size;
+        }
 
-def teleport_stalker():
-    angle = random.uniform(0, math.pi * 2)
-    dist = random.uniform(25, 40)
-    nx, nz = player.x + math.cos(angle) * dist, player.z + math.sin(angle) * dist
-    h = get_height(nx, nz)
-    
-    # Pusu Senaryoları: Dağ başı, Oyuk, Normal
-    scen = random.choice(['top', 'cave', 'normal'])
-    if scen == 'top': stalker.position = (nx, h+1, nz)
-    elif scen == 'cave': stalker.position = (nx, max(1, h-2), nz)
-    else: stalker.position = (nx, h+1, nz)
-    
-    stalker.look_at(player.position)
+        // --- DÖNGÜ ---
+        camera.position.set(5, 15, 5);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambient);
+        const pLight = new THREE.PointLight(0xffffff, 0.7, 30);
+        scene.add(pLight);
 
-# ==========================================
-# 5. UI, KONTROL VE ANA DÖNGÜ
-# ==========================================
-player = FirstPersonController(enabled=False, y=30)
-player.cursor.visible = True
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls.isLocked) {
+                updateMovement();
+                updateChunks();
+                handleStalker();
+                pLight.position.copy(camera.position);
+                document.getElementById('pos').innerText = 
+                    `${Math.round(camera.position.x)}, ${Math.round(camera.position.y)}, ${Math.round(camera.position.z)}`;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
 
-# Başlık Ekranı
-title = Text(text='HORROR MINI\n<red>BILGISAYAR EDITION<default>\n<gray>Alpha 0.03', 
-             origin=(0,0), scale=3, background=True)
-info = Text(text='DUNYAYI INDIRMEK VE BASLATMAK ICIN [SPACE] BASIN', origin=(0,-8), scale=1)
-
-def start_game():
-    title.enabled = False
-    info.enabled = False
-    player.enabled = True
-    stalker.enabled = True
-    mouse.locked = True
-    teleport_stalker()
-
-def input(key):
-    if key == 'space' and not player.enabled: start_game()
-    if key == 'escape': application.quit()
-
-def update():
-    global stalker_timer
-    if player.enabled:
-        update_chunks()
-        stalker.look_at(player.position)
-        
-        # Pusu Zamanlayıcısı
-        stalker_timer += time.dt
-        if stalker_timer > random.uniform(20, 40):
-            teleport_stalker()
-            stalker_timer = 0
-            
-        # Yakın Takip
-        if distance(stalker.position, player.position) < 15:
-            stalker.position += stalker.forward * time.dt * 2.2
-
-# Konsol Telif Bildirimi
-print("--- Farmant Studios: Horror Mini ---")
-print("Licensed under GNU GPL v3. Copyright 2026 STRLXY-B9Q")
-
-app.run()
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
