@@ -2,248 +2,245 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>FARMANT STUDIOS - HORROR MINI</title>
+    <title>Horror Mini - Alpha Engine</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #050505; }
-        #ui { 
-            position: absolute; top: 20px; left: 20px; 
-            color: #00ff00; font-family: 'Courier New', monospace; 
-            text-shadow: 2px 2px #000; pointer-events: none;
-            z-index: 10;
-        }
-        #crosshair { 
-            position: absolute; top: 50%; left: 50%; 
-            width: 20px; height: 2px; background: rgba(255,255,255,0.5);
-            transform: translate(-50%, -50%);
-        }
-        #crosshair::after {
-            content: ''; position: absolute; top: -9px; left: 9px;
-            width: 2px; height: 20px; background: rgba(255,255,255,0.5);
-        }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Courier New', monospace; }
+        #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); color: white; z-index: 10; }
+        .menu-btn { background: #444; border: 2px solid #fff; color: white; padding: 15px 30px; margin: 10px; cursor: pointer; font-size: 1.2rem; min-width: 300px; }
+        .menu-btn:hover { background: #666; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; transform: translate(-50%, -50%); pointer-events: none; z-index: 5; }
+        #info { position: absolute; bottom: 10px; left: 10px; color: white; pointer-events: none; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <span style="font-size: 1.2em; color: #ff0000; font-weight: bold;">FARMANT STUDIOS</span><br>
-        <span style="font-size: 1.5em; letter-spacing: 2px;">HORROR MINI - BILGISAYAR EDITION</span><br>
-        <hr style="border: 1px solid #333;">
-        KONUM: <span id="pos">0, 0, 0</span><br>
-        CHUNKS: <span id="chunkCount">0</span><br>
-        KONTROLLER: [W,A,S,D] Hareket | [K] Blok Koy | [SOL TIK] Kır
+
+<div id="crosshair"></div>
+<div id="info">W,A,S,D: Hareket | Sol Tık: Kır | K: Koy | Yerçekimi Aktif</div>
+
+<div id="ui-overlay">
+    <h1>HORROR MINI: ALPHA</h1>
+    <div id="save-prompt" style="display:none; text-align: center;">
+        <p>Kayıtlı bir dünyanız bulunuyor. Geri dönmek ister misiniz?</p>
+        <button class="menu-btn" onclick="initGame(true)">EVET (KAYDA DÖN)</button>
+        <button class="menu-btn" onclick="showWorldList()">HAYIR (LİSTEYE GİT)</button>
     </div>
-    <div id="crosshair"></div>
+    <div id="main-menu">
+        <button class="menu-btn" onclick="checkSaveOnStart()">TEK OYUNCULU</button>
+        <button class="menu-btn" disabled style="opacity: 0.5;">ÇOK OYUNCULU (YAKINDA)</button>
+    </div>
+    <div id="world-list" style="display:none;">
+        <div id="existing-saves"></div>
+        <button class="menu-btn" onclick="initGame(false)" style="background: #2d5a27;">YENİ DÜNYA OLUŞTUR</button>
+    </div>
+</div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/PointerLockControls.js"></script>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+<script>
+// --- KONFİGÜRASYON ---
+const WORLD_SIZE = 114; // Yaklaşık 13,000 yüzey bloğu (114x114)
+const CHUNK_SIZE = 16;
+const RENDER_DISTANCE = 25; 
+const BLOCK_TYPES = {
+    GRASS: 0, DIRT: 1, STONE: 2, SAND: 3, GRAVEL: 4, 
+    COAL: 5, IRON: 6, GOLD: 7, DIAMOND: 8, WOOD: 9, LEAVES: 10
+};
+const COLORS = [0x55aa33, 0x8b4513, 0x808080, 0xd2b48c, 0x696969, 0x222222, 0xd3d3d3, 0xffd700, 0x00ffff, 0x5d4037, 0x228b22];
 
-        // --- GLOBAL AYARLAR ---
-        const CHUNK_SIZE = 16;
-        const DEEP_LAYERS = 42;
-        const VIEW_DIST = 3; 
+let scene, camera, renderer, controls;
+let blocks = []; // Dünya verisi
+let moveFwd = false, moveBwd = false, moveLft = false, moveRgt = false;
+let velocity = new THREE.Vector3();
 
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x001100, 0.02); 
+// --- BAŞLATMA VE MENÜ ---
+function checkSaveOnStart() {
+    if (localStorage.getItem('horrorMini_save')) {
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('save-prompt').style.display = 'block';
+    } else {
+        showWorldList();
+    }
+}
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio * 0.7); 
-        document.body.appendChild(renderer.domElement);
+function showWorldList() {
+    document.getElementById('save-prompt').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('world-list').style.display = 'block';
+    const savesDiv = document.getElementById('existing-saves');
+    if (localStorage.getItem('horrorMini_save')) {
+        savesDiv.innerHTML = `<button class="menu-btn" onclick="initGame(true)">DÜNYA 1 (KAYITLI)</button>`;
+    }
+}
 
-        const controls = new PointerLockControls(camera, document.body);
-        document.body.addEventListener('click', () => controls.lock());
+function initGame(loadSave) {
+    document.getElementById('ui-overlay').style.display = 'none';
+    
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 20, 100);
 
-        // Materyaller (InstancedMesh için ortak kullanılır)
-        const mats = {
-            grass: new THREE.MeshLambertMaterial({ color: 0x3d6117 }),
-            dirt: new THREE.MeshLambertMaterial({ color: 0x4d3319 }),
-            stone: new THREE.MeshLambertMaterial({ color: 0x333333 }),
-            stalker: new THREE.MeshBasicMaterial({ color: 0xffffff })
-        };
-        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(WORLD_SIZE/2, 25, WORLD_SIZE/2);
 
-        const chunks = new Map();
+    renderer = new THREE.WebGLRenderer({ antialias: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-        // --- CHUNK SINIFI (INSTANCED MESH KULLANIMI) ---
-        class Chunk {
-            constructor(cx, cz) {
-                this.cx = cx;
-                this.cz = cz;
-                this.group = new THREE.Group();
-                
-                // Her chunk için 3 ana katman (Yüzey, Toprak, Taş)
-                const countPerLayer = CHUNK_SIZE * CHUNK_SIZE;
-                this.iGrass = new THREE.InstancedMesh(boxGeo, mats.grass, countPerLayer);
-                this.iDirt = new THREE.InstancedMesh(boxGeo, mats.dirt, countPerLayer * 3);
-                this.iStone = new THREE.InstancedMesh(boxGeo, mats.stone, countPerLayer * DEEP_LAYERS);
+    controls = new THREE.PointerLockControls(camera, document.body);
+    document.addEventListener('click', () => controls.lock());
 
-                this.generate();
-            }
+    // Işıklandırma (Alpha Tarzı)
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.4);
+    sun.position.set(50, 100, 50);
+    scene.add(sun);
 
-            generate() {
-                const dummy = new THREE.Object3D();
-                let gIdx = 0, dIdx = 0, sIdx = 0;
+    if (loadSave) {
+        blocks = JSON.parse(localStorage.getItem('horrorMini_save'));
+    } else {
+        generateAlphaWorld();
+    }
+    
+    renderBlocks();
+    setupInput();
+    animate();
+}
 
-                for (let x = 0; x < CHUNK_SIZE; x++) {
-                    for (let z = 0; z < CHUNK_SIZE; z++) {
-                        const worldX = this.cx * CHUNK_SIZE + x;
-                        const worldZ = this.cz * CHUNK_SIZE + z;
-                        const surfaceY = Math.floor(Math.sin(worldX * 0.1) * 2 + Math.cos(worldZ * 0.1) * 2 + 10);
-
-                        // 1. Çimen (Yüzey)
-                        dummy.position.set(worldX, surfaceY, worldZ);
-                        dummy.updateMatrix();
-                        this.iGrass.setMatrixAt(gIdx++, dummy.matrix);
-
-                        // 2. Alt Katmanlar (42 Kat)
-                        for (let y = 1; y <= DEEP_LAYERS; y++) {
-                            const depthY = surfaceY - y;
-                            dummy.position.set(worldX, depthY, worldZ);
-                            dummy.updateMatrix();
-
-                            if (y < 4) {
-                                this.iDirt.setMatrixAt(dIdx++, dummy.matrix);
-                            } else {
-                                this.iStone.setMatrixAt(sIdx++, dummy.matrix);
-                            }
-                        }
-                    }
-                }
-                this.iGrass.instanceMatrix.needsUpdate = true;
-                this.iDirt.instanceMatrix.needsUpdate = true;
-                this.iStone.instanceMatrix.needsUpdate = true;
-
-                this.group.add(this.iGrass, this.iDirt, this.iStone);
-            }
-        }
-
-        // --- HAREKET SİSTEMİ ---
-        const keys = {};
-        window.addEventListener('keydown', (e) => keys[e.code] = true);
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
-
-        function updateMovement() {
-            const speed = 0.15;
-            if (keys['KeyW']) controls.moveForward(speed);
-            if (keys['KeyS']) controls.moveForward(-speed);
-            if (keys['KeyA']) controls.moveRight(-speed);
-            if (keys['KeyD']) controls.moveRight(speed);
-        }
-
-        // --- BLOK KOYMA (K) VE KIRMA (MOUSE) ---
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyK' && controls.isLocked) {
-                raycastAction(true); // Ekle
-            }
-        });
-        window.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && controls.isLocked) {
-                raycastAction(false); // Sil
-            }
-        });
-
-        function raycastAction(isAdding) {
-            const ray = new THREE.Raycaster();
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            // InstancedMesh'ler group içinde olduğu için recursive aramalıyız
-            const hits = ray.intersectObjects(scene.children, true);
+// --- DÜNYA ÜRETİMİ ---
+function generateAlphaWorld() {
+    for (let x = 0; x < WORLD_SIZE; x++) {
+        for (let z = 0; z < WORLD_SIZE; z++) {
+            // Dağlık yapı (Perlin gürültüsü benzeri basit matematik)
+            let h = Math.floor(Math.sin(x/8) * 4 + Math.cos(z/8) * 4 + 15);
             
-            if (hits.length > 0) {
-                const hit = hits[0];
-                if (hit.object === stalker) return;
-
-                if (isAdding) {
-                    const pos = new THREE.Vector3().copy(hit.point).add(hit.face.normal.multiplyScalar(0.5)).floor();
-                    const b = new THREE.Mesh(boxGeo, mats.grass); // Eklenenler normal mesh olabilir (sayısı az olduğu için)
-                    b.position.set(pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
-                    scene.add(b);
+            for (let y = 0; y < h; y++) {
+                let type;
+                if (y === h - 1) {
+                    // Yüzey
+                    type = (Math.random() < 0.1 && (x<5 || z<5)) ? BLOCK_TYPES.SAND : BLOCK_TYPES.GRASS;
+                } else if (y > h - 6) {
+                    type = BLOCK_TYPES.DIRT;
                 } else {
-                    // InstancedMesh kırma zordur, bu yüzden şimdilik objeyi gizliyoruz veya mesh ise siliyoruz
-                    if (hit.object instanceof THREE.InstancedMesh) {
-                        // Basit prototipte instanced blok kırma yerine mesh silmeyi simüle ediyoruz
-                        const instanceId = hit.instanceId;
-                        const tempMatrix = new THREE.Matrix4();
-                        tempMatrix.makeScale(0,0,0); // Bloğu görünmez yap
-                        hit.object.setMatrixAt(instanceId, tempMatrix);
-                        hit.object.instanceMatrix.needsUpdate = true;
-                    } else {
-                        scene.remove(hit.object);
+                    // Derinlikler ve Madenler
+                    type = BLOCK_TYPES.STONE;
+                    let rand = Math.random();
+                    if (y < 5) { // En derin
+                        if (rand < 0.02) type = BLOCK_TYPES.DIAMOND;
+                        else if (rand < 0.05) type = BLOCK_TYPES.GOLD;
+                    } else if (y < 12) { // Orta
+                        if (rand < 0.04) type = BLOCK_TYPES.IRON;
                     }
+                    if (rand < 0.08) type = BLOCK_TYPES.COAL;
                 }
+                blocks.push({x, y, z, t: type});
+            }
+
+            // Nadir Ağaç ve Çakıl (Deniz çevresi/Dağ)
+            if (x % 15 === 0 && z % 15 === 0 && Math.random() > 0.5) {
+                spawnTree(x, Math.floor(Math.sin(x/8) * 4 + Math.cos(z/8) * 4 + 15), z);
             }
         }
+    }
+    saveData();
+}
 
-        // --- STALKER ---
-        const stalker = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.9, 0.8), mats.stalker);
-        scene.add(stalker);
-        stalker.position.set(0, -100, 0);
-
-        function handleStalker() {
-            const dist = camera.position.distanceTo(stalker.position);
-            if (dist > 50) {
-                const angle = Math.random() * Math.PI * 2;
-                stalker.position.set(camera.position.x + Math.cos(angle)*25, 12, camera.position.z + Math.sin(angle)*25);
-            }
-            const camDir = new THREE.Vector3();
-            camera.getWorldDirection(camDir);
-            const toStalker = new THREE.Vector3().subVectors(stalker.position, camera.position).normalize();
-            if (camDir.dot(toStalker) > 0.8) stalker.position.y = -100;
+function spawnTree(x, y, z) {
+    for(let i=0; i<4; i++) blocks.push({x, y: y+i, z, t: BLOCK_TYPES.WOOD}); // Gövde
+    for(let lx=-1; lx<=1; lx++) {
+        for(let lz=-1; lz<=1; lz++) {
+            blocks.push({x: x+lx, y: y+4, z: z+lz, t: BLOCK_TYPES.LEAVES});
         }
+    }
+}
 
-        // --- DINAMIK CHUNK ---
-        function updateChunks() {
-            const curCX = Math.floor(camera.position.x / CHUNK_SIZE);
-            const curCZ = Math.floor(camera.position.z / CHUNK_SIZE);
+// --- GÖRSELLEŞTİRME ---
+function renderBlocks() {
+    const geometry = new THREE.BoxGeometry(1,1,1);
+    // Her blok tipi için bir grup oluştur (Performans için)
+    Object.values(BLOCK_TYPES).forEach(typeIndex => {
+        const typeBlocks = blocks.filter(b => b.t === typeIndex);
+        if (typeBlocks.length === 0) return;
 
-            for (let x = curCX - VIEW_DIST; x <= curCX + VIEW_DIST; x++) {
-                for (let z = curCZ - VIEW_DIST; z <= curCZ + VIEW_DIST; z++) {
-                    const key = `${x},${z}`;
-                    if (!chunks.has(key)) {
-                        const c = new Chunk(x, z);
-                        chunks.set(key, c);
-                        scene.add(c.group);
-                    }
-                }
-            }
-            document.getElementById('chunkCount').innerText = chunks.size;
-        }
-
-        // --- DÖNGÜ ---
-        camera.position.set(5, 15, 5);
-        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambient);
-        const pLight = new THREE.PointLight(0xffffff, 0.7, 30);
-        scene.add(pLight);
-
-        function animate() {
-            requestAnimationFrame(animate);
-            if (controls.isLocked) {
-                updateMovement();
-                updateChunks();
-                handleStalker();
-                pLight.position.copy(camera.position);
-                document.getElementById('pos').innerText = 
-                    `${Math.round(camera.position.x)}, ${Math.round(camera.position.y)}, ${Math.round(camera.position.z)}`;
-            }
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        const mesh = new THREE.InstancedMesh(geometry, new THREE.MeshLambertMaterial({color: COLORS[typeIndex]}), typeBlocks.length);
+        const matrix = new THREE.Matrix4();
+        typeBlocks.forEach((b, i) => {
+            matrix.setPosition(b.x, b.y, b.z);
+            mesh.setMatrixAt(i, matrix);
         });
-    </script>
+        scene.add(mesh);
+    });
+}
+
+// --- FİZİK VE KONTROLLER ---
+function setupInput() {
+    document.addEventListener('keydown', (e) => {
+        if(e.code === 'KeyW') moveFwd = true;
+        if(e.code === 'KeyS') moveBwd = true;
+        if(e.code === 'KeyA') moveLft = true;
+        if(e.code === 'KeyD') moveRgt = true;
+        if(e.code === 'KeyK') placeBlock();
+    });
+    document.addEventListener('keyup', (e) => {
+        if(e.code === 'KeyW') moveFwd = false;
+        if(e.code === 'KeyS') moveBwd = false;
+        if(e.code === 'KeyA') moveLft = false;
+        if(e.code === 'KeyD') moveRgt = false;
+    });
+    document.addEventListener('mousedown', (e) => { if(e.button === 0) breakBlock(); });
+}
+
+function breakBlock() {
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(), camera);
+    const intersects = ray.intersectObjects(scene.children);
+    if (intersects.length > 0) {
+        // Basitlik adına sahneden siliyoruz, gerçek projede blocks dizisinden silinip renderBlocks tetiklenmeli
+        intersects[0].object.visible = false; 
+        saveData();
+    }
+}
+
+function placeBlock() {
+    const x = Math.round(camera.position.x);
+    const y = Math.round(camera.position.y - 2);
+    const z = Math.round(camera.position.z);
+    blocks.push({x, y, z, t: BLOCK_TYPES.WOOD});
+    renderBlocks();
+    saveData();
+}
+
+function saveData() {
+    localStorage.setItem('horrorMini_save', JSON.stringify(blocks));
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    if (controls.isLocked) {
+        // Yerçekimi
+        velocity.y -= 0.01; 
+        camera.position.y += velocity.y;
+
+        // Basit Yer Çarpışması
+        if (camera.position.y < 18) {
+            velocity.y = 0;
+            camera.position.y = 18;
+        }
+
+        // Hareket
+        const speed = 0.12;
+        if (moveFwd) controls.moveForward(speed);
+        if (moveBwd) controls.moveForward(-speed);
+        if (moveLft) controls.moveRight(-speed);
+        if (moveRgt) controls.moveRight(speed);
+    }
+    renderer.render(scene, camera);
+}
+
+window.onload = () => {
+    // UI başlatma burada olabilir
+};
+</script>
 </body>
 </html>
