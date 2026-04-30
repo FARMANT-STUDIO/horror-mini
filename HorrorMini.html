@@ -2,245 +2,260 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Horror Mini - Alpha Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HORROR MINI - Alpha 0.03 (White Fog Edition)</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Courier New', monospace; }
-        #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); color: white; z-index: 10; }
-        .menu-btn { background: #444; border: 2px solid #fff; color: white; padding: 15px 30px; margin: 10px; cursor: pointer; font-size: 1.2rem; min-width: 300px; }
-        .menu-btn:hover { background: #666; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid white; transform: translate(-50%, -50%); pointer-events: none; z-index: 5; }
-        #info { position: absolute; bottom: 10px; left: 10px; color: white; pointer-events: none; }
+        body { margin: 0; overflow: hidden; background: #eee; font-family: 'Courier New', monospace; touch-action: none; -webkit-user-select: none; user-select: none; }
+        
+        #ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.9); z-index: 100;
+        }
+        #logo { color: #000; font-size: 38px; font-weight: bold; text-align: center; }
+        .menu-btn { background: #000; color: white; border: none; padding: 20px 60px; font-size: 22px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+
+        #crosshair { 
+            position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; 
+            border: 1px solid black; border-radius: 50%; transform: translate(-50%, -50%); 
+            pointer-events: none; display: none; z-index: 45; 
+        }
+
+        #version-info {
+            position: absolute; bottom: 10px; right: 10px;
+            color: #000; font-size: 10px; text-align: right;
+            pointer-events: none; z-index: 70; max-width: 250px;
+            background: rgba(255,255,255,0.5); padding: 5px; border-radius: 5px;
+        }
+
+        /* İstediğin Sol Üst Yazı */
+        #dev-credit {
+            position: absolute; top: 10px; left: 10px;
+            color: #000; font-size: 14px; font-weight: bold;
+            z-index: 110; background: rgba(255,255,255,0.7); padding: 5px;
+        }
     </style>
 </head>
 <body>
 
-<div id="crosshair"></div>
-<div id="info">W,A,S,D: Hareket | Sol Tık: Kır | K: Koy | Yerçekimi Aktif</div>
+    <div id="dev-credit">THE GAME DEVELOPER IS HUKA, DO NOT CHANGE IT.</div>
 
-<div id="ui-overlay">
-    <h1>HORROR MINI: ALPHA</h1>
-    <div id="save-prompt" style="display:none; text-align: center;">
-        <p>Kayıtlı bir dünyanız bulunuyor. Geri dönmek ister misiniz?</p>
-        <button class="menu-btn" onclick="initGame(true)">EVET (KAYDA DÖN)</button>
-        <button class="menu-btn" onclick="showWorldList()">HAYIR (LİSTEYE GİT)</button>
+    <div id="ui-overlay">
+        <div id="logo">KORKU MINI<br><span style="font-size: 18px; color: #333;">WHITE FOG Alpha 0.03</span></div>
+        <button class="menu-btn" onclick="startGame()">OYUNA BAŞLA</button>
+        <p style="font-size: 12px; margin-top: 10px;">(WASD ile hareket et, Mouse ile bak, Sol Tık: Kır, Sağ Tık: Koy)</p>
     </div>
-    <div id="main-menu">
-        <button class="menu-btn" onclick="checkSaveOnStart()">TEK OYUNCULU</button>
-        <button class="menu-btn" disabled style="opacity: 0.5;">ÇOK OYUNCULU (YAKINDA)</button>
-    </div>
-    <div id="world-list" style="display:none;">
-        <div id="existing-saves"></div>
-        <button class="menu-btn" onclick="initGame(false)" style="background: #2d5a27;">YENİ DÜNYA OLUŞTUR</button>
-    </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/PointerLockControls.js"></script>
+    <div id="version-info">ALPHA 0.03 (BU SÜRÜMDE BAZI BÜYÜK ŞEYLER YOKTUR ÇÜNKÜ ALPHA SÜRÜMLERİNDEN BİRİDİR DİĞER SÜRÜMÜ BEKLEYİN...)</div>
 
-<script>
-// --- KONFİGÜRASYON ---
-const WORLD_SIZE = 114; // Yaklaşık 13,000 yüzey bloğu (114x114)
-const CHUNK_SIZE = 16;
-const RENDER_DISTANCE = 25; 
-const BLOCK_TYPES = {
-    GRASS: 0, DIRT: 1, STONE: 2, SAND: 3, GRAVEL: 4, 
-    COAL: 5, IRON: 6, GOLD: 7, DIAMOND: 8, WOOD: 9, LEAVES: 10
-};
-const COLORS = [0x55aa33, 0x8b4513, 0x808080, 0xd2b48c, 0x696969, 0x222222, 0xd3d3d3, 0xffd700, 0x00ffff, 0x5d4037, 0x228b22];
+    <div id="crosshair"></div>
 
-let scene, camera, renderer, controls;
-let blocks = []; // Dünya verisi
-let moveFwd = false, moveBwd = false, moveLft = false, moveRgt = false;
-let velocity = new THREE.Vector3();
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-// --- BAŞLATMA VE MENÜ ---
-function checkSaveOnStart() {
-    if (localStorage.getItem('horrorMini_save')) {
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('save-prompt').style.display = 'block';
-    } else {
-        showWorldList();
-    }
-}
+    <script>
+        let scene, camera, renderer, stalker;
+        let isGameStarted = false;
+        
+        // Hareket değişkenleri
+        let keys = { w: false, a: false, s: false, d: false };
+        let velocity = new THREE.Vector3();
+        let chunks = {};
+        const CHUNK_SIZE = 8;
+        const RENDER_DISTANCE = 3;
 
-function showWorldList() {
-    document.getElementById('save-prompt').style.display = 'none';
-    document.getElementById('main-menu').style.display = 'none';
-    document.getElementById('world-list').style.display = 'block';
-    const savesDiv = document.getElementById('existing-saves');
-    if (localStorage.getItem('horrorMini_save')) {
-        savesDiv.innerHTML = `<button class="menu-btn" onclick="initGame(true)">DÜNYA 1 (KAYITLI)</button>`;
-    }
-}
+        const mats = {
+            grass: new THREE.MeshLambertMaterial({ color: 0x7cfc00 }),
+            dirt: new THREE.MeshLambertMaterial({ color: 0x8b4513 }),
+            stone: new THREE.MeshLambertMaterial({ color: 0xaaaaaa }),
+            trunk: new THREE.MeshLambertMaterial({ color: 0x5d4037 }),
+            leaves: new THREE.MeshLambertMaterial({ color: 0x2e7d32 }),
+            stalker: new THREE.MeshBasicMaterial({ color: 0xff0000 })
+        };
 
-function initGame(loadSave) {
-    document.getElementById('ui-overlay').style.display = 'none';
-    
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB);
-    scene.fog = new THREE.Fog(0x87CEEB, 20, 100);
+        const blockGeo = new THREE.BoxGeometry(1, 1, 1);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(WORLD_SIZE/2, 25, WORLD_SIZE/2);
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff); 
+            scene.fog = new THREE.Fog(0xffffff, 5, 30);
 
-    renderer = new THREE.WebGLRenderer({ antialias: false });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    controls = new THREE.PointerLockControls(camera, document.body);
-    document.addEventListener('click', () => controls.lock());
-
-    // Işıklandırma (Alpha Tarzı)
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambient);
-    const sun = new THREE.DirectionalLight(0xffffff, 0.4);
-    sun.position.set(50, 100, 50);
-    scene.add(sun);
-
-    if (loadSave) {
-        blocks = JSON.parse(localStorage.getItem('horrorMini_save'));
-    } else {
-        generateAlphaWorld();
-    }
-    
-    renderBlocks();
-    setupInput();
-    animate();
-}
-
-// --- DÜNYA ÜRETİMİ ---
-function generateAlphaWorld() {
-    for (let x = 0; x < WORLD_SIZE; x++) {
-        for (let z = 0; z < WORLD_SIZE; z++) {
-            // Dağlık yapı (Perlin gürültüsü benzeri basit matematik)
-            let h = Math.floor(Math.sin(x/8) * 4 + Math.cos(z/8) * 4 + 15);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            camera.rotation.order = 'YXZ';
             
-            for (let y = 0; y < h; y++) {
-                let type;
-                if (y === h - 1) {
-                    // Yüzey
-                    type = (Math.random() < 0.1 && (x<5 || z<5)) ? BLOCK_TYPES.SAND : BLOCK_TYPES.GRASS;
-                } else if (y > h - 6) {
-                    type = BLOCK_TYPES.DIRT;
-                } else {
-                    // Derinlikler ve Madenler
-                    type = BLOCK_TYPES.STONE;
-                    let rand = Math.random();
-                    if (y < 5) { // En derin
-                        if (rand < 0.02) type = BLOCK_TYPES.DIAMOND;
-                        else if (rand < 0.05) type = BLOCK_TYPES.GOLD;
-                    } else if (y < 12) { // Orta
-                        if (rand < 0.04) type = BLOCK_TYPES.IRON;
-                    }
-                    if (rand < 0.08) type = BLOCK_TYPES.COAL;
+            renderer = new THREE.WebGLRenderer({ antialias: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(50, 100, 50);
+            scene.add(sun);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+
+            updateChunks();
+
+            camera.position.set(4, 40, 4); 
+            
+            spawnStalker();
+            setupControls();
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function setupControls() {
+            // Klavye Kontrolleri
+            window.addEventListener('keydown', (e) => { keys[e.key.toLowerCase()] = true; });
+            window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+
+            // Mouse Hareket Kontrolü (Pointer Lock)
+            document.addEventListener('mousemove', (e) => {
+                if (document.pointerLockElement === document.body) {
+                    camera.rotation.y -= e.movementX * 0.002;
+                    camera.rotation.x -= e.movementY * 0.002;
+                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
                 }
-                blocks.push({x, y, z, t: type});
+            });
+
+            // Sol ve Sağ Tık Kontrolleri
+            window.addEventListener('mousedown', (e) => {
+                if (!isGameStarted) return;
+                if (e.button === 0) breakBlock(); // Sol Tık
+                if (e.button === 2) placeBlock(); // Sağ Tık
+            });
+
+            // Sağ tık menüsünü engelle (Blok koyarken menü açılmaması için)
+            window.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+
+        function createTree(parent, x, y, z) {
+            let h = 4 + Math.floor(Math.random() * 3);
+            for(let i = 1; i <= h; i++) {
+                const log = new THREE.Mesh(blockGeo, mats.trunk);
+                log.position.set(x, y + i, z);
+                parent.add(log);
+            }
+            for(let ox = -1; ox <= 1; ox++) {
+                for(let oz = -1; oz <= 1; oz++) {
+                    const leaf = new THREE.Mesh(blockGeo, mats.leaves);
+                    leaf.position.set(x + ox, y + h + 1, z + oz);
+                    parent.add(leaf);
+                }
+            }
+        }
+
+        function createChunk(cx, cz) {
+            const chunkGroup = new THREE.Group();
+            for (let x = 0; x < CHUNK_SIZE; x++) {
+                for (let z = 0; z < CHUNK_SIZE; z++) {
+                    const wX = cx * CHUNK_SIZE + x;
+                    const wZ = cz * CHUNK_SIZE + z;
+                    let h = Math.floor(Math.sin(wX * 0.2) * 2 + 5);
+                    for (let y = 0; y <= h; y++) {
+                        const b = new THREE.Mesh(blockGeo, y === h ? mats.grass : (y > h-2 ? mats.dirt : mats.stone));
+                        b.position.set(wX, y, wZ);
+                        chunkGroup.add(b);
+                    }
+                    if (h >= 5 && Math.random() < 0.06) createTree(chunkGroup, wX, h, wZ);
+                }
+            }
+            scene.add(chunkGroup);
+            chunks[`${cx},${cz}`] = chunkGroup;
+        }
+
+        function updateChunks() {
+            const pX = Math.floor(camera.position.x / CHUNK_SIZE);
+            const pZ = Math.floor(camera.position.z / CHUNK_SIZE);
+            
+            for (let key in chunks) {
+                const [cx, cz] = key.split(',').map(Number);
+                if (Math.abs(cx - pX) > RENDER_DISTANCE || Math.abs(cz - pZ) > RENDER_DISTANCE) {
+                    scene.remove(chunks[key]);
+                } else {
+                    scene.add(chunks[key]);
+                }
             }
 
-            // Nadir Ağaç ve Çakıl (Deniz çevresi/Dağ)
-            if (x % 15 === 0 && z % 15 === 0 && Math.random() > 0.5) {
-                spawnTree(x, Math.floor(Math.sin(x/8) * 4 + Math.cos(z/8) * 4 + 15), z);
+            for(let x = pX - RENDER_DISTANCE; x <= pX + RENDER_DISTANCE; x++) {
+                for(let z = pZ - RENDER_DISTANCE; z <= pZ + RENDER_DISTANCE; z++) {
+                    if(!chunks[`${x},${z}`]) createChunk(x, z);
+                }
             }
         }
-    }
-    saveData();
-}
 
-function spawnTree(x, y, z) {
-    for(let i=0; i<4; i++) blocks.push({x, y: y+i, z, t: BLOCK_TYPES.WOOD}); // Gövde
-    for(let lx=-1; lx<=1; lx++) {
-        for(let lz=-1; lz<=1; lz++) {
-            blocks.push({x: x+lx, y: y+4, z: z+lz, t: BLOCK_TYPES.LEAVES});
-        }
-    }
-}
-
-// --- GÖRSELLEŞTİRME ---
-function renderBlocks() {
-    const geometry = new THREE.BoxGeometry(1,1,1);
-    // Her blok tipi için bir grup oluştur (Performans için)
-    Object.values(BLOCK_TYPES).forEach(typeIndex => {
-        const typeBlocks = blocks.filter(b => b.t === typeIndex);
-        if (typeBlocks.length === 0) return;
-
-        const mesh = new THREE.InstancedMesh(geometry, new THREE.MeshLambertMaterial({color: COLORS[typeIndex]}), typeBlocks.length);
-        const matrix = new THREE.Matrix4();
-        typeBlocks.forEach((b, i) => {
-            matrix.setPosition(b.x, b.y, b.z);
-            mesh.setMatrixAt(i, matrix);
-        });
-        scene.add(mesh);
-    });
-}
-
-// --- FİZİK VE KONTROLLER ---
-function setupInput() {
-    document.addEventListener('keydown', (e) => {
-        if(e.code === 'KeyW') moveFwd = true;
-        if(e.code === 'KeyS') moveBwd = true;
-        if(e.code === 'KeyA') moveLft = true;
-        if(e.code === 'KeyD') moveRgt = true;
-        if(e.code === 'KeyK') placeBlock();
-    });
-    document.addEventListener('keyup', (e) => {
-        if(e.code === 'KeyW') moveFwd = false;
-        if(e.code === 'KeyS') moveBwd = false;
-        if(e.code === 'KeyA') moveLft = false;
-        if(e.code === 'KeyD') moveRgt = false;
-    });
-    document.addEventListener('mousedown', (e) => { if(e.button === 0) breakBlock(); });
-}
-
-function breakBlock() {
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(new THREE.Vector2(), camera);
-    const intersects = ray.intersectObjects(scene.children);
-    if (intersects.length > 0) {
-        // Basitlik adına sahneden siliyoruz, gerçek projede blocks dizisinden silinip renderBlocks tetiklenmeli
-        intersects[0].object.visible = false; 
-        saveData();
-    }
-}
-
-function placeBlock() {
-    const x = Math.round(camera.position.x);
-    const y = Math.round(camera.position.y - 2);
-    const z = Math.round(camera.position.z);
-    blocks.push({x, y, z, t: BLOCK_TYPES.WOOD});
-    renderBlocks();
-    saveData();
-}
-
-function saveData() {
-    localStorage.setItem('horrorMini_save', JSON.stringify(blocks));
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    if (controls.isLocked) {
-        // Yerçekimi
-        velocity.y -= 0.01; 
-        camera.position.y += velocity.y;
-
-        // Basit Yer Çarpışması
-        if (camera.position.y < 18) {
-            velocity.y = 0;
-            camera.position.y = 18;
+        function breakBlock() {
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            const hits = ray.intersectObjects(scene.children, true);
+            if(hits.length > 0 && hits[0].distance < 8 && hits[0].object !== stalker) {
+                hits[0].object.parent.remove(hits[0].object);
+            }
         }
 
-        // Hareket
-        const speed = 0.12;
-        if (moveFwd) controls.moveForward(speed);
-        if (moveBwd) controls.moveForward(-speed);
-        if (moveLft) controls.moveRight(-speed);
-        if (moveRgt) controls.moveRight(speed);
-    }
-    renderer.render(scene, camera);
-}
+        function placeBlock() {
+            const ray = new THREE.Raycaster();
+            ray.setFromCamera(new THREE.Vector2(0,0), camera);
+            const hits = ray.intersectObjects(scene.children, true);
+            if(hits.length > 0 && hits[0].distance < 8) {
+                const b = new THREE.Mesh(blockGeo, mats.stone);
+                b.position.copy(hits[0].object.position).add(hits[0].face.normal);
+                hits[0].object.parent.add(b);
+            }
+        }
 
-window.onload = () => {
-    // UI başlatma burada olabilir
-};
-</script>
+        function spawnStalker() {
+            stalker = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.5, 0.8), mats.stalker);
+            stalker.position.set(20, 10, 20);
+            scene.add(stalker);
+        }
+
+        function startGame() {
+            document.getElementById('ui-overlay').style.display = 'none';
+            document.getElementById('crosshair').style.display = 'block';
+            isGameStarted = true;
+            // Mouse imlecini kilitle
+            document.body.requestPointerLock();
+        }
+
+        function update() {
+            if(!isGameStarted) return;
+
+            // WASD Hareket Sistemi
+            const speed = 0.15;
+            if (keys.w) camera.translateZ(-speed);
+            if (keys.s) camera.translateZ(speed);
+            if (keys.a) camera.translateX(-speed);
+            if (keys.d) camera.translateX(speed);
+
+            updateChunks();
+            stalker.lookAt(camera.position);
+            stalker.position.x += (camera.position.x - stalker.position.x) * 0.008;
+            stalker.position.z += (camera.position.z - stalker.position.z) * 0.008;
+
+            // Basit Yerçekimi ve Çarpışma
+            const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
+            const hit = ray.intersectObjects(scene.children, true);
+            if(hit.length > 0 && hit[0].distance < 1.8) {
+                velocity.y = 0;
+                camera.position.y = hit[0].point.y + 1.8;
+            } else { 
+                velocity.y -= 0.01; 
+            }
+            camera.position.y += velocity.y;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+    </script>
 </body>
 </html>
