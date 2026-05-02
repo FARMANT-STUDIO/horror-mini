@@ -8,7 +8,7 @@ Sınırsız Dünya Üretimi (Infinite Terrain): Matematiksel algoritmalarla eş 
 
 Dinamik Chunk Yönetimi: Bellek optimizasyonu için oyuncunun görüş alanı dışındaki bölgelerin otomatik olarak uyutulması (Performance Optimization).
 
-Voxel Manipülasyonu: Çevredeki tüm nesnelerin gerçek zamanlı olarak yok edilmesi (Sol Tık) veya yeni yapılar inşa edilmesi (K Tuşu).
+Voxel Manipülasyonu: Çevredeki tüm nesnelerin gerçek zamanlı olarak yok edilmesi (Sol Tık) veya yeni yapılar inşa edilmesi (sağ tık).
 
 Gelişmiş Fizik ve Hitbox: Tüm objelerin ve zeminin hassas çarpışma verilerine sahip olması.
 
