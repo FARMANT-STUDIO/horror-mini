@@ -3,79 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HORROR MINI - Alpha 0.04 (Menu Update)</title>
+    <title>HORROR MINI - ERROR 1 [FINAL BREACH]</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #eee; font-family: 'Courier New', monospace; touch-action: none; -webkit-user-select: none; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #fff; }
         
-        /* UI Overlay - Ana Menü */
+        /* SİYAH BEYAZ VE LANETLİ FİLTRE */
+        canvas { filter: grayscale(1) contrast(2) brightness(0.7); }
+
+        /* GLITCH YAZILARI KATMANI */
+        #glitch-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 200; overflow: hidden; display: none;
+        }
+        .glitch-text {
+            position: absolute; font-weight: bold; animation: blink 0.1s infinite;
+            text-transform: uppercase;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.1; } 100% { opacity: 1; } }
+
+        /* HACKED MENÜ TASARIMI */
         #ui-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.95); z-index: 100;
+            background: #000; z-index: 100; border: 8px double #ff0000; box-sizing: border-box;
         }
-        #logo { color: #000; font-size: 38px; font-weight: bold; text-align: center; margin-bottom: 20px; }
-        .menu-btn { background: #000; color: white; border: none; padding: 20px 60px; font-size: 22px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .menu-btn:hover { background: #333; }
+        #logo { color: #ff0000; font-size: 40px; font-weight: bold; text-align: center; animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(2px, -2px); } }
+        
+        .menu-btn { background: #ff0000; color: #fff; border: 2px solid #fff; padding: 15px 50px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 30px; transition: 0.2s; }
+        .menu-btn:hover { background: #fff; color: #ff0000; transform: scale(1.1); }
 
-        /* Kitap ve Kalem Simgesi */
-        #notes-icon {
-            position: absolute; left: 25px; bottom: 25px; font-size: 45px; cursor: pointer; z-index: 110;
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.2));
-        }
-
-        /* Güncelleme Notları Paneli */
+        /* NOTLAR PANELI */
+        #notes-icon { position: absolute; left: 20px; bottom: 20px; font-size: 40px; cursor: pointer; z-index: 110; filter: invert(1); }
         #notes-panel {
             display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; max-width: 450px; background: white; border: 4px solid black; padding: 25px; z-index: 120;
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.1);
-        }
-        #notes-panel h2 { font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-top: 0; }
-        #notes-panel p { font-size: 14px; line-height: 1.8; font-weight: bold; }
-        #close-notes { background: #000; color: #fff; border: none; padding: 8px 15px; cursor: pointer; float: right; font-weight: bold; }
-
-        /* Sol Üst Yazılar */
-        #dev-info-container {
-            position: absolute; top: 10px; left: 10px; z-index: 110;
-        }
-        .info-box {
-            color: #000; font-size: 13px; font-weight: bold;
-            background: rgba(255,255,255,0.8); padding: 5px 10px; border-radius: 2px;
-            margin-bottom: 5px; width: fit-content; border: 1px solid rgba(0,0,0,0.1);
+            width: 80%; max-width: 400px; background: #000; border: 3px solid #ff0000; padding: 20px; z-index: 120;
         }
 
-        #crosshair { 
-            position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; 
-            border: 1px solid black; border-radius: 50%; transform: translate(-50%, -50%); 
-            pointer-events: none; display: none; z-index: 45; 
-        }
+        #dev-tag { position: absolute; top: 10px; left: 10px; z-index: 110; color: #ff0000; font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 5px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 1px solid #ff0000; transform: translate(-50%, -50%); pointer-events: none; display: none; z-index: 45; }
     </style>
 </head>
 <body>
 
-    <!-- Sol Üst Bilgiler -->
-    <div id="dev-info-container">
-        <div class="info-box">THE GAME DEVELOPER IS STRLXY-B9Q, DO NOT CHANGE IT.</div>
-        <div class="info-box">ALPHA 0.04</div>
-    </div>
+    <div id="glitch-overlay"></div>
 
-    <!-- Menü Ekranı -->
+    <div id="dev-tag">DEV: STRLXY-B9Q | BUILD: ERROR_1</div>
+
     <div id="ui-overlay">
-        <div id="logo">HORROR MINI<br><span style="font-size: 18px; color: #666;">MENU UPDATE</span></div>
-        <button class="menu-btn" onclick="startGame()">OYUNA BAŞLA</button>
-        <p style="font-size: 12px; margin-top: 25px;">(WASD: Hareket | Sol Tık: Kır | Sağ Tık: Koy)</p>
-        
-        <!-- Kitap Kalem Simgesi -->
+        <div id="logo">HORROR MINI<br><span style="font-size: 18px; color: #fff;">SYSTEM HACKED BY HUKA</span></div>
+        <button class="menu-btn" onclick="startGame()">SİSTEMİ ÇALIŞTIR</button>
         <div id="notes-icon" onclick="toggleNotes()">📝</div>
     </div>
 
-    <!-- Güncelleme Notları -->
     <div id="notes-panel">
-        <button id="close-notes" onclick="toggleNotes()">KAPAT</button>
-        <h2>FARMANT STUDIOS | HORROR MİNİ | ALPHA 0.04</h2>
-        <p>
-            (+) GELİŞTİRİCİ NOTU <br>
-            (+) STALKER HATASI DÜZELTMESİ <br>
-            (+) GELİŞTİRİCİ UYARISI GÜNCELLEMESİ
+        <button onclick="toggleNotes()" style="float:right; background:red; border:none; color:white; cursor:pointer;">X</button>
+        <h3 style="color:red; margin-top:0;">FARMANT STUDIOS - LOG 0.04</h3>
+        <p style="font-size:14px; line-height: 1.5;">
+            <span style="color:red; font-weight:bold;">(-) HUKA GERİ DÖNDÜ!</span><br>
+            <span style="color:white;">(-) SİL SİL DELETE DELETE</span><br>
+            <span style="color:red;">(-) SYSTEM IS NOT VISIBLE!</span><br>
+            <span style="color:white;">(-) HACKER IS WATCHING YOU.</span>
         </p>
     </div>
 
@@ -84,201 +72,175 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        let scene, camera, renderer, stalker;
-        let isGameStarted = false;
-        let keys = { w: false, a: false, s: false, d: false };
-        let velocity = new THREE.Vector3();
-        let chunks = {};
-        const CHUNK_SIZE = 8;
-        const RENDER_DISTANCE = 4;
-
-        const mats = {
-            grass: new THREE.MeshLambertMaterial({ color: 0x999999 }),
-            dirt: new THREE.MeshLambertMaterial({ color: 0x666666 }),
-            stone: new THREE.MeshLambertMaterial({ color: 0x444444 }),
-            trunk: new THREE.MeshLambertMaterial({ color: 0x332211 }),
-            leaves: new THREE.MeshLambertMaterial({ color: 0x223322 }),
-            stalker: new THREE.MeshBasicMaterial({ color: 0x000000 }) 
-        };
-
-        const blockGeo = new THREE.BoxGeometry(1, 1, 1);
+        let scene, camera, renderer, stalker, audioCtx, noiseNode, gainNode;
+        let isGameStarted = false, keys = { w: false, a: false, s: false, d: false };
+        let velocity = new THREE.Vector3(), chunks = {}, trees = [];
+        const CHUNK_SIZE = 8, RENDER_DISTANCE = 3;
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xffffff); 
-            // SİS AYARI: 2 birimden başlayıp 45 birimde tam kapatıyor (Eski sürümde 28'di, görüşü açtık)
-            scene.fog = new THREE.Fog(0xffffff, 2, 45);
+            scene.background = new THREE.Color(0xffffff);
+            scene.fog = new THREE.Fog(0xffffff, 1, 35);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             camera.rotation.order = 'YXZ';
-            
+
             renderer = new THREE.WebGLRenderer({ antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const sun = new THREE.DirectionalLight(0xffffff, 0.8);
-            sun.position.set(10, 20, 10);
-            scene.add(sun);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(5, 15, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-            camera.position.set(4, 35, 4); 
-            
+            camera.position.set(0, 20, 0);
             spawnStalker();
             setupControls();
-            updateChunks();
-            window.addEventListener('resize', onWindowResize);
             animate();
         }
 
-        function toggleNotes() {
-            const panel = document.getElementById('notes-panel');
-            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        // --- LANETLİ SES SİSTEMİ ---
+        function setupAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer; noiseNode.loop = true;
+            gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.01; // Sessiz başlar
+
+            noiseNode.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            noiseNode.start();
+
+            // Ses zamanla artar ve bozulur
+            setInterval(() => {
+                if(isGameStarted) {
+                    let v = Math.min(gainNode.gain.value + 0.005, 0.3);
+                    gainNode.gain.linearRampToValueAtTime(v + (Math.random() * 0.1), audioCtx.currentTime + 1);
+                }
+            }, 2000);
         }
 
-        function setupControls() {
-            window.addEventListener('keydown', (e) => { keys[e.key.toLowerCase()] = true; });
-            window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+        function spawnGlitchText() {
+            if(!isGameStarted) return;
+            const msgs = ["SİSTEM HATASI", "ERROR 1", "HUKA IS BACK", "DELETE", "HACKER", "SYSTEM FAILURE"];
+            const div = document.createElement('div');
+            div.className = 'glitch-text';
+            div.innerText = msgs[Math.floor(Math.random() * msgs.length)];
+            div.style.left = Math.random() * 85 + "%";
+            div.style.top = Math.random() * 85 + "%";
+            div.style.fontSize = (Math.random() * 35 + 15) + "px";
+            div.style.color = Math.random() > 0.5 ? "red" : "black";
+            document.getElementById('glitch-overlay').appendChild(div);
+            setTimeout(() => div.remove(), 600);
+        }
 
-            document.addEventListener('mousemove', (e) => {
-                if (document.pointerLockElement === document.body) {
-                    camera.rotation.y -= e.movementX * 0.0025;
-                    camera.rotation.x -= e.movementY * 0.0025;
-                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-                }
-            });
-
-            window.addEventListener('mousedown', (e) => {
-                if (!isGameStarted) return;
-                if (e.button === 0) breakBlock();
-                if (e.button === 2) placeBlock();
-            });
-
-            window.addEventListener('contextmenu', (e) => e.preventDefault());
+        function createTree(parent, x, y, z) {
+            const g = new THREE.Group();
+            for(let i=1; i<=4; i++) {
+                const log = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({color: 0x000000}));
+                log.position.set(x, y+i, z); g.add(log);
+            }
+            const leaf = new THREE.Mesh(new THREE.BoxGeometry(3,2,3), new THREE.MeshLambertMaterial({color: 0x222222}));
+            leaf.position.set(x, y+5, z); g.add(leaf);
+            parent.add(g);
+            trees.push({ obj: g, startTime: Date.now() });
         }
 
         function createChunk(cx, cz) {
-            const chunkGroup = new THREE.Group();
+            const group = new THREE.Group();
             for (let x = 0; x < CHUNK_SIZE; x++) {
                 for (let z = 0; z < CHUNK_SIZE; z++) {
-                    const wX = cx * CHUNK_SIZE + x;
-                    const wZ = cz * CHUNK_SIZE + z;
-                    let h = Math.floor(Math.sin(wX * 0.15) * 2 + 5);
+                    const wx = cx * CHUNK_SIZE + x, wz = cz * CHUNK_SIZE + z;
+                    let h = Math.floor(Math.sin(wx * 0.2) * 2 + 5);
                     for (let y = 0; y <= h; y++) {
-                        const b = new THREE.Mesh(blockGeo, y === h ? mats.grass : (y > h-2 ? mats.dirt : mats.stone));
-                        b.position.set(wX, y, wZ);
-                        chunkGroup.add(b);
+                        const b = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({color: y === h ? 0x444444 : 0x111111}));
+                        b.position.set(wx, y, wz); group.add(b);
                     }
+                    if(Math.random() < 0.05) createTree(group, wx, h, wz);
                 }
             }
-            scene.add(chunkGroup);
-            chunks[`${cx},${cz}`] = chunkGroup;
-        }
-
-        function updateChunks() {
-            const pX = Math.floor(camera.position.x / CHUNK_SIZE);
-            const pZ = Math.floor(camera.position.z / CHUNK_SIZE);
-            for(let x = pX - RENDER_DISTANCE; x <= pX + RENDER_DISTANCE; x++) {
-                for(let z = pZ - RENDER_DISTANCE; z <= pZ + RENDER_DISTANCE; z++) {
-                    if(!chunks[`${x},${z}`]) createChunk(x, z);
-                }
-            }
-        }
-
-        function breakBlock() {
-            const ray = new THREE.Raycaster();
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            const hits = ray.intersectObjects(scene.children, true);
-            const hit = hits.find(h => h.object !== stalker);
-            if(hit && hit.distance < 7) hit.object.parent.remove(hit.object);
-        }
-
-        function placeBlock() {
-            const ray = new THREE.Raycaster();
-            ray.setFromCamera(new THREE.Vector2(0,0), camera);
-            const hits = ray.intersectObjects(scene.children, true);
-            const hit = hits.find(h => h.object !== stalker);
-            if(hit && hit.distance < 7) {
-                const b = new THREE.Mesh(blockGeo, mats.stone);
-                b.position.copy(hit.object.position).add(hit.face.normal);
-                hit.object.parent.add(b);
-            }
+            scene.add(group); chunks[`${cx},${cz}`] = group;
         }
 
         function spawnStalker() {
-            if (!stalker) {
-                stalker = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.5, 0.5), mats.stalker);
-                scene.add(stalker);
-            }
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 22 + Math.random() * 8; // Oyuncudan daha uzak bir yerde doğar
-            stalker.position.set(
-                camera.position.x + Math.cos(angle) * dist,
-                camera.position.y + 2,
-                camera.position.z + Math.sin(angle) * dist
-            );
+            if (!stalker) { stalker = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.5, 0.5), new THREE.MeshBasicMaterial({color: 0x000000})); scene.add(stalker); }
+            const ang = Math.random() * Math.PI * 2;
+            stalker.position.set(camera.position.x + Math.cos(ang)*20, camera.position.y, camera.position.z + Math.sin(ang)*20);
         }
+
+        function setupControls() {
+            window.onkeydown = (e) => keys[e.key.toLowerCase()] = true;
+            window.onkeyup = (e) => keys[e.key.toLowerCase()] = false;
+            document.onmousemove = (e) => {
+                if (document.pointerLockElement === document.body) {
+                    camera.rotation.y -= e.movementX * 0.002;
+                    camera.rotation.x -= e.movementY * 0.002;
+                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+                }
+            };
+            window.onmousedown = (e) => {
+                if(!isGameStarted) return;
+                const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(0,0), camera);
+                const hits = ray.intersectObjects(scene.children, true).find(h => h.object !== stalker);
+                if(hits && hits.distance < 6) {
+                    if(e.button === 0) hits.object.parent.remove(hits.object);
+                    if(e.button === 2) {
+                        const b = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({color: 0x000000}));
+                        b.position.copy(hits.object.position).add(hits.face.normal); hits.object.parent.add(b);
+                    }
+                }
+            };
+        }
+
+        function toggleNotes() { const p = document.getElementById('notes-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
 
         function startGame() {
+            isGameStarted = true; setupAudio();
             document.getElementById('ui-overlay').style.display = 'none';
+            document.getElementById('glitch-overlay').style.display = 'block';
             document.getElementById('crosshair').style.display = 'block';
-            isGameStarted = true;
             document.body.requestPointerLock();
-        }
-
-        function update() {
-            if(!isGameStarted) return;
-
-            const speed = 0.14;
-            if (keys.w) camera.translateZ(-speed);
-            if (keys.s) camera.translateZ(speed);
-            if (keys.a) camera.translateX(-speed);
-            if (keys.d) camera.translateX(speed);
-
-            updateChunks();
-
-            // Stalker Mekaniği
-            stalker.lookAt(camera.position);
-            const camDir = new THREE.Vector3();
-            camera.getWorldDirection(camDir);
-            const toStalker = new THREE.Vector3().subVectors(stalker.position, camera.position).normalize();
-            const dot = camDir.dot(toStalker);
-
-            if (dot > 0.94) { // Oyuncu ona baktığı an
-                spawnStalker(); 
-            }
-
-            // Fizik ve Yerçekimi
-            const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
-            const hit = ray.intersectObjects(scene.children, true);
-            const ground = hit.find(h => h.object !== stalker);
-            
-            if(ground && ground.distance < 1.8) {
-                velocity.y = 0;
-                camera.position.y = ground.point.y + 1.8;
-            } else { 
-                velocity.y -= 0.01; 
-            }
-            camera.position.y += velocity.y;
-            
-            // Stalker'ı yere sabitle
-            const sRay = new THREE.Raycaster(stalker.position, new THREE.Vector3(0,-1,0));
-            const sHit = sRay.intersectObjects(scene.children, true);
-            const sGround = sHit.find(h => h.object !== stalker);
-            if(sGround) stalker.position.y = sGround.point.y + 1.25;
+            setInterval(spawnGlitchText, 400);
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            update();
+            if(isGameStarted) {
+                const s = 0.15;
+                if(keys.w) camera.translateZ(-s); if(keys.s) camera.translateZ(s);
+                if(keys.a) camera.translateX(-s); if(keys.d) camera.translateX(s);
+
+                let px = Math.floor(camera.position.x/CHUNK_SIZE), pz = Math.floor(camera.position.z/CHUNK_SIZE);
+                for(let x=px-RENDER_DISTANCE; x<=px+RENDER_DISTANCE; x++) {
+                    for(let z=pz-RENDER_DISTANCE; z<=pz+RENDER_DISTANCE; z++) { if(!chunks[`${x},${z}`]) createChunk(x,z); }
+                }
+
+                trees.forEach((t, i) => {
+                    t.obj.position.x += (Math.random()-0.5)*0.08; // Titreme
+                    if(Date.now() - t.startTime > 12000) {
+                        t.obj.scale.multiplyScalar(0.98);
+                        if(t.obj.scale.x < 0.1) { t.obj.parent.remove(t.obj); trees.splice(i, 1); }
+                    }
+                });
+
+                stalker.lookAt(camera.position);
+                const camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
+                const toS = new THREE.Vector3().subVectors(stalker.position, camera.position).normalize();
+                if(camDir.dot(toS) > 0.96) spawnStalker();
+
+                const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
+                const g = ray.intersectObjects(scene.children, true).find(h => h.object !== stalker);
+                if(g && g.distance < 1.8) { velocity.y = 0; camera.position.y = g.point.y + 1.8; } else { velocity.y -= 0.01; }
+                camera.position.y += velocity.y;
+            }
             renderer.render(scene, camera);
         }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
         init();
     </script>
 </body>
