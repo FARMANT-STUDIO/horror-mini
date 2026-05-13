@@ -1,192 +1,390 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HORROR MINI - ALPHA 0.04 FINAL</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #fff; }
-        canvas { filter: grayscale(1) contrast(1.5) brightness(0.8); image-rendering: pixelated; }
-        
-        /* GLITCH KATMANI */
-        #glitch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 200; display: none; overflow: hidden; }
-        .glitch-text { position: absolute; font-weight: bold; color: red; animation: blink 0.1s infinite; text-transform: uppercase; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horror Mini Alpha 0.05 - STRLXY-B9Q</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
+        canvas { display: block; }
 
-        /* HACKED MENÜ */
-        #ui-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #000; z-index: 100; border: 6px double red; box-sizing: border-box;
-        }
-        #logo { color: red; font-size: 38px; font-weight: bold; text-align: center; animation: shake 0.2s infinite; }
-        @keyframes shake { 0% { transform: translate(1px,1px); } 50% { transform: translate(-1px,-1px); } 100% { transform: translate(1px,-1px); } }
-        
-        .menu-btn { background: red; color: white; border: 2px solid white; padding: 15px 45px; font-size: 22px; cursor: pointer; margin-top: 25px; }
-        
-        /* NOTLAR */
-        #notes-icon { position: absolute; left: 20px; bottom: 20px; font-size: 40px; cursor: pointer; z-index: 110; filter: invert(1); }
-        #notes-panel {
-            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; max-width: 400px; background: #000; border: 3px solid red; padding: 20px; z-index: 120;
-        }
+        /* ANA MENÜ */
+        #menu-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #200 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100;
+        }
+        #title {
+            color: #ff0000; font-size: 80px; font-weight: bold;
+            text-shadow: 5px 5px 0px #400;
+            animation: vibrate 0.1s infinite;
+            margin-bottom: 10px;
+        }
+        @keyframes vibrate {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 2px); }
+            100% { transform: translate(0,0); }
+        }
+        #subtitle { color: #fff; font-size: 18px; margin-bottom: 40px; font-style: italic; }
+        .btn {
+            padding: 15px 40px; background: #ff0000; color: #fff; border: none;
+            font-size: 24px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        .btn:hover { background: #fff; color: #ff0000; scale: 1.1; }
 
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border: 1px solid red; transform: translate(-50%, -50%); pointer-events: none; display: none; z-index: 45; }
-    </style>
+        /* HUD & UI */
+        #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+        #version-info { position: absolute; top: 10px; left: 10px; color: #fff; font-size: 14px; text-shadow: 1px 1px #000; }
+        #dev-info { position: absolute; top: 10px; right: 10px; color: #fff; font-size: 14px; text-shadow: 1px 1px #000; }
+        #health-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+        .heart { width: 25px; height: 25px; background: #ff0000; border: 2px solid #fff; border-radius: 5px; }
+        
+        /* GÜNCELLEME PANELİ */
+        #update-trigger {
+            position: absolute; bottom: 20px; left: 20px; font-size: 40px;
+            cursor: pointer; pointer-events: auto; filter: drop-shadow(0 0 10px #fff);
+        }
+        #update-panel {
+            position: absolute; bottom: 80px; left: 20px; width: 250px;
+            background: rgba(0,0,0,0.8); border: 2px solid #ff0000; color: #fff;
+            padding: 15px; display: none; pointer-events: auto;
+        }
+    </style>
 </head>
 <body>
 
-    <div id="glitch-overlay"></div>
-    <div id="ui-overlay">
-        <div id="logo">HORROR MINI<br><span style="font-size:16px; color:white;">SİSTEM KRİTİK: ERROR 1</span></div>
-        <button class="menu-btn" onclick="startGame()">VERİYİ KURTAR</button>
-        <div id="notes-icon" onclick="toggleNotes()">📝</div>
-    </div>
+    <div id="menu-overlay">
+        <div id="title">HORROR MINI</div>
+        <div id="subtitle">Kalp atışından hızlı benim mouseden daha hızlı</div>
+        <button class="btn" onclick="initGame()">DÜNYA OLUŞTUR</button>
+    </div>
 
-    <div id="notes-panel">
-        <button onclick="toggleNotes()" style="float:right; background:red; border:none; color:white; cursor:pointer;">X</button>
-        <h3 style="color:red;">FARMANT STUDIOS - LOG 0.04</h3>
-        <p style="font-size:14px;">
-            <span style="color:red; font-weight:bold;">(-) HUKA GERİ DÖNDÜ!</span><br>
-            <span style="color:white;">(-) SİL SİL DELETE DELETE</span><br>
-            <span style="color:red;">(-) SYSTEM FAILURE IMMINENT</span>
-        </p>
-    </div>
+    <div id="hud">
+        <div id="version-info">HORROR MINI ALPHA 0.05</div>
+        <div id="dev-info">THE GAME'S DEVELOPER IS STRLXY-B9Q. DO NOT CHANGE IT.</div>
+        <div id="health-bar"></div>
+        <div id="update-trigger" onclick="toggleUpdates()">📖🖋️</div>
+        <div id="update-panel">
+            <b>YENİLİKLER:</b><br><br>
+            • Gölgelendirici kalitesi arttı<br>
+            • Güneş eklendi<br>
+            • Bulut eklendi<br>
+            • Huka uyutuldu
+        </div>
+    </div>
 
-    <div id="crosshair"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        /**
+         * DETERMINISTIC SEED SYSTEM (LCG 64-bit simulation)
+         */
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            // Deterministik sayı üretici
+            next() {
+                this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;
+                return this.seed / 4294967296;
+            }
+            nextInRange(min, max) {
+                return Math.floor(this.next() * (max - min + 1)) + min;
+            }
+        }
 
-    <script>
-        let scene, camera, renderer, stalker, audioCtx, gainNode;
-        let isGameStarted = false, keys = { w: false, a: false, s: false, d: false };
-        let velocity = new THREE.Vector3(), chunks = {}, trees = [];
-        const CHUNK_SIZE = 8, RENDER_DISTANCE = 2; // FPS İÇİN DÜŞÜK TUTULDU
+        let scene, camera, renderer, clock, rng;
+        let player = { health: 10, speed: 0.1, noclip: false };
+        let chunks = new Map();
+        const CHUNK_SIZE = 14;
+        const VIEW_DIST = 4;
+        const keys = {};
+        let niblers = [];
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xbbbbbb);
-            scene.fog = new THREE.Fog(0xbbbbbb, 1, 20);
+        function initGame() {
+            document.getElementById('menu-overlay').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            
+            // 7 Basamaklı Rastgele Seed Üretimi
+            const rawSeed = Math.floor(Math.random() * (9999999 - 1000000 + 1)) + 1000000;
+            rng = new SeededRandom(rawSeed);
+            console.log("World Seed:", rawSeed);
 
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 100);
-            camera.rotation.order = 'YXZ';
+            setupScene();
+            setupPlayer();
+            setupLights();
+            setupClouds();
+            updateHealthHUD();
+            animate();
+        }
 
-            renderer = new THREE.WebGLRenderer({ antialias: false });
-            renderer.setPixelRatio(0.65); // ÇÖZÜNÜRLÜK DÜŞÜRÜLDÜ (FPS COŞAR)
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+        function setupScene() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+            clock = new THREE.Clock();
 
-            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-            camera.position.set(0, 15, 0);
-            
-            spawnStalker();
-            setupControls();
-            animate();
-        }
+            window.addEventListener('keydown', e => keys[e.code] = true);
+            window.addEventListener('keyup', e => keys[e.code] = false);
+            window.addEventListener('mousedown', onMouseClick);
+        }
 
-        function setupAudio() {
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-                const source = audioCtx.createBufferSource();
-                source.buffer = buffer; source.loop = true;
-                gainNode = audioCtx.createGain();
-                gainNode.gain.value = 0.05;
-                source.connect(gainNode); gainNode.connect(audioCtx.destination);
-                source.start();
-            } catch(e) { console.log("Ses başlatılamadı"); }
-        }
+        function setupLights() {
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
 
-        function spawnGlitchText() {
-            if(!isGameStarted) return;
-            const msgs = ["ERROR", "HUKA", "DELETE", "422"];
-            const div = document.createElement('div');
-            div.className = 'glitch-text';
-            div.innerText = msgs[Math.floor(Math.random()*msgs.length)];
-            div.style.left = Math.random()*90+"%"; div.style.top = Math.random()*90+"%";
-            document.getElementById('glitch-overlay').appendChild(div);
-            setTimeout(() => div.remove(), 400);
-        }
+            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            sun.position.set(50, 100, 50);
+            sun.castShadow = true;
+            sun.shadow.mapSize.width = 2048;
+            sun.shadow.mapSize.height = 2048;
+            sun.shadow.camera.left = -100;
+            sun.shadow.camera.right = 100;
+            sun.shadow.camera.top = 100;
+            sun.shadow.camera.bottom = -100;
+            scene.add(sun);
+        }
 
-        function createChunk(cx, cz) {
-            const group = new THREE.Group();
-            const geo = new THREE.BoxGeometry(1,1,1);
-            const mat = new THREE.MeshLambertMaterial({color: 0x333333});
-            for (let x = 0; x < CHUNK_SIZE; x++) {
-                for (let z = 0; z < CHUNK_SIZE; z++) {
-                    const wx = cx * CHUNK_SIZE + x, wz = cz * CHUNK_SIZE + z;
-                    let h = Math.floor(Math.sin(wx * 0.2) * 2 + 5);
-                    const b = new THREE.Mesh(geo, mat);
-                    b.position.set(wx, h, wz);
-                    group.add(b);
-                    if(Math.random() < 0.02) {
-                        const log = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:0}));
-                        log.position.set(wx, h+1, wz); group.add(log);
-                        trees.push({obj: log, start: Date.now()});
-                    }
-                }
-            }
-            scene.add(group); chunks[`${cx},${cz}`] = group;
-        }
+        function setupPlayer() {
+            camera.position.set(0, 25, 0);
+            // Mouse lock mekanizması basitçe eklendi
+            renderer.domElement.onclick = () => renderer.domElement.requestPointerLock();
+            document.addEventListener('mousemove', e => {
+                if (document.pointerLockElement) {
+                    camera.rotation.y -= e.movementX * 0.002;
+                    camera.rotation.x -= e.movementY * 0.002;
+                    camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+                }
+            });
+        }
 
-        function spawnStalker() {
-            if(!stalker) { stalker = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.2, 0.6), new THREE.MeshBasicMaterial({color:0})); scene.add(stalker); }
-            stalker.position.set(camera.position.x + 12, camera.position.y, camera.position.z + 12);
-        }
+        function setupClouds() {
+            const cloudGeo = new THREE.BoxGeometry(10, 1, 10);
+            const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            for(let i=0; i<20; i++) {
+                let cloud = new THREE.Mesh(cloudGeo, cloudMat);
+                cloud.position.set(rng.nextInRange(-100, 100), 40, rng.nextInRange(-100, 100));
+                scene.add(cloud);
+                cloud.userData.speed = rng.next() * 0.02;
+            }
+        }
 
-        function setupControls() {
-            window.onkeydown = (e) => keys[e.key.toLowerCase()] = true;
-            window.onkeyup = (e) => keys[e.key.toLowerCase()] = false;
-            document.onmousemove = (e) => {
-                if (document.pointerLockElement === document.body) {
-                    camera.rotation.y -= e.movementX * 0.003;
-                    camera.rotation.x -= e.movementY * 0.003;
-                    camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
-                }
-            };
-        }
+        /**
+         * VOXEL & CHUNK SYSTEM
+         */
+        function getChunkKey(x, z) { return `${x},${z}`; }
 
-        function toggleNotes() { const p = document.getElementById('notes-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block'; }
+        function createVoxel(x, y, z, type) {
+            let color;
+            if (type === 'grass') color = 0x559922;
+            else if (type === 'dirt') color = 0x8B4513;
+            else color = 0x808080;
 
-        function startGame() {
-            isGameStarted = true;
-            setupAudio();
-            document.getElementById('ui-overlay').style.display = 'none';
-            document.getElementById('glitch-overlay').style.display = 'block';
-            document.getElementById('crosshair').style.display = 'block';
-            document.body.requestPointerLock();
-            setInterval(spawnGlitchText, 800);
-        }
+            const geo = new THREE.BoxGeometry(1, 1, 1);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: color,
+                roughness: 0.8
+            });
+            
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            
+            // Texture Outline Simülasyonu
+            const edges = new THREE.EdgesGeometry(geo);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
+            mesh.add(line);
 
-        function animate() {
-            requestAnimationFrame(animate);
-            if(isGameStarted) {
-                if(keys.w) camera.translateZ(-0.2); if(keys.s) camera.translateZ(0.2);
-                if(keys.a) camera.translateX(-0.2); if(keys.d) camera.translateX(0.2);
-                
-                let px = Math.floor(camera.position.x/CHUNK_SIZE), pz = Math.floor(camera.position.z/CHUNK_SIZE);
-                for(let x=px-RENDER_DISTANCE; x<=px+RENDER_DISTANCE; x++) {
-                    for(let z=pz-RENDER_DISTANCE; z<=pz+RENDER_DISTANCE; z++) { if(!chunks[`${x},${z}`]) createChunk(x,z); }
-                }
+            return mesh;
+        }
 
-                trees.forEach((t, i) => {
-                    t.obj.position.x += (Math.random()-0.5)*0.05;
-                    if(Date.now() - t.start > 15000) { t.obj.scale.multiplyScalar(0.95); }
-                });
+        function generateChunk(cx, cz) {
+            const group = new THREE.Group();
+            for (let x = 0; x < CHUNK_SIZE; x++) {
+                for (let z = 0; z < CHUNK_SIZE; z++) {
+                    const worldX = cx * CHUNK_SIZE + x;
+                    const worldZ = cz * CHUNK_SIZE + z;
+                    
+                    // Procedural Yükseklik
+                    const h = Math.floor(Math.sin(worldX * 0.1) * 3 + Math.cos(worldZ * 0.1) * 3) + 10;
+                    
+                    for (let y = 0; y <= h; y++) {
+                        let type = 'stone';
+                        if (y === h) type = 'grass';
+                        else if (y > h - 5) type = 'dirt';
+                        
+                        const block = createVoxel(worldX, y, worldZ, type);
+                        group.add(block);
+                    }
 
-                stalker.lookAt(camera.position);
-                if(Math.random() < 0.005) spawnStalker();
+                    // Ağaç Spawn
+                    if (rng.next() > 0.985 && h > 5) {
+                        spawnTree(group, worldX, h + 1, worldZ);
+                    }
+                }
+            }
+            scene.add(group);
+            chunks.set(getChunkKey(cx, cz), group);
 
-                const ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0,-1,0));
-                const hits = ray.intersectObjects(scene.children, true).find(h => h.object !== stalker);
-                if(hits && hits.distance < 1.8) { velocity.y = 0; camera.position.y = hits.point.y + 1.8; }
-                else { velocity.y -= 0.015; camera.position.y += velocity.y; }
-            }
-            renderer.render(scene, camera);
-        }
-        init();
-    </script>
+            // Nibler Spawn (Grup halinde)
+            if (rng.next() > 0.95) {
+                spawnNiblerGroup(cx * CHUNK_SIZE, 15, cz * CHUNK_SIZE);
+            }
+        }
+
+        function spawnTree(group, x, y, z) {
+            for(let i=0; i<7; i++) {
+                let log = createVoxel(x, y+i, z, 'dirt');
+                log.material.color.set(0x4B2D13);
+                group.add(log);
+            }
+            for(let ix=-2; ix<=2; ix++) {
+                for(let iy=0; iy<3; iy++) {
+                    for(let iz=-2; iz<=2; iz++) {
+                        let leaf = createVoxel(x+ix, y+7+iy, z+iz, 'grass');
+                        group.add(leaf);
+                    }
+                }
+            }
+        }
+
+        /**
+         * NIBLER SYSTEM
+         */
+        function spawnNiblerGroup(x, y, z) {
+            const leader = createNibler(x, y, z, true);
+            niblers.push(leader);
+            for(let i=0; i<4; i++) {
+                const follower = createNibler(x+i+1, y, z+i+1, false);
+                follower.leader = leader;
+                niblers.push(follower);
+            }
+        }
+
+        function createNibler(x, y, z, isLeader) {
+            const geo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const mat = new THREE.MeshStandardMaterial({ color: isLeader ? 0xffff00 : 0x111111 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(x, y, z);
+            mesh.userData = { isLeader, target: null, state: 'idle', jumpTimer: 0 };
+            scene.add(mesh);
+            return mesh;
+        }
+
+        /**
+         * GAME LOGIC
+         */
+        function updateChunks() {
+            const pCX = Math.floor(camera.position.x / CHUNK_SIZE);
+            const pCZ = Math.floor(camera.position.z / CHUNK_SIZE);
+
+            for (let x = pCX - VIEW_DIST; x <= pCX + VIEW_DIST; x++) {
+                for (let z = pCZ - VIEW_DIST; z <= pCZ + VIEW_DIST; z++) {
+                    const key = getChunkKey(x, z);
+                    if (!chunks.has(key)) {
+                        generateChunk(x, z);
+                    } else {
+                        chunks.get(key).visible = true;
+                    }
+                }
+            }
+            // Uzaktakileri "Uyut"
+            chunks.forEach((group, key) => {
+                const [cx, cz] = key.split(',').map(Number);
+                if (Math.abs(cx - pCX) > VIEW_DIST || Math.abs(cz - pCZ) > VIEW_DIST) {
+                    group.visible = false;
+                }
+            });
+        }
+
+        function onMouseClick(e) {
+            if (e.button === 0) { /* Blok Kırma Logic Buraya */ }
+            if (e.button === 2) { /* Blok Koyma Logic Buraya */ }
+        }
+
+        function handleExplosion(pos) {
+            // Patlama hasarı
+            const d = camera.position.distanceTo(pos);
+            if (d < 4) {
+                player.health -= 3;
+                updateHealthHUD();
+            }
+            // Görsel efekt olarak sahneden yakındaki blokları "silme" simülasyonu
+            // Gerçek voxel silme için raycasting gerekir.
+        }
+
+        function updateHealthHUD() {
+            const bar = document.getElementById('health-bar');
+            bar.innerHTML = '';
+            for(let i=0; i<player.health; i++) {
+                const h = document.createElement('div');
+                h.className = 'heart';
+                bar.appendChild(h);
+            }
+            if (player.health <= 0) alert("ÖLDÜN! R'ye bas.");
+        }
+
+        function toggleUpdates() {
+            const p = document.getElementById('update-panel');
+            p.style.display = p.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            // Hareket Kontrolleri
+            const moveSpeed = keys['ShiftLeft'] ? 0.3 : 0.15;
+            if (keys['KeyW']) camera.translateZ(-moveSpeed);
+            if (keys['KeyS']) camera.translateZ(moveSpeed);
+            if (keys['KeyA']) camera.translateX(-moveSpeed);
+            if (keys['KeyD']) camera.translateX(moveSpeed);
+            if (keys['KeyR']) { camera.position.set(0,25,0); player.health = 10; updateHealthHUD(); }
+
+            // Bulut ve Volumetrik Efekt
+            scene.children.forEach(c => {
+                if(c.userData.speed) {
+                    c.position.x += c.userData.speed;
+                    if(c.position.x > 100) c.position.x = -100;
+                    // Oyuncu yüksekteyken bulutları kalınlaştır
+                    if(camera.position.y > 30) c.scale.y = 2; else c.scale.y = 0.1;
+                }
+            });
+
+            // Nibler AI
+            niblers.forEach(n => {
+                const dist = n.position.distanceTo(camera.position);
+                if (dist < 3) {
+                    n.material.color.set(0xff0000);
+                    // Zıplayarak saldırı
+                    n.userData.jumpTimer += 0.1;
+                    n.position.y += Math.sin(n.userData.jumpTimer) * 0.1;
+                    if (Math.random() > 0.98) { player.health -= 0.5; updateHealthHUD(); }
+                }
+                if (!n.userData.isLeader && n.leader) {
+                    n.position.lerp(new THREE.Vector3(n.leader.position.x, n.position.y, n.leader.position.z), 0.02);
+                }
+            });
+
+            updateChunks();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
 </body>
-</html>
+</html> KODDA  NELER VAR DETAULI METAYLI SÜPERSONİK ANLATY
