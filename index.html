@@ -8,7 +8,6 @@
         #ui { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
         #menu { position: absolute; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: all; }
         #title { color: #fff; font-size: 60px; font-weight: bold; border-bottom: 5px solid #228B22; }
-        #alpha { position: absolute; top: 20px; left: 20px; color: #228B22; font-weight: bold; font-size: 24px; }
         .btn { margin-top: 20px; padding: 15px 50px; background: #228B22; color: #fff; border: none; font-size: 24px; cursor: pointer; }
         #hud { display: none; }
         #crosshair { position: absolute; top: 50%; left: 50%; width: 15px; height: 15px; border: 2px solid white; transform: translate(-50%, -50%); }
@@ -18,12 +17,12 @@
 
 <div id="ui">
     <div id="menu">
-        <div id="alpha">ALPHA 0.05</div>
+        <div style="color:red; font-weight:bold;">ALPHA 0.05</div>
         <div id="title">HORROR MINI</div>
         <button class="btn" onclick="startGame()">DÜNYAYI BAŞLAT</button>
     </div>
     <div id="hud">
-        <div style="position:absolute; top:10px; right:10px; color:white;">DEV: STRLXY-B9Q</div>
+        <div style="position:absolute; top:10px; right:10px; color:white;">DEV: STRLXY-B9Q | RENDER: 4 CHUNKS</div>
         <div id="crosshair"></div>
     </div>
 </div>
@@ -35,7 +34,11 @@
     let player = { v: new THREE.Vector3(), onG: false };
     let chunks = {}, worldBlocks = [];
     const CHUNK_SIZE = 16;
-    const VIEW_DIST = 4; // 4 CHUNK SINIRI
+    const VIEW_DIST = 4; // EMEKLİ OLAN 4 CHUNK GERİ GELDİ
+
+    // Kopyalamayı önlemek için her oturumda değişen rastgele değerler
+    const seedX = Math.random() * 1000;
+    const seedZ = Math.random() * 1000;
 
     function startGame() {
         document.getElementById('menu').style.display = 'none';
@@ -47,19 +50,20 @@
     function init() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB); 
-        scene.fog = new THREE.Fog(0x87CEEB, 10, CHUNK_SIZE * VIEW_DIST);
+        // 4 Chunk dışını sisle kapat (Performans için)
+        scene.fog = new THREE.Fog(0x87CEEB, 15, CHUNK_SIZE * VIEW_DIST);
 
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 30, 0);
+        camera.position.set(0, 35, 0);
 
         renderer = new THREE.WebGLRenderer({ antialias: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-        sun.position.set(10, 50, 10);
+        sun.position.set(50, 100, 50);
         scene.add(sun);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
         raycaster = new THREE.Raycaster();
         clock = new THREE.Clock();
@@ -79,25 +83,37 @@
                 const wx = cx * CHUNK_SIZE + x;
                 const wz = cz * CHUNK_SIZE + z;
                 
-                // Rastgele Arazi (Birbirini kopyalamaz)
-                const h = Math.floor(Math.sin(wx*0.15) * 3 + Math.cos(wz*0.15) * 3) + 10;
+                // ASLA KOPYALAMAYAN ARAZİ (Seed destekli Noise)
+                const nx = (wx + seedX) * 0.1;
+                const nz = (wz + seedZ) * 0.1;
+                const h = Math.floor(Math.sin(nx) * 5 + Math.cos(nz) * 5 + Math.sin(nx*0.5) * 2) + 12;
 
-                for(let y=0; y<=Math.max(h, 7); y++) {
-                    let color = 0x8b4513; // Toprak
+                for(let y=0; y<=Math.max(h, 8); y++) {
+                    let color = 0x8b4513; 
                     let isWater = false;
 
-                    if(y > h) { color = 0x1e90ff; isWater = true; }
-                    else if(y === h) { color = (wx+wz) % 2 === 0 ? 0x55aa00 : 0x449900; } // Çimen varyasyonu
+                    if(y > h) { 
+                        color = 0x1e90ff; 
+                        isWater = true; 
+                    } else if(y === h) { 
+                        // Çimen renginde hafif varyasyon
+                        color = (Math.sin(wx*0.5) > 0) ? 0x55aa00 : 0x4d9900; 
+                    }
 
-                    const mat = new THREE.MeshStandardMaterial({ color: color, transparent: isWater, opacity: isWater ? 0.6 : 1 });
+                    const mat = new THREE.MeshStandardMaterial({ 
+                        color: color, 
+                        transparent: isWater, 
+                        opacity: isWater ? 0.6 : 1 
+                    });
+                    
                     const block = new THREE.Mesh(geo, mat);
                     block.position.set(wx, y, wz);
                     group.add(block);
                     if(!isWater) worldBlocks.push(block);
                 }
 
-                // Ağaçlar (Sadece karada ve nadir)
-                if(h > 8 && Math.random() > 0.985) {
+                // Rastgele Ağaçlar
+                if(h > 9 && Math.random() > 0.988) {
                     spawnTree(group, wx, h+1, wz);
                 }
             }
@@ -110,7 +126,7 @@
         const geo = new THREE.BoxGeometry(1,1,1);
         const logMat = new THREE.MeshStandardMaterial({color: 0x5C4033});
         const leafMat = new THREE.MeshStandardMaterial({color: 0x228B22});
-        for(let i=0; i<3; i++) {
+        for(let i=0; i<4; i++) {
             const log = new THREE.Mesh(geo, logMat);
             log.position.set(x, y+i, z);
             group.add(log);
@@ -119,7 +135,7 @@
         for(let ox=-1; ox<=1; ox++) {
             for(let oz=-1; oz<=1; oz++) {
                 const leaf = new THREE.Mesh(geo, leafMat);
-                leaf.position.set(x+ox, y+3, z+oz);
+                leaf.position.set(x+ox, y+4, z+oz);
                 group.add(leaf);
                 worldBlocks.push(leaf);
             }
@@ -162,11 +178,12 @@
         const px = Math.floor(camera.position.x / CHUNK_SIZE);
         const pz = Math.floor(camera.position.z / CHUNK_SIZE);
         
+        // Sadece 4 CHUNK RENDERLA
         for(let x=px-VIEW_DIST; x<=px+VIEW_DIST; x++) {
             for(let z=pz-VIEW_DIST; z<=pz+VIEW_DIST; z++) generateChunk(x, z);
         }
 
-        // Chunk Temizleme (Uyutma)
+        // Uzaktakileri Sahnede Tutma (UYUT)
         Object.keys(chunks).forEach(k => {
             const [cx, cz] = k.split(',').map(Number);
             if(Math.abs(cx-px) > VIEW_DIST || Math.abs(cz-pz) > VIEW_DIST) {
@@ -185,15 +202,15 @@
         if(keys['KeyA']) camera.position.addScaledVector(new THREE.Vector3().crossVectors(camera.up, dir), speed);
         if(keys['KeyD']) camera.position.addScaledVector(new THREE.Vector3().crossVectors(camera.up, dir), -speed);
         if(keys['Space'] && player.onG) { player.v.y = 0.25; player.onG = false; }
-        if(keys['KeyR']) camera.position.set(0,30,0);
+        if(keys['KeyR']) camera.position.set(0,35,0);
 
         player.v.y -= 0.012; 
         camera.position.y += player.v.y;
 
         raycaster.set(camera.position, new THREE.Vector3(0,-1,0));
         const floor = raycaster.intersectObjects(worldBlocks)[0];
-        if(floor && floor.distance < 2.1) {
-            camera.position.y = floor.point.y + 2.1;
+        if(floor && floor.distance < 2.2) {
+            camera.position.y = floor.point.y + 2.2;
             player.v.y = 0;
             player.onG = true;
         }
