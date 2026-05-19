@@ -99,7 +99,7 @@
     <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700">
         <div class="text-center max-w-lg">
             <h1 id="title" class="text-red-600 text-6xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-lg tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.05</div>
+            <div id="version" class="text-white text-lg tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.06</div>
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 DÜNYA OLUŞTUR
             </button>
@@ -109,7 +109,7 @@
     <!-- Oyun İçi HUD Göstergeleri -->
     <div id="ui-overlay" class="fixed top-4 left-4 text-white text-xs font-mono space-y-1 hidden z-40 pointer-events-none">
         <div class="flex items-center space-x-2">
-            <span class="bg-red-600 text-black font-black px-1.5 py-0.5 rounded">PRE-ALPHA 0.05</span>
+            <span class="bg-red-600 text-black font-black px-1.5 py-0.5 rounded">PRE-ALPHA 0.06</span>
             <span class="text-orange-500 font-bold">STRLXY-B9Q GÜVENCESİ</span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
@@ -827,7 +827,7 @@
             // Dikey Hız ve Sarsıntısız Zemin Algılama Döngüsü
             const gravity = player.inWater ? 0.003 : 0.008;
             
-            // Ayak altından 0.05 birimlik zemin taraması
+            // Ayak altından 0.06 birimlik zemin taraması
             const onGroundNow = checkCollision(player.pos.x, player.pos.y - 0.05, player.pos.z);
             if (onGroundNow) {
                 player.onGround = true;
@@ -983,7 +983,7 @@
             "SEN SEN ???",
             "HUKA İS BACKKKK!!",
             "HORRRRRRRRRRR MİNİ!",
-            "KORKU MİNİ PRE-ALPHA 0.05",
+            "KORKU MİNİ PRE-ALPHA 0.06",
             "YENGEÇ FAVORİTE!"
         ];
         let messageIndex = 0;
