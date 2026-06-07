@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KORKU MINI PRE-ALPHA 0.07 - PC VERSION</title>
+    <title>KORKU MINI PRE-ALPHA 0.08 - PC VERSION</title>
     <!-- Tailwind CSS ve Gerekli Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -49,12 +49,11 @@
 </head>
 <body class="crt">
 
+    <!-- Splash Ekranı -->
     <div id="splash-screen" class="fixed inset-0 bg-gradient-to-b from-[#0b0c0e] via-[#050607] to-black flex flex-col items-center justify-center z-[100] transition-all duration-[1500ms] ease-in-out opacity-100">
         <div class="text-center select-none pointer-events-none transform scale-95 flex flex-col items-center">
-            
             <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
                 <div class="absolute inset-0 bg-white/5 blur-2xl rounded-full"></div>
-                
                 <svg class="w-32 h-32 text-zinc-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="lines" width="10" height="3" patternUnits="userSpaceOnUse">
@@ -66,53 +65,66 @@
                     <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" />
                 </svg>
             </div>
-
-            <h1 class="text-white text-4xl md:text-5xl font-sans font-bold tracking-[0.25em] mb-2 uppercase drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)]">
-                FARMANT
-            </h1>
-            <h2 class="text-zinc-500 text-sm md:text-base font-sans tracking-[0.45em] font-medium uppercase opacity-80">
-                STUDIOS
-            </h2>
+            <h1 class="text-white text-4xl md:text-5xl font-sans font-bold tracking-[0.25em] mb-2 uppercase drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)]">FARMANT</h1>
+            <h2 class="text-zinc-500 text-sm md:text-base font-sans tracking-[0.45em] font-medium uppercase opacity-80">STUDIOS</h2>
         </div>
     </div>
 
+    <!-- PC Ana Menü -->
     <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700">
         <div class="text-center max-w-lg flex flex-col items-center">
             
-            <!-- Süslenmiş Geometric Logo (Siyah-Beyaz Yapraklar) -->
-            <div class="relative w-48 h-48 mb-4 flex items-center justify-center">
-                <!-- Sol Yapraklar (Siyah/Beyaz SVG) -->
-                <svg class="absolute left-[-20px] top-[10px] w-16 h-32 opacity-40 text-zinc-400 rotate-[-15deg]" viewBox="0 0 50 100" fill="currentColor">
-                    <path d="M40,10 C20,20 10,40 10,60 C10,80 20,90 35,90 C45,80 48,50 45,30 Z"/>
-                    <path d="M30,30 C15,38 8,50 12,70 C15,80 25,85 30,75 C35,65 35,45 32,35 Z" fill="#111"/>
-                    <line x1="10" y1="60" x2="45" y2="40" stroke="#000" stroke-width="1.5"/>
-                </svg>
-                <!-- Sağ Yapraklar (Siyah/Beyaz SVG) -->
-                <svg class="absolute right-[-20px] top-[10px] w-16 h-32 opacity-40 text-zinc-400 rotate-[15deg] scale-x-[-1]" viewBox="0 0 50 100" fill="currentColor">
-                    <path d="M40,10 C20,20 10,40 10,60 C10,80 20,90 35,90 C45,80 48,50 45,30 Z"/>
-                    <path d="M30,30 C15,38 8,50 12,70 C15,80 25,85 30,75 C35,65 35,45 32,35 Z" fill="#111"/>
-                    <line x1="10" y1="60" x2="45" y2="40" stroke="#000" stroke-width="1.5"/>
+            <!-- Canavar El & Glitch Kafa Animasyonlu Kutu -->
+            <div id="menu-anim-box" class="relative w-64 h-64 mb-6 border-4 border-red-950/40 bg-black overflow-hidden rounded-lg shadow-2xl flex flex-col justify-end transition-all duration-150">
+                <!-- Glitch Ekran Alanı -->
+                <div class="absolute inset-0 bg-zinc-950 flex items-center justify-center overflow-hidden">
+                    <div class="absolute inset-0 opacity-25 bg-[radial-gradient(#ff0000_1.5px,transparent_1.5px)] [background-size:12px_12px] animate-pulse"></div>
+                    <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.4)_50%)] bg-[length:100%_6px] pointer-events-none"></div>
+                    
+                    <!-- SVG Çatlak Katmanları -->
+                    <svg id="glass-cracks" class="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
+                        <path id="crack-1" d="M50 50 L35 25 M50 50 L70 38 M50 50 L48 75" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" fill="none" class="hidden" />
+                        <path id="crack-2" d="M35 25 L15 15 M70 38 L92 30 M48 75 L25 90 M50 50 L62 15 M50 50 L18 55" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" fill="none" class="hidden" />
+                        <path id="crack-3" d="M15 15 L8 35 M92 30 L98 65 M25 90 L55 95 M62 15 L82 8 M18 55 L5 65 M50 50 C 42 42, 58 42, 50 58 Z" stroke="rgba(255,255,255,0.95)" stroke-width="2.6" stroke-linecap="round" fill="none" class="hidden" />
+                    </svg>
+
+                    <!-- Creepy Head -->
+                    <svg id="creepy-head" class="absolute bottom-10 w-28 h-28 text-zinc-300 transition-all duration-700 transform translate-y-36 z-10" viewBox="0 0 100 100" fill="none">
+                        <path d="M50 15 C30 15, 20 30, 20 50 C20 70, 30 80, 35 85 L35 95 L42 95 L42 90 L48 90 L48 95 L52 95 L52 90 L58 90 L58 95 L65 95 L65 85 C70 80, 80 70, 80 50 C80 30, 70 15, 50 15 Z" fill="#0c0d0f" stroke="#ff0000" stroke-width="2.5"/>
+                        <circle cx="38" cy="48" r="7.5" fill="#000" />
+                        <circle cx="62" cy="48" r="7.5" fill="#000" />
+                        <circle cx="38" cy="48" r="2.5" fill="#ff0000" />
+                        <circle cx="62" cy="48" r="2.5" fill="#ff0000" />
+                        <polygon points="50,56 46,64 54,64" fill="#000" />
+                        <line x1="38" y1="76" x2="62" y2="76" stroke="#000" stroke-width="2"/>
+                    </svg>
+                </div>
+
+                <!-- Mavi Tutunma Çubuğu (Yazısız Sade) -->
+                <div class="h-12 bg-blue-900/90 border-t-2 border-blue-700 relative z-20 flex items-center justify-center">
+                    <span class="text-[9px] text-blue-300 font-bold tracking-widest uppercase"></span>
+                </div>
+
+                <!-- Sol Beyaz El -->
+                <svg id="left-hand" class="absolute bottom-10 left-3 w-12 h-16 text-white transition-all duration-500 transform translate-y-24 z-20" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M50 90 C30 90, 20 80, 20 60 L20 40 C20 35, 25 30, 30 30 C35 30, 40 35, 40 40 L40 55 L45 55 L45 25 C45 20, 50 15, 55 15 C60 15, 65 20, 65 25 L65 55 L70 55 L70 30 C70 25, 75 20, 80 20 C85 20, 90 25, 90 30 L90 70 C90 85, 75 90, 50 90 Z" />
                 </svg>
 
-                <svg class="w-36 h-36 text-zinc-100 drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]" viewBox="0 0 100 100" fill="none">
-                    <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" fill="#1e0202" stroke="#ff3333" stroke-width="2"/>
+                <!-- Sağ Beyaz El -->
+                <svg id="right-hand" class="absolute bottom-10 right-3 w-12 h-16 text-white transition-all duration-500 transform translate-y-24 z-20 scale-x-[-1]" viewBox="0 0 100 100" fill="currentColor">
+                    <path d="M50 90 C30 90, 20 80, 20 60 L20 40 C20 35, 25 30, 30 30 C35 30, 40 35, 40 40 L40 55 L45 55 L45 25 C45 20, 50 15, 55 15 C60 15, 65 20, 65 25 L65 55 L70 55 L70 30 C70 25, 75 20, 80 20 C85 20, 90 25, 90 30 L90 70 C90 85, 75 90, 50 90 Z" />
                 </svg>
-            </div>
-
-            <!-- Gizemli Alt Yazı -->
-            <div class="text-[9px] text-red-500/70 tracking-[0.2em] uppercase font-bold mb-4 font-mono select-none">
-                I'M GOING CRAZY, IS MY NAME HUKA?
             </div>
 
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.07</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.08</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 BAŞLA (PC)
             </button>
         </div>
 
-        <!-- SOL ALT: Güncelleme Kaydı Defter & Kalem Butonu -->
+        <!-- SOL ALT: Güncelleme Defteri Butonu -->
         <button id="btn-notes" class="absolute bottom-6 left-6 w-14 h-14 bg-zinc-900/90 border border-zinc-700/60 rounded-lg flex items-center justify-center active:scale-95 transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)] z-[60]">
             <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -120,19 +132,20 @@
         </button>
     </div>
 
+    <!-- Güncelleme Notları Modalı -->
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ PRE-ALPHA 0.07 | GÜNCELLEME KAYDI |
+                FARMANT STUDIOS | HORROR MİNİ | OYUN HATASI | ERROR -1
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>GECE VE GÜNDÜZ DÖNGÜSÜ EKLENDİ (4 DK GÜNDÜZ, 2 DK İKİNDİ, 50 SN AKŞAM, 4 DK GECE).</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>GECE OLUNCA CHUNK GÖRÜŞ MESAFESİ 3'E DÜŞÜRÜLDÜ VE SİSLENDİRİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KANLI AY (BLOOD MOON) %1 ŞANSLA EKLENDİ, ÖZEL GLITCH KORKU METİNLERİ VE ANLIK EKRAN KARARMALARI EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>NOT DEFTERİ SİSTEMİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>CTRL VE MOBİL BUTON İLE EĞİLME (CROUCH) MEKANİĞİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>RESMİ "FARMANT STUDIOS IS THE GAME DEVELOPER." GÜVENCE METNİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>DAĞLAR VE MAĞARA YATAKLARI MEKANİĞİ ENTEGRE EDİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE-ALPHA 0.08 E GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>İLK OYUN HATASI( GAMA CRAH) EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>FPS İÇİN ÖNEMLİ AYARLAMALAR YAPILDI.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YÜKLENMEYEN CHUNKLARDAKİ AĞAÇLAR OYUNCUNUN GÖRMEMESİ SAĞLANDI.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>İKİNDİ YAZISI ÖĞLE YE ÇEVRİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ANA MENÜYE ÖZEL ANİMASYON.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KATİL BALIKLAR EKLENDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -142,12 +155,13 @@
         </div>
     </div>
 
+    <!-- Sistem HUD Göstergeleri -->
     <div id="ui-overlay" class="fixed top-4 left-4 text-white text-[9px] md:text-xs font-mono space-y-1 hidden z-40 pointer-events-none">
         <div class="flex flex-col space-y-0.5">
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">PRE-ALPHA 0.07</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">PRE-ALPHA 0.08</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -162,35 +176,10 @@
         </div>
     </div>
 
-    <div id="screamer-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 transition-all duration-150 opacity-0 pointer-events-none">
-        <div class="text-center transform scale-90 flex flex-col items-center">
-            <svg class="w-72 h-72 text-red-600 animate-pulse drop-shadow-[0_0_30px_rgba(255,0,0,0.8)]" viewBox="0 0 100 100" fill="none">
-                <!-- Korkunç İskelet / Kafatası SVG tasarımı -->
-                <path d="M50 10 C30 10, 20 25, 20 45 C20 65, 30 75, 35 80 L35 90 L42 90 L42 85 L48 85 L48 90 L52 90 L52 85 L58 85 L58 90 L65 90 L65 80 C70 75, 80 65, 80 45 C80 25, 70 10, 50 10 Z" fill="currentColor"/>
-                <!-- Göz boşlukları -->
-                <circle cx="38" cy="45" r="8" fill="#000" />
-                <circle cx="62" cy="45" r="8" fill="#000" />
-                <!-- Kırmızı parlayan bebekler -->
-                <circle cx="38" cy="45" r="2.5" fill="#ff0000" class="animate-ping" />
-                <circle cx="62" cy="45" r="2.5" fill="#ff0000" class="animate-ping" />
-                <!-- Burun boşluğu -->
-                <polygon points="50,52 46,60 54,60" fill="#000" />
-                <!-- Diş çizgileri -->
-                <line x1="38" y1="72" x2="62" y2="72" stroke="#000" stroke-width="2"/>
-                <line x1="43" y1="67" x2="43" y2="77" stroke="#000" stroke-width="1.5"/>
-                <line x1="50" y1="67" x2="50" y2="77" stroke="#000" stroke-width="1.5"/>
-                <line x1="57" y1="67" x2="57" y2="77" stroke="#000" stroke-width="1.5"/>
-            </svg>
-            <h1 class="text-red-600 font-black text-4xl md:text-6xl glitch-text tracking-[0.25em] mt-6 leading-tight">
-                HUKA HUKA HUKA!
-            </h1>
-            <h2 class="text-zinc-400 text-sm md:text-lg font-bold tracking-widest mt-2">
-                GAME IS DELETE GAME IS DELET GAME GAME
-            </h2>
-        </div>
-    </div>
+    <!-- Katil Balık Kararma Efekti (Debuff Overlay) -->
+    <div id="fish-debuff-overlay" class="fixed inset-0 bg-black pointer-events-none transition-opacity duration-300 z-40 opacity-0"></div>
 
-    <!-- 3 Saniyelik Rastgele Ekran Kararması İçin Overlay -->
+    <!-- Ekran Kararma Katmanı -->
     <div id="blackout-overlay" class="fixed inset-0 bg-black pointer-events-none transition-opacity duration-300 z-[110] opacity-0"></div>
 
     <!-- Hedef Artısı (Crosshair) -->
@@ -204,7 +193,7 @@
         <div class="flex justify-between"><span>TOPLAM CHUNK:</span> <span id="gpu-total-chunks" class="text-yellow-500">0</span></div>
     </div>
 
-    <!-- Güvenli Ara Menü (Pause Menu / Pointer Lock Uyarısı) -->
+    <!-- Güvenli Ara Menü (Pause Menu) -->
     <div id="pause-menu" class="fixed inset-0 bg-black/85 flex flex-col items-center justify-center z-50 p-4 hidden">
         <div class="text-center bg-[#110101] border border-red-900/40 p-8 rounded-lg shadow-[0_0_30px_rgba(255,0,0,0.15)] max-w-sm w-full">
             <h2 class="text-red-600 text-3xl font-black tracking-wider mb-6 glitch-text">OYUN DURDURULDU</h2>
@@ -217,6 +206,27 @@
                     MENÜYE GERİ DÖN
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- MAVİ SİSTEM HATASI EKRANI (ERROR -1) -->
+    <div id="error-screen" class="fixed inset-0 bg-[#0000aa] z-[150] flex flex-col justify-between hidden p-8 font-mono text-white select-text">
+        <div class="bg-[#000088] p-4 text-center border-b-2 border-white text-sm md:text-base font-bold tracking-wider">
+            FARMANT STUDIOS | HORROR MİNİ | OYUN HATASI | ERROR -1
+        </div>
+        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <p class="text-lg md:text-xl font-bold max-w-3xl leading-relaxed mb-6 uppercase text-red-300">
+                OYUNU OYNARKEN/BAŞLARKEN HATA OLUŞTU BU OYUNUN ÇOK KASMASINDAN VEYA FPS DÜŞÜSÜNDEN OLABİLİR
+            </p>
+            <p class="text-xs text-blue-300 max-w-xl">
+                Sistem yükü optimize edilemedi. Ağır chunk işlem hatası oluştu. Çözmek için aşağıdaki butona tıklayarak ana menüye dönebilirsiniz.
+            </p>
+        </div>
+        <div class="bg-[#000088] p-4 flex justify-between items-center border-t-2 border-white">
+            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_0x08</span>
+            <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95">
+                MENÜYE GERİ DÖN
+            </button>
         </div>
     </div>
 
@@ -237,33 +247,36 @@
         const generatedChunks = new Set();
         let activeChunks = [];
         
-        // --- 50x50 Boyutunda, Dünyada 3 Kez (Ardışık 100 Blok Sağda) Tekrarlayan Biyomlar ---
-        // 1. Biyom Sınırları (Merkez: X: 60, Z: 60)
+        // 50x50 Boyutunda Üçlü Korku Biyomları
         const B1_MIN_X = 35, B1_MAX_X = 85;
         const B1_MIN_Z = 35, B1_MAX_Z = 85;
 
-        // 2. Biyom Sınırları (Merkez: X: 160, Z: 60 - İlkinden 100 blok sağda)
         const B2_MIN_X = 135, B2_MAX_X = 185;
         const B2_MIN_Z = 35, B2_MAX_Z = 85;
 
-        // 3. Biyom Sınırları (Merkez: X: 260, Z: 60 - İkinciden 100 blok sağda)
         const B3_MIN_X = 235, B3_MAX_X = 285;
         const B3_MIN_Z = 35, B3_MAX_Z = 85;
 
         let insideGrayBiome = false;
-        let insideGrayBiomeId = 0; // 0 ise dışarıda, 1-2-3 ise ilgili biyomda
-        let screamerActive = false;
+        let insideGrayBiomeId = 0; 
         let grayBiomeTrees = []; 
-        let creepyObservers = []; // 3 Biyomun merkezindeki 3 ayrı varlık
+        let creepyObservers = []; 
         let lastScreamTime = 0; 
         
         let frames = 0, lastTime = performance.now(), currentFps = 60;
+        let lowFpsCount = 0; 
 
-        // Gece - Gündüz döngüsü zamanları
+        // Katil Balık Yapay Zekası ve Durumu
+        const killerFishList = [];
+        let fishDebuffTimer = 0;
+        let fishDebuffFlashTimer = 0;
+        let fishDebuffScreenActive = false;
+
+        // Gece - Gündüz Yörünge Zamanları
         const DAY_DURATION = 240;      // 4 Dakika
         const AFTERNOON_DURATION = 120; // 2 Dakika
-        const EVENING_DURATION = 50;   // 50 Saniye
-        const NIGHT_DURATION = 240;    // 4 Dakika
+        const EVENING_DURATION = 50;    // 50 Saniye
+        const NIGHT_DURATION = 240;     // 4 Dakika
         const TOTAL_CYCLE_DURATION = DAY_DURATION + AFTERNOON_DURATION + EVENING_DURATION + NIGHT_DURATION; 
 
         let dayNightTimer = 0;
@@ -272,7 +285,6 @@
         let blackoutTimer = 0; 
         let lastBlackoutTrigger = 0;
 
-        // Gökyüzü Kozmik Elementleri
         let starsField = null;
         let cloudsGroup = null;
         let sunMesh = null;
@@ -288,14 +300,15 @@
             jumpForce: 0.18,
             onGround: false,
             inWater: false,
+            isUnderwater: false,
             isCrouching: false,
             height: 1.8,
             radius: 0.35,
             isSprinting: false,
+            stepAccumulator: 0,
             spawnPos: new THREE.Vector3(0, 40, 0) 
         };
 
-        // Klavye Tuş Durum Takibi
         const keys = {
             KeyW: false,
             KeyS: false,
@@ -306,14 +319,23 @@
             ControlLeft: false
         };
 
-        // Splash ekranını otomatik gizleme mekanizması
+        // Splash Giriş Zamanlayıcısı
         window.addEventListener('DOMContentLoaded', () => {
+            const wakeupAudio = () => {
+                audio.init();
+                window.removeEventListener('click', wakeupAudio);
+                window.removeEventListener('touchstart', wakeupAudio);
+            };
+            window.addEventListener('click', wakeupAudio);
+            window.addEventListener('touchstart', wakeupAudio);
+
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.style.display = 'none';
+                        startMainMenuAnimation();
                     }, 1500);
                 }
             }, 4000);
@@ -357,19 +379,99 @@
                     osc.stop(this.ctx.currentTime + duration);
                 } catch (e) {}
             }
-            playMiningSound() { this.playBeep(80, 'triangle', 0.15, 0.25); }
-            playPlaceSound() { this.playBeep(140, 'sine', 0.12, 0.2); }
-            
-            // Korku Biyomu Derin "DIIIIIT" Hum Sesi
+            playPlaceTık() {
+                this.playBeep(250, 'sine', 0.04, 0.25);
+            }
+            playBreakTıkTık() {
+                this.playBeep(220, 'sine', 0.03, 0.22);
+                setTimeout(() => {
+                    this.playBeep(185, 'sine', 0.03, 0.2);
+                }, 70);
+            }
+            playStepSound(type) {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                if (type === 'grass') {
+                    // TOK ÇİMEN SESİ (Mükemmel bas derinliğiyle tok vuruş)
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+                    
+                    gain.gain.setValueAtTime(0.14, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'dirt') {
+                    // Tok toprak sesi
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(110, now);
+                    osc.frequency.exponentialRampToValueAtTime(55, now + 0.08);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                }
+            }
+            playWaterSound() {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(75, now);
+                osc.frequency.linearRampToValueAtTime(170, now + 0.35);
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.45);
+            }
+            playGlassShatter(volumeFactor) {
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+                gain.gain.setValueAtTime(0.35 * volumeFactor, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+
+                for(let i = 0; i < 6; i++) {
+                    const ring = this.ctx.createOscillator();
+                    const ringGain = this.ctx.createGain();
+                    ring.type = 'sine';
+                    ring.frequency.setValueAtTime(1300 + Math.random() * 3200, now);
+                    ringGain.gain.setValueAtTime((0.08 + Math.random() * 0.06) * volumeFactor, now);
+                    ringGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + Math.random() * 0.9);
+                    ring.connect(ringGain);
+                    ringGain.connect(this.ctx.destination);
+                    ring.start(now);
+                    ring.stop(now + 1.2);
+                }
+            }
             startScaryDrone() {
                 if (!this.ctx || this.droneOsc) return;
                 try {
                     this.droneOsc = this.ctx.createOscillator();
                     this.droneGain = this.ctx.createGain();
                     this.droneOsc.type = 'sawtooth';
-                    this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Çok kalın, derin fısıltılı DIIIIIT frekansı
+                    this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime);
                     this.droneGain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-                    
                     this.droneOsc.connect(this.droneGain);
                     this.droneGain.connect(this.ctx.destination);
                     this.droneOsc.start();
@@ -377,12 +479,8 @@
             }
             stopScaryDrone() {
                 if (this.droneOsc) {
-                    try {
-                        this.droneOsc.stop();
-                        this.droneOsc.disconnect();
-                    } catch(e) {}
-                    this.droneOsc = null;
-                    this.droneGain = null;
+                    try { this.droneOsc.stop(); this.droneOsc.disconnect(); } catch(e) {}
+                    this.droneOsc = null; this.droneGain = null;
                 }
             }
             playScream(intensity = 1) {
@@ -393,9 +491,7 @@
                     const bufferSize = this.ctx.sampleRate * duration;
                     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                     const data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = Math.random() * 2 - 1;
-                    }
+                    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
                     
                     const noiseNode = this.ctx.createBufferSource();
                     noiseNode.buffer = buffer;
@@ -443,6 +539,82 @@
         }
         const audio = new SoundSynth();
 
+        function startMainMenuAnimation() {
+            const leftHand = document.getElementById('left-hand');
+            const rightHand = document.getElementById('right-hand');
+            const creepyHead = document.getElementById('creepy-head');
+            const crack1 = document.getElementById('crack-1');
+            const crack2 = document.getElementById('crack-2');
+            const crack3 = document.getElementById('crack-3');
+            const menuBox = document.getElementById('menu-anim-box');
+
+            let animStep = 0;
+
+            function runAnim() {
+                if (gameActive) return; 
+
+                if (animStep === 0) {
+                    leftHand.style.transform = 'translateY(0px)';
+                    setTimeout(() => {
+                        rightHand.style.transform = 'translateY(0px)';
+                    }, 400);
+                    animStep = 1;
+                    setTimeout(runAnim, 1600);
+                } else if (animStep === 1) {
+                    creepyHead.style.transform = 'translateY(0px)';
+                    animStep = 2;
+                    setTimeout(runAnim, 1800);
+                } else if (animStep === 2) {
+                    // 1. Darbe
+                    creepyHead.style.transform = 'translateY(-12px) scale(1.3)';
+                    crack1.classList.remove('hidden');
+                    audio.playGlassShatter(0.4);
+                    menuBox.classList.add('animate-bounce');
+                    setTimeout(() => {
+                        menuBox.classList.remove('animate-bounce');
+                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
+                    }, 220);
+                    animStep = 3;
+                    setTimeout(runAnim, 1300);
+                } else if (animStep === 3) {
+                    // 2. Darbe
+                    creepyHead.style.transform = 'translateY(-18px) scale(1.6)';
+                    crack2.classList.remove('hidden');
+                    audio.playGlassShatter(0.85);
+                    menuBox.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        menuBox.classList.remove('animate-pulse');
+                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
+                    }, 220);
+                    animStep = 4;
+                    setTimeout(runAnim, 1300);
+                } else if (animStep === 4) {
+                    // 3. Darbe
+                    creepyHead.style.transform = 'translateY(-24px) scale(2.0)';
+                    crack3.classList.remove('hidden');
+                    audio.playGlassShatter(1.4);
+                    menuBox.style.borderColor = "#ff0000";
+                    setTimeout(() => {
+                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
+                    }, 300);
+                    animStep = 5;
+                    setTimeout(runAnim, 2200);
+                } else if (animStep === 5) {
+                    leftHand.style.transform = 'translateY(96px)';
+                    rightHand.style.transform = 'translateY(96px)';
+                    creepyHead.style.transform = 'translateY(144px)';
+                    crack1.classList.add('hidden');
+                    crack2.classList.add('hidden');
+                    crack3.classList.add('hidden');
+                    menuBox.style.borderColor = "rgba(153, 27, 27, 0.4)";
+                    animStep = 0;
+                    setTimeout(runAnim, 3000); 
+                }
+            }
+
+            runAnim();
+        }
+
         // Başla Butonu Tıklama
         document.getElementById('btn-create').addEventListener('click', (e) => {
             e.stopPropagation();
@@ -460,7 +632,6 @@
             }, 700);
         });
 
-        // Pointer Lock Sistemi
         function requestPointerLock() {
             if (gameActive && document.pointerLockElement !== document.body) {
                 document.body.requestPointerLock();
@@ -477,6 +648,12 @@
         document.getElementById('btn-back-to-menu').addEventListener('click', (e) => {
             e.stopPropagation();
             document.exitPointerLock();
+            resetGameToMenu();
+        });
+
+        document.getElementById('btn-error-back').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.getElementById('error-screen').classList.add('hidden');
             resetGameToMenu();
         });
 
@@ -509,6 +686,7 @@
             dayNightTimer = 0;
             isBloodMoon = false;
             hasCheckedBloodMoonThisNight = false;
+            lowFpsCount = 0;
 
             const seeds = generate32BitSeed();
             worldSeed = seeds.seed32;
@@ -539,7 +717,6 @@
             ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
             scene.add(ambientLight);
 
-            // Güneş & Ay Kozmik Küreleri
             const sunGeo = new THREE.SphereGeometry(6, 16, 16);
             const sunMat = new THREE.MeshBasicMaterial({ color: 0xfffebb, fog: false });
             sunMesh = new THREE.Mesh(sunGeo, sunMat);
@@ -554,7 +731,6 @@
             initClouds();
             initStars();
             
-            // Güvenli Spawn Tarama Döngüsü
             let spawnX = 0;
             let spawnZ = 0;
             let spawnY = 25;
@@ -565,7 +741,6 @@
                 const rx = Math.floor((Math.random() - 0.5) * 200);
                 const rz = Math.floor((Math.random() - 0.5) * 200);
                 const h = getTerrainHeight(rx, rz);
-
                 const insideScary = getActiveSpecialBiome(rx, rz) > 0;
                 
                 if (h > SEA_LEVEL + 1 && !insideScary) {
@@ -580,7 +755,6 @@
             player.spawnPos.set(spawnX, spawnY + 3, spawnZ);
             player.pos.copy(player.spawnPos);
 
-            // Bizi her biyomda merkezde izleyen 3 kırmızı gözlü varlığın oluşturulması
             createCreepyObservers();
 
             const spawnPx = Math.floor(spawnX / CHUNK_SIZE);
@@ -591,13 +765,11 @@
                 }
             }
 
-            // PC Event Listeners
             window.addEventListener('keydown', handleKeyDown);
             window.addEventListener('keyup', handleKeyUp);
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mousedown', handleMouseDown);
             document.body.addEventListener('click', requestPointerLock);
-
             window.addEventListener('contextmenu', e => e.preventDefault());
 
             animate();
@@ -663,7 +835,7 @@
             ];
 
             centers.forEach((center, index) => {
-                const obsY = 19; // Düz biyom seviyesi
+                const obsY = 19; 
                 const observer = new THREE.Group();
                 observer.position.set(center.x, obsY, center.z);
 
@@ -679,7 +851,7 @@
                 observer.add(headMesh);
 
                 const eyeGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
-                const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Kırmızı parlak gözler
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
                 
                 const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
                 leftEye.position.set(-0.18, 3.2, 0.36);
@@ -695,7 +867,7 @@
                     id: index + 1,
                     obj: observer,
                     center: center,
-                    hasScreamed: false
+                    hasScream: false
                 });
             });
         }
@@ -728,7 +900,6 @@
             };
         }
 
-        // Oyuncunun 3'lü Korku Biyomundan Hangisinde Olduğunu Bulan Fonksiyon
         function getActiveSpecialBiome(x, z) {
             if (x >= B1_MIN_X && x <= B1_MAX_X && z >= B1_MIN_Z && z <= B1_MAX_Z) return 1;
             if (x >= B2_MIN_X && x <= B2_MAX_X && z >= B2_MIN_Z && z <= B2_MAX_Z) return 2;
@@ -739,12 +910,11 @@
         function getTerrainHeight(x, z) {
             const inBiome = getActiveSpecialBiome(x, z) > 0;
             if (inBiome) {
-                return 19; // Tamamen DÜZ arazi (Su seviyesi 18'in hemen üzerinde)
+                return 19; 
             }
             
             const noise1 = simplex1.noise2D(x * 0.012, z * 0.012) * 16;
             const noise2 = simplex2.noise2D(x * 0.06, z * 0.06) * 3;
-            
             const distFromCenter = Math.sqrt(x*x + z*z);
             let baseHeight = 16;
             
@@ -754,13 +924,25 @@
 
             let finalHeight = Math.floor(baseHeight + noise1 + noise2);
 
-            // BAZI DAĞLARI BÜYÜK YAP: Düşük frekanslı gürültü ile göğe uzanan dağlar
+            // BÜYÜK DAĞ MEKANİĞİ
             const mountainScaleNoise = simplex3.noise2D(x * 0.003, z * 0.003);
             if (mountainScaleNoise > 0.1) {
                 finalHeight += Math.floor((mountainScaleNoise - 0.1) * 65);
             }
 
             return finalHeight;
+        }
+
+        function isBlockOccluded(wx, wy, wz) {
+            const neighbors = [
+                getBlock(wx + 1, wy, wz),
+                getBlock(wx - 1, wy, wz),
+                getBlock(wx, wy + 1, wz),
+                getBlock(wx, wy - 1, wz),
+                getBlock(wx, wy, wz + 1),
+                getBlock(wx, wy, wz - 1)
+            ];
+            return neighbors.every(n => n && n !== 'water');
         }
 
         function generateChunkData(cx, cz) {
@@ -776,7 +958,6 @@
                     const biomeNum = getActiveSpecialBiome(wx, wz);
                     const isGray = biomeNum > 0;
 
-                    // KORKU BİYOMUNDA KESİNLİKLE SU BULUNMAZ!
                     if (!isGray && h < SEA_LEVEL) {
                         for (let y = h + 1; y <= SEA_LEVEL; y++) {
                             setBlock(wx, y, wz, 'water');
@@ -801,53 +982,52 @@
                         }
                     }
 
-                    // Voxel tabanlı ağaçların koordinatlara işlenmesi
+                    // Sadece aktif yüklenen chunklar için optimize edilmiş 1x1x1 Voxel ağaçlar
                     const noise3Val = simplex3.noise2D(wx * 0.05, wz * 0.05);
                     if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && noise3Val > 0.4 && Math.random() < 0.06) {
                         const trunkType = isGray ? 'grayWood' : 'wood';
                         const leafType = isGray ? 'grayLeaf' : 'leaf';
 
-                        // Ağaçları daha sonra animasyonla yerin dibine gömebilmek için biyoma göre yaprak/gövde nesnesi oluşturuyoruz
                         const treeGroup = new THREE.Group();
                         treeGroup.position.set(wx, h, wz);
 
-                        const woodGeo = new THREE.BoxGeometry(0.8, 5, 0.8);
-                        const woodMesh = new THREE.Mesh(woodGeo, matList[trunkType]);
-                        woodMesh.position.y = 2.5;
-                        treeGroup.add(woodMesh);
+                        const trunkGeo = new THREE.BoxGeometry(1, 1, 1);
+                        const leafGeo = new THREE.BoxGeometry(1, 1, 1);
 
-                        const leafGeo = new THREE.BoxGeometry(3.5, 3, 3.5);
-                        const leafMesh = new THREE.Mesh(leafGeo, matList[leafType]);
-                        leafMesh.position.y = 5;
-                        treeGroup.add(leafMesh);
-
-                        // Fizik motoru algılaması için voxel blok verilerini de işleyelim
+                        // Odun voxel blokları tek tek yerleştirilir
                         for (let i = 1; i <= 5; i++) {
+                            const woodMesh = new THREE.Mesh(trunkGeo, matList[trunkType]);
+                            woodMesh.position.set(0, i - 0.5, 0);
+                            woodMesh.userData = { type: trunkType, localX: 0, localY: i, localZ: 0 };
+                            treeGroup.add(woodMesh);
                             setBlock(wx, h + i, wz, trunkType);
                         }
+
+                        // Yaprak voxel blokları tek tek yerleştirilir
                         for (let ly = 4; ly <= 6; ly++) {
                             for (let lx = -1; lx <= 1; lx++) {
                                 for (let lz = -1; lz <= 1; lz++) {
                                     if (lx !== 0 || lz !== 0 || ly > 5) {
+                                        const leafMesh = new THREE.Mesh(leafGeo, matList[leafType]);
+                                        leafMesh.position.set(lx, ly - 0.5, lz);
+                                        leafMesh.userData = { type: leafType, localX: lx, localY: ly, localZ: lz };
+                                        treeGroup.add(leafMesh);
                                         setBlock(wx + lx, h + ly, wz + lz, leafType);
                                     }
                                 }
                             }
                         }
 
-                        if (isGray) {
-                            scene.add(treeGroup);
-                            grayBiomeTrees.push({
-                                biomeId: biomeNum,
-                                obj: treeGroup,
-                                startY: h,
-                                targetY: h,
-                                currentY: h,
-                                isSunk: false
-                            });
-                        } else {
-                            scene.add(treeGroup);
-                        }
+                        scene.add(treeGroup);
+                        grayBiomeTrees.push({
+                            chunkKey: key, 
+                            biomeId: biomeNum,
+                            obj: treeGroup,
+                            startY: h,
+                            targetY: h,
+                            currentY: h,
+                            isSunk: false
+                        });
                     }
                 }
             }
@@ -875,7 +1055,13 @@
                     for (let y = 0; y <= 65; y++) {
                         const type = getBlock(wx, y, wz);
                         if (type && blocks[type] !== undefined) {
-                            blocks[type].push(new THREE.Vector3(wx, y, wz));
+                            // OPTIMIZASYON: Odun ve yapraklar zaten treeGroup içinde bireysel mesh olarak var
+                            if (type === 'wood' || type === 'leaf' || type === 'grayWood' || type === 'grayLeaf') {
+                                continue;
+                            }
+                            if (!isBlockOccluded(wx, y, wz)) {
+                                blocks[type].push(new THREE.Vector3(wx, y, wz));
+                            }
                         }
                     }
                 }
@@ -926,7 +1112,8 @@
                 for (let oz of [-r, r]) {
                     for (let oy of [0.05, h * 0.5, h - 0.05]) {
                         const block = getBlock(x + ox, y + oy, z + oz);
-                        if (block && block !== 'water') return true;
+                        // Yaprakların ('leaf' ve 'grayLeaf') içinden geçilebilir, diğer tüm bloklar katıdır.
+                        if (block && block !== 'water' && block !== 'leaf' && block !== 'grayLeaf') return true;
                     }
                 }
             }
@@ -970,17 +1157,20 @@
             let currentSpeed = player.inWater ? player.speed * 0.45 : player.speed;
             currentSpeed *= speedMultiplier;
 
+            // Katil Balık Yavaşlatma Etkisi
+            if (fishDebuffTimer > 0) {
+                currentSpeed *= 0.5;
+            }
+
             const dx = moveDir.x * currentSpeed;
             const dz = moveDir.z * currentSpeed;
 
-            // X Ekseninde Çarpışma ve Otomatik Tırmanma Kuralları
+            // X Ekseninde Çarpışma ve Sadece 1 Blok Otomatik Tırmanma
             if (dx !== 0) {
                 player.pos.x += dx;
                 if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                    // 2 Blok Limitli Otomatik Tırmanma: Önünde 2 blok üst üste engel varsa tırmanamaz!
-                    const stepCollides = checkCollision(player.pos.x, player.pos.y + 0.5, player.pos.z);
+                    // Eğer önümüzdeki engel 2 blok veya daha yüksekse tırmanamayız.
                     const chestCollides = checkCollision(player.pos.x, player.pos.y + 1.1, player.pos.z);
-                    
                     if (!player.isCrouching && !chestCollides) {
                         player.pos.y += 1.0; 
                         if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
@@ -993,13 +1183,11 @@
                 }
             }
 
-            // Z Ekseninde Çarpışma ve Otomatik Tırmanma Kuralları
+            // Z Ekseninde Çarpışma ve Sadece 1 Blok Otomatik Tırmanma
             if (dz !== 0) {
                 player.pos.z += dz;
                 if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                    const stepCollides = checkCollision(player.pos.x, player.pos.y + 0.5, player.pos.z);
                     const chestCollides = checkCollision(player.pos.x, player.pos.y + 1.1, player.pos.z);
-                    
                     if (!player.isCrouching && !chestCollides) {
                         player.pos.y += 1.0; 
                         if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
@@ -1012,7 +1200,7 @@
                 }
             }
 
-            // Dikey Hız ve Yerçekimi (Boşluğa Düşme Garantilidir)
+            // Dikey Hız ve Yerçekimi
             const gravity = player.inWater ? 0.003 : 0.008;
             
             const onGroundNow = checkCollision(player.pos.x, player.pos.y - 0.05, player.pos.z);
@@ -1044,6 +1232,23 @@
                 }
             }
 
+            // Yürüme Ses Mekanizması
+            if (player.onGround && (dx !== 0 || dz !== 0)) {
+                player.stepAccumulator += currentSpeed;
+                const stepInterval = player.isSprinting ? 0.5 : 0.75;
+                if (player.stepAccumulator >= stepInterval) {
+                    player.stepAccumulator = 0;
+                    const blockBelow = getBlock(player.pos.x, player.pos.y - 0.15, player.pos.z);
+                    if (blockBelow === 'grass' || blockBelow === 'grayGrass') {
+                        audio.playStepSound('grass');
+                    } else if (blockBelow === 'dirt' || blockBelow === 'grayDirt' || blockBelow === 'stone' || blockBelow === 'grayStone') {
+                        audio.playStepSound('dirt');
+                    }
+                }
+            } else {
+                player.stepAccumulator = 0;
+            }
+
             // Space ile Zıplama & Suda Yüzme
             if (keys['Space']) {
                 if (player.onGround) {
@@ -1054,7 +1259,6 @@
                 }
             }
 
-            // Kamera Takip Yumuşatma
             const targetHeight = player.isCrouching ? 0.95 : 1.6;
             camera.position.x = player.pos.x;
             camera.position.z = player.pos.z;
@@ -1065,11 +1269,91 @@
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
 
-            const meshes = Array.from(chunkMeshes.values());
-            const intersects = raycaster.intersectObjects(meshes, true);
+            const targets = [...Array.from(chunkMeshes.values())];
+            
+            // Aktif ağaç gruplarını ekle
+            grayBiomeTrees.forEach(t => {
+                if (t.obj.visible && !t.isSunk) {
+                    targets.push(t.obj);
+                }
+            });
+
+            // Katil balıkları hedefe ekle
+            killerFishList.forEach(f => {
+                targets.push(f.obj);
+            });
+
+            const intersects = raycaster.intersectObjects(targets, true);
 
             if (intersects.length > 0 && intersects[0].distance < 6) {
                 const hit = intersects[0];
+                const clickedObj = hit.object;
+
+                // 1. Katil Balık Vurma Tespiti
+                let hitFish = null;
+                let hitFishIndex = -1;
+                for (let i = 0; i < killerFishList.length; i++) {
+                    const fObj = killerFishList[i].obj;
+                    if (fObj === clickedObj || fObj.children.includes(clickedObj)) {
+                        hitFish = killerFishList[i];
+                        hitFishIndex = i;
+                        break;
+                    }
+                }
+
+                if (hitFish) {
+                    if (type === 'break') {
+                        hitFish.health--;
+                        audio.playBreakTıkTık(); // Hasar Sesi
+                        
+                        // Kırmızı hasar flaşı
+                        hitFish.obj.children.forEach(c => {
+                            if (c.material && c.material.color) {
+                                const origColor = c.material.color.getHex();
+                                c.material.color.setHex(0xff0000);
+                                setTimeout(() => {
+                                    if (c.material && c.material.color) c.material.color.setHex(origColor);
+                                }, 150);
+                            }
+                        });
+
+                        if (hitFish.health <= 0) {
+                            scene.remove(hitFish.obj);
+                            killerFishList.splice(hitFishIndex, 1);
+                            audio.playScream(1); // Ölüm Sesi
+                        }
+                    }
+                    return;
+                }
+
+                // 2. Voxel Ağaç Kırma Tespiti (Grup içi çocuk mesh)
+                let hitTreeGroup = null;
+                for (let i = 0; i < grayBiomeTrees.length; i++) {
+                    const treeObj = grayBiomeTrees[i].obj;
+                    if (treeObj === clickedObj.parent || treeObj === clickedObj) {
+                        hitTreeGroup = treeObj;
+                        break;
+                    }
+                }
+
+                if (hitTreeGroup) {
+                    if (type === 'break') {
+                        const blockMesh = clickedObj;
+                        const uData = blockMesh.userData;
+                        if (uData) {
+                            const wx = Math.round(hitTreeGroup.position.x + uData.localX);
+                            const wy = Math.round(hitTreeGroup.position.y + uData.localY);
+                            const wz = Math.round(hitTreeGroup.position.z + uData.localZ);
+                            
+                            hitTreeGroup.remove(blockMesh);
+                            worldBlocks.delete(`${wx},${wy},${wz}`);
+                            audio.playBreakTıkTık();
+                        }
+                    }
+                    return;
+                }
+
+                // 3. Normal Arazi Blok Kırma / Yerleştirme
                 const point = hit.point;
                 const normal = hit.face.normal;
 
@@ -1081,7 +1365,7 @@
                     const targetBlock = getBlock(bx, by, bz);
                     if (targetBlock && targetBlock !== 'water') {
                         worldBlocks.delete(`${bx},${by},${bz}`);
-                        audio.playMiningSound();
+                        audio.playBreakTıkTık(); 
                         updateAffectedChunks(bx, bz);
                     }
                 } else if (type === 'place') {
@@ -1089,15 +1373,23 @@
                     const py = Math.round(point.y + normal.y * 0.4);
                     const pz = Math.round(point.z + normal.z * 0.4);
 
+                    // Y:52 YÜKSEKLİK SINIRI
+                    if (py >= 52) {
+                        audio.playPlaceTık(); 
+                        setTimeout(() => {
+                            audio.playBreakTıkTık(); 
+                        }, 120);
+                        return; 
+                    }
+
                     const pDist = player.pos.distanceTo(new THREE.Vector3(px, py, pz));
                     if (pDist > 0.8) {
                         const targetBlock = getBlock(px, py, pz);
                         if (!targetBlock || targetBlock === 'water') {
-                            // Envanter yok, sadece normal veya gri toprak blok koyulabilir
                             const insideSScary = getActiveSpecialBiome(px, pz) > 0;
                             const placingType = insideSScary ? 'grayGrass' : 'grass';
                             setBlock(px, py, pz, placingType);
-                            audio.playPlaceSound();
+                            audio.playPlaceTık(); 
                             updateAffectedChunks(px, pz);
                         }
                     }
@@ -1105,7 +1397,7 @@
             }
         }
 
-        // PC Tuş Takipçileri
+        // Klavye Girdileri
         function handleKeyDown(e) {
             if (isPaused) return;
             
@@ -1119,7 +1411,6 @@
                 keys['ControlLeft'] = true;
             }
 
-            // I Tuşu ile Respawn
             if (e.code === 'KeyI') {
                 player.pos.copy(player.spawnPos);
                 player.vel.set(0, 0, 0);
@@ -1157,6 +1448,178 @@
             }
         }
 
+        function createKillerFishMesh() {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x800080 }); // Mor Gövde
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Kırmızı Gözler
+            
+            // Baş
+            const headGeo = new THREE.BoxGeometry(0.3, 0.2, 0.4);
+            const head = new THREE.Mesh(headGeo, bodyMat);
+            head.position.set(0, 0, 0.2);
+            group.add(head);
+            
+            // Gözler
+            const eyeGeo = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            leftEye.position.set(-0.16, 0.05, 0.3);
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+            rightEye.position.set(0.16, 0.05, 0.3);
+            group.add(leftEye, rightEye);
+            
+            // Kuyruğa doğru incelen uzun gövde parçaları
+            const segGeo = new THREE.BoxGeometry(0.24, 0.16, 0.3);
+            for (let i = 0; i < 3; i++) {
+                const seg = new THREE.Mesh(segGeo, bodyMat);
+                seg.position.set(0, 0, -0.15 - (i * 0.28));
+                group.add(seg);
+            }
+            
+            return group;
+        }
+
+        function spawnKillerFish() {
+            if (killerFishList.length >= 3) return;
+            
+            let px = Math.floor(player.pos.x);
+            let pz = Math.floor(player.pos.z);
+            let found = false;
+            let sx, sy, sz;
+            
+            // HER DENİZDE DOĞMASI İÇİN GENİŞ ALANLI DOĞAL TARAMA (120 Blok Yarıçapı, 200 Deneme)
+            for (let attempt = 0; attempt < 200; attempt++) {
+                const rx = px + Math.floor((Math.random() - 0.5) * 120);
+                const rz = pz + Math.floor((Math.random() - 0.5) * 120);
+                const ry = 8 + Math.floor(Math.random() * 10); // Su seviyesinin altı
+                
+                if (getBlock(rx, ry, rz) === 'water') {
+                    sx = rx;
+                    sy = ry;
+                    sz = rz;
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Sadece gerçek bir su hücresi bulunursa doğar, böylece havada uçmaları engellenir!
+            if (found) {
+                const fishObj = createKillerFishMesh();
+                fishObj.position.set(sx, sy, sz);
+                scene.add(fishObj);
+                
+                killerFishList.push({
+                    obj: fishObj,
+                    health: 3,
+                    swimTimer: Math.random() * 5,
+                    swimTarget: new THREE.Vector3(sx, sy, sz)
+                });
+            }
+        }
+
+        function updateKillerFishLogic(dt) {
+            // Su içindeyse doğma sıklığını yükselt
+            if (killerFishList.length < 3 && Math.random() < 0.05) {
+                spawnKillerFish();
+            }
+            
+            const playerPos = player.pos.clone();
+            playerPos.y += 0.9;
+            
+            for (let i = killerFishList.length - 1; i >= 0; i--) {
+                const fish = killerFishList[i];
+                const dist = fish.obj.position.distanceTo(player.pos);
+                const playerInWaterZone = player.pos.y <= SEA_LEVEL + 1;
+                
+                let speed = 2.0; 
+                let isChasing = false;
+                
+                if (playerInWaterZone && dist < 25) {
+                    isChasing = true;
+                    speed = 5.5; // Oyuncuya hızlıca saldırır
+                    fish.swimTarget.copy(playerPos);
+                } else {
+                    fish.swimTimer -= dt;
+                    if (fish.swimTimer <= 0) {
+                        fish.swimTimer = 3 + Math.random() * 5;
+                        fish.swimTarget.set(
+                            fish.obj.position.x + (Math.random() - 0.5) * 15,
+                            Math.max(8, Math.min(SEA_LEVEL - 1, fish.obj.position.y + (Math.random() - 0.5) * 4)),
+                            fish.obj.position.z + (Math.random() - 0.5) * 15
+                        );
+                    }
+                }
+                
+                const dir = new THREE.Vector3().subVectors(fish.swimTarget, fish.obj.position);
+                const targetDist = dir.length();
+                if (targetDist > 0.1) {
+                    dir.normalize();
+                    fish.obj.lookAt(fish.obj.position.clone().add(dir));
+                    const moveDist = speed * dt;
+                    fish.obj.position.addScaledVector(dir, Math.min(moveDist, targetDist));
+                }
+                
+                if (fish.obj.position.y > SEA_LEVEL - 0.2) {
+                    fish.obj.position.y = SEA_LEVEL - 0.2;
+                }
+                
+                // Oyuncuya vurduğunda tetiklenen debuff etkisi
+                if (dist < 1.4 && !isPaused) {
+                    triggerFishHit();
+                    const pushDir = new THREE.Vector3().subVectors(fish.obj.position, player.pos).normalize();
+                    fish.obj.position.addScaledVector(pushDir, 3.0);
+                }
+            }
+            
+            // 20 Saniye Süren Siyah Gel-Git (Flash Debuff) Etkisi
+            if (fishDebuffTimer > 0) {
+                fishDebuffTimer -= dt;
+                fishDebuffFlashTimer += dt;
+                if (fishDebuffFlashTimer >= 0.5) {
+                    fishDebuffFlashTimer = 0;
+                    fishDebuffScreenActive = !fishDebuffScreenActive;
+                    const debuffOverlay = document.getElementById('fish-debuff-overlay');
+                    if (debuffOverlay) {
+                        debuffOverlay.style.opacity = fishDebuffScreenActive ? "0.9" : "0.0";
+                    }
+                }
+                
+                if (fishDebuffTimer <= 0) {
+                    const debuffOverlay = document.getElementById('fish-debuff-overlay');
+                    if (debuffOverlay) debuffOverlay.style.opacity = "0";
+                }
+            }
+        }
+
+        function triggerFishHit() {
+            if (fishDebuffTimer <= 0) {
+                audio.playScream(1);
+            }
+            fishDebuffTimer = 20.0; // 20 Saniye Etki
+            fishDebuffFlashTimer = 0;
+            fishDebuffScreenActive = true;
+            const debuffOverlay = document.getElementById('fish-debuff-overlay');
+            if (debuffOverlay) debuffOverlay.style.opacity = "0.9";
+        }
+
+        function triggerErrorMinus1() {
+            gameActive = false;
+            isPaused = true;
+            document.exitPointerLock();
+
+            audio.stopScaryDrone();
+            stopScaryGlitches();
+
+            const errScreen = document.getElementById('error-screen');
+            if (errScreen) {
+                errScreen.classList.remove('hidden');
+            }
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
         function resetGameToMenu() {
             gameActive = false;
             isPaused = false;
@@ -1182,6 +1645,13 @@
             grayBiomeTrees = [];
             activeChunks = [];
             creepyObservers = [];
+
+            // Balık durumlarını tamamen temizleme
+            killerFishList.forEach(f => scene.remove(f.obj));
+            killerFishList.length = 0;
+            fishDebuffTimer = 0;
+            const debuffOverlay = document.getElementById('fish-debuff-overlay');
+            if (debuffOverlay) debuffOverlay.style.opacity = "0";
 
             document.getElementById('pause-menu').classList.add('hidden');
             document.getElementById('ui-overlay').style.display = 'none';
@@ -1218,7 +1688,7 @@
         window.addEventListener('resize', onWindowResize);
 
         const scaryMessages = [
-            "HUKA HUKA HUKA?",
+            "HUKAHUKA HUKA?",
             "I DIDN'T BUY THE GAME, I'M IN IT. -HUKA",
             "GAME IS DELETE GAME IS DELET GAME GAME",
             "HUKA IS WATCHING YOU!"
@@ -1256,35 +1726,16 @@
             }
         }
 
-        // Korku Biyomuna Girişte İskelet Screamer Tetikleyici Motor
-        function triggerScreamer() {
-            if (screamerActive) return;
-            screamerActive = true;
-            
-            const screamerPanel = document.getElementById('screamer-overlay');
-            if (screamerPanel) {
-                screamerPanel.classList.remove('pointer-events-none');
-                screamerPanel.style.opacity = '1';
-                screamerPanel.style.transform = 'scale(1)';
-                
-                // Kulakları sağır eden büyük ses patlaması!
-                audio.playScream(2);
-                
-                setTimeout(() => {
-                    screamerPanel.style.opacity = '0';
-                    screamerPanel.style.transform = 'scale(0.8)';
-                    screamerPanel.classList.add('pointer-events-none');
-                    screamerActive = false;
-                }, 1800);
-            }
-        }
-
         function animate() {
             if (!gameActive) return;
             animationFrameId = requestAnimationFrame(animate);
 
             const dt = clock.getDelta();
             updatePhysics();
+            
+            if (!isPaused) {
+                updateKillerFishLogic(dt);
+            }
 
             frames++;
             const now = performance.now();
@@ -1294,6 +1745,17 @@
                 if (fpsEl) {
                     fpsEl.innerText = currentFps;
                 }
+
+                if (currentFps < 18) {
+                    lowFpsCount++;
+                    if (lowFpsCount >= 5) { 
+                        triggerErrorMinus1();
+                        return;
+                    }
+                } else {
+                    lowFpsCount = 0;
+                }
+
                 frames = 0;
                 lastTime = now;
             }
@@ -1306,7 +1768,14 @@
                 coordsEl.innerText = `X: ${Math.round(player.pos.x)} | Y: ${Math.round(player.pos.y)} | Z: ${Math.round(player.pos.z)}`;
             }
 
-            // --- 4 EVRELİ GECE - GÜNDÜZ ZAMAN SİMÜLASYONU ENGINE ---
+            const cameraY = camera.position.y;
+            const wasUnderwater = player.isUnderwater;
+            player.isUnderwater = (cameraY < SEA_LEVEL);
+            if (player.isUnderwater && !wasUnderwater) {
+                audio.playWaterSound(); 
+            }
+
+            // GÜNDÜZ - ÖĞLE - AKŞAM - GECE EVRELERİ
             dayNightTimer += dt;
             if (dayNightTimer >= TOTAL_CYCLE_DURATION) {
                 dayNightTimer = 0;
@@ -1331,15 +1800,15 @@
                 targetSunIntensity = 1.3;
                 VIEW_DISTANCE = 3; 
             } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION) {
-                phaseName = "İkindi";
+                phaseName = "Öğle"; 
                 const localTimer = dayNightTimer - DAY_DURATION;
-                celestialAngle = Math.PI + (localTimer / AFTERNOON_DURATION) * (Math.PI * 0.5);
+                celestialAngle = Math.PI + (localTimer / AFTERNOON_DURATION) * (Math.PI * 0.5); 
                 targetSkyColor = 0xcc8855; 
                 targetFogDensity = 0.02;
                 targetAmbientIntensity = 0.5;
                 targetSunIntensity = 0.7;
             } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION + EVENING_DURATION) {
-                phaseName = "Akşam";
+                phaseName = "Akşam"; 
                 const localTimer = dayNightTimer - (DAY_DURATION + AFTERNOON_DURATION);
                 celestialAngle = Math.PI * 1.5 + (localTimer / EVENING_DURATION) * (Math.PI * 0.3);
                 targetSkyColor = 0x882211; 
@@ -1347,11 +1816,10 @@
                 targetAmbientIntensity = 0.25;
                 targetSunIntensity = 0.2;
             } else {
-                phaseName = "Gece";
+                phaseName = "Gece"; 
                 const localTimer = dayNightTimer - (DAY_DURATION + AFTERNOON_DURATION + EVENING_DURATION);
                 celestialAngle = Math.PI * 1.8 + (localTimer / NIGHT_DURATION) * (Math.PI * 1.2);
                 
-                // %1 ihtimalle Kanlı Ay kontrolü
                 if (!hasCheckedBloodMoonThisNight) {
                     hasCheckedBloodMoonThisNight = true;
                     isBloodMoon = Math.random() < 0.01; 
@@ -1380,7 +1848,6 @@
                 timeEl.className = isBloodMoon ? "text-red-500 font-bold glitch-text" : "text-cyan-400";
             }
 
-            // Güneş & Ay Orbital Dönüş Yolculuğu
             const sunX = Math.cos(celestialAngle) * 120;
             const sunY = Math.sin(celestialAngle) * 120;
             const sunZ = 30;
@@ -1414,7 +1881,6 @@
                 });
             }
 
-            // Kanlı Ay Glitch Mesajları & Ekran Kararması
             if (isBloodMoon && !isPaused) {
                 startScaryGlitches();
 
@@ -1435,7 +1901,6 @@
                 if (blackoutOverlay) blackoutOverlay.style.opacity = "0";
             }
 
-            // --- 3'LÜ KORKU BİYOMUNDA AKTİF TETİKLEME MOTORU ---
             const currentBiomeId = getActiveSpecialBiome(player.pos.x, player.pos.z);
             
             if (currentBiomeId > 0 && !isPaused) {
@@ -1444,7 +1909,6 @@
                 targetAmbientIntensity = 0.02; 
                 targetSunIntensity = 0.02; 
 
-                // Kesintisiz derinden DIIIIIT hum sesi çalma tetikleyicisi
                 audio.startScaryDrone();
 
                 if (!insideGrayBiome || insideGrayBiomeId !== currentBiomeId) {
@@ -1456,8 +1920,6 @@
                         biomeEl.innerText = `HUKA'S GRAY LANDS (Biyom ${currentBiomeId})`;
                         biomeEl.className = "text-red-600 font-black glitch-text";
                     }
-                    // Biyoma girdikten hemen sonra İSKELET SCREAMER tetiklenir!
-                    triggerScreamer();
                     startScaryGlitches();
                 }
             } else {
@@ -1475,27 +1937,22 @@
                 }
             }
 
-            // Lerp ile Yumuşak Atmosfer Geçişleri
             scene.fog.color.lerp(new THREE.Color(targetSkyColor), 0.03);
             scene.fog.density += (targetFogDensity - scene.fog.density) * 0.03;
             ambientLight.intensity += (targetAmbientIntensity - ambientLight.intensity) * 0.03;
             sunLight.intensity += (targetSunIntensity - sunLight.intensity) * 0.03;
             renderer.setClearColor(scene.fog.color);
 
-            // Bizi İzleyen Varlıkların (Observers) Oyuncuya Kilitlenmesi ve Merkez Patlaması
             creepyObservers.forEach((obs) => {
                 const targetPos = new THREE.Vector3(player.pos.x, obs.obj.position.y, player.pos.z);
                 obs.obj.lookAt(targetPos);
 
                 const distanceToObserver = player.pos.distanceTo(obs.obj.position);
-                
-                // Oyuncu Biyomun Merkezindeki Varlığa Yaklaşınca (Mesafe < 6.5 blok) LOUD SCREAM PATLAMASI!
                 if (distanceToObserver < 6.5 && !isPaused && currentBiomeId === obs.id) {
                     const timeNow = performance.now();
                     if (timeNow - lastScreamTime > 4500) { 
-                        audio.playScream(2); // Devasa ses patlaması
+                        audio.playScream(2); 
                         lastScreamTime = timeNow;
-                        // Ekran kırmızı glitch ile sallanır
                         const scaryOverlay = document.getElementById('scary-overlay');
                         if (scaryOverlay) {
                             scaryOverlay.style.backgroundColor = `rgba(${160 + Math.random() * 95}, 0, 0, ${Math.random() * 0.7 + 0.3})`;
@@ -1504,30 +1961,39 @@
                 }
             });
 
+            // OPTIMIZASYON: Sadece yakın yüklenen chunkların ağaçları görünür ve yerin dibine gömülebilir
             grayBiomeTrees.forEach(tree => {
-                // Eğer oyuncu o ağacın ait olduğu biyomun içerisindeyse ağaçlar yavaşça batar
-                if (insideGrayBiome && insideGrayBiomeId === tree.biomeId && !isPaused) {
-                    if (tree.obj.position.y > tree.startY - 7) {
-                        tree.obj.position.y -= 0.04; 
-                        tree.obj.scale.setScalar(Math.max(0.01, tree.obj.scale.x - 0.005)); 
-                    } else if (!tree.isSunk) {
-                        tree.isSunk = true;
-                        scene.remove(tree.obj); 
-                    }
+                const chunkParts = tree.chunkKey.split(',');
+                const tcx = parseInt(chunkParts[0]);
+                const tcz = parseInt(chunkParts[1]);
+                const distToChunk = Math.sqrt((tcx - px) ** 2 + (tcz - pz) ** 2);
+
+                if (distToChunk > VIEW_DISTANCE) {
+                    tree.obj.visible = false;
                 } else {
-                    // Oyuncu biyomdan çıkınca veya farklı biyomdayken ağaçlar pürüzsüzce geri yükselir
-                    if (tree.obj.position.y < tree.startY) {
-                        if(tree.isSunk) {
-                            scene.add(tree.obj);
-                            tree.isSunk = false;
+                    tree.obj.visible = true;
+                    if (insideGrayBiome && insideGrayBiomeId === tree.biomeId && !isPaused) {
+                        if (tree.obj.position.y > tree.startY - 7) {
+                            tree.obj.position.y -= 0.04; 
+                            tree.obj.scale.setScalar(Math.max(0.01, tree.obj.scale.x - 0.005)); 
+                        } else if (!tree.isSunk) {
+                            tree.isSunk = true;
+                            scene.remove(tree.obj); 
                         }
-                        tree.obj.position.y += 0.08;
-                        tree.obj.scale.setScalar(Math.min(1.0, tree.obj.scale.x + 0.01));
+                    } else {
+                        if (tree.obj.position.y < tree.startY) {
+                            if(tree.isSunk) {
+                                scene.add(tree.obj);
+                                tree.isSunk = false;
+                            }
+                            tree.obj.position.y += 0.08;
+                            tree.obj.scale.setScalar(Math.min(1.0, tree.obj.scale.x + 0.01));
+                        }
                     }
                 }
             });
 
-            // Chunk Görüş Alanı Kısıtlama Sistemi
+            // Sınır dışı chunkların gizlenmesi ve culling optimizasyonu
             let sleepingCount = 0;
             const totalChunkCount = chunkMeshes.size;
 
