@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KORKU MINI PRE-ALPHA 0.08 - PC VERSION</title>
+    <title>KORKU MINI PRE-ALPHA 0.09 - PC VERSION</title>
     <!-- Tailwind CSS ve Gerekli Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -30,7 +30,7 @@
             display: block;
             position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06));
             z-index: 99;
             background-size: 100% 4px, 6px 100%;
             pointer-events: none;
@@ -49,7 +49,7 @@
 </head>
 <body class="crt">
 
-    <!-- Splash Ekranı -->
+    <!-- Splash Giriş Ekranı -->
     <div id="splash-screen" class="fixed inset-0 bg-gradient-to-b from-[#0b0c0e] via-[#050607] to-black flex flex-col items-center justify-center z-[100] transition-all duration-[1500ms] ease-in-out opacity-100">
         <div class="text-center select-none pointer-events-none transform scale-95 flex flex-col items-center">
             <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
@@ -74,50 +74,8 @@
     <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700">
         <div class="text-center max-w-lg flex flex-col items-center">
             
-            <!-- Canavar El & Glitch Kafa Animasyonlu Kutu -->
-            <div id="menu-anim-box" class="relative w-64 h-64 mb-6 border-4 border-red-950/40 bg-black overflow-hidden rounded-lg shadow-2xl flex flex-col justify-end transition-all duration-150">
-                <!-- Glitch Ekran Alanı -->
-                <div class="absolute inset-0 bg-zinc-950 flex items-center justify-center overflow-hidden">
-                    <div class="absolute inset-0 opacity-25 bg-[radial-gradient(#ff0000_1.5px,transparent_1.5px)] [background-size:12px_12px] animate-pulse"></div>
-                    <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.4)_50%)] bg-[length:100%_6px] pointer-events-none"></div>
-                    
-                    <!-- SVG Çatlak Katmanları -->
-                    <svg id="glass-cracks" class="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
-                        <path id="crack-1" d="M50 50 L35 25 M50 50 L70 38 M50 50 L48 75" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" fill="none" class="hidden" />
-                        <path id="crack-2" d="M35 25 L15 15 M70 38 L92 30 M48 75 L25 90 M50 50 L62 15 M50 50 L18 55" stroke="rgba(255,255,255,0.9)" stroke-width="2.2" stroke-linecap="round" fill="none" class="hidden" />
-                        <path id="crack-3" d="M15 15 L8 35 M92 30 L98 65 M25 90 L55 95 M62 15 L82 8 M18 55 L5 65 M50 50 C 42 42, 58 42, 50 58 Z" stroke="rgba(255,255,255,0.95)" stroke-width="2.6" stroke-linecap="round" fill="none" class="hidden" />
-                    </svg>
-
-                    <!-- Creepy Head -->
-                    <svg id="creepy-head" class="absolute bottom-10 w-28 h-28 text-zinc-300 transition-all duration-700 transform translate-y-36 z-10" viewBox="0 0 100 100" fill="none">
-                        <path d="M50 15 C30 15, 20 30, 20 50 C20 70, 30 80, 35 85 L35 95 L42 95 L42 90 L48 90 L48 95 L52 95 L52 90 L58 90 L58 95 L65 95 L65 85 C70 80, 80 70, 80 50 C80 30, 70 15, 50 15 Z" fill="#0c0d0f" stroke="#ff0000" stroke-width="2.5"/>
-                        <circle cx="38" cy="48" r="7.5" fill="#000" />
-                        <circle cx="62" cy="48" r="7.5" fill="#000" />
-                        <circle cx="38" cy="48" r="2.5" fill="#ff0000" />
-                        <circle cx="62" cy="48" r="2.5" fill="#ff0000" />
-                        <polygon points="50,56 46,64 54,64" fill="#000" />
-                        <line x1="38" y1="76" x2="62" y2="76" stroke="#000" stroke-width="2"/>
-                    </svg>
-                </div>
-
-                <!-- Mavi Tutunma Çubuğu (Yazısız Sade) -->
-                <div class="h-12 bg-blue-900/90 border-t-2 border-blue-700 relative z-20 flex items-center justify-center">
-                    <span class="text-[9px] text-blue-300 font-bold tracking-widest uppercase"></span>
-                </div>
-
-                <!-- Sol Beyaz El -->
-                <svg id="left-hand" class="absolute bottom-10 left-3 w-12 h-16 text-white transition-all duration-500 transform translate-y-24 z-20" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M50 90 C30 90, 20 80, 20 60 L20 40 C20 35, 25 30, 30 30 C35 30, 40 35, 40 40 L40 55 L45 55 L45 25 C45 20, 50 15, 55 15 C60 15, 65 20, 65 25 L65 55 L70 55 L70 30 C70 25, 75 20, 80 20 C85 20, 90 25, 90 30 L90 70 C90 85, 75 90, 50 90 Z" />
-                </svg>
-
-                <!-- Sağ Beyaz El -->
-                <svg id="right-hand" class="absolute bottom-10 right-3 w-12 h-16 text-white transition-all duration-500 transform translate-y-24 z-20 scale-x-[-1]" viewBox="0 0 100 100" fill="currentColor">
-                    <path d="M50 90 C30 90, 20 80, 20 60 L20 40 C20 35, 25 30, 30 30 C35 30, 40 35, 40 40 L40 55 L45 55 L45 25 C45 20, 50 15, 55 15 C60 15, 65 20, 65 25 L65 55 L70 55 L70 30 C70 25, 75 20, 80 20 C85 20, 90 25, 90 30 L90 70 C90 85, 75 90, 50 90 Z" />
-                </svg>
-            </div>
-
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.08</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.09</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 BAŞLA (PC)
@@ -136,16 +94,13 @@
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ | OYUN HATASI | ERROR -1
+                FARMANT STUDIOS | HORROR MİNİ PRE-ALPHA 0.09 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE-ALPHA 0.08 E GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>İLK OYUN HATASI( GAMA CRAH) EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>FPS İÇİN ÖNEMLİ AYARLAMALAR YAPILDI.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YÜKLENMEYEN CHUNKLARDAKİ AĞAÇLAR OYUNCUNUN GÖRMEMESİ SAĞLANDI.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>İKİNDİ YAZISI ÖĞLE YE ÇEVRİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ANA MENÜYE ÖZEL ANİMASYON.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KATİL BALIKLAR EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE-ALPHA 0.09 GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ÖZEL BİYOMA ÖZEL BİR MOB EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MENÜDEKİ ANİMASYON ÇIKARILDI.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE ALPHA 0.08 YAZISI 0.09 OLARAK DEĞİŞTİRİLDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -161,7 +116,7 @@
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">PRE-ALPHA 0.08</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">PRE-ALPHA 0.09</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -223,7 +178,7 @@
             </p>
         </div>
         <div class="bg-[#000088] p-4 flex justify-between items-center border-t-2 border-white">
-            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_0x08</span>
+            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_0x09</span>
             <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95">
                 MENÜYE GERİ DÖN
             </button>
@@ -257,11 +212,26 @@
         const B3_MIN_X = 235, B3_MAX_X = 285;
         const B3_MIN_Z = 35, B3_MAX_Z = 85;
 
+        // 40x40 Boyutunda Tam 20 Adet "Eski Kuleler" (Old Towers) Biyomu Merkez Koordinatları (Her 100 Blokta Bir)
+        const TOWER_BIOMES = [];
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 4; j++) {
+                TOWER_BIOMES.push({ x: i * 100, z: j * 100 });
+            }
+        }
+
         let insideGrayBiome = false;
         let insideGrayBiomeId = 0; 
         let grayBiomeTrees = []; 
         let creepyObservers = []; 
         let lastScreamTime = 0; 
+
+        // Eski Kuleler Biyomu Değişkenleri
+        let insideTowerBiome = false;
+        let insideTowerBiomeIdx = -1;
+        let towerGuards = [];
+        let biomeAggroTriggered = new Array(20).fill(false);
+        let lastTowerScreamTime = 0;
         
         let frames = 0, lastTime = performance.now(), currentFps = 60;
         let lowFpsCount = 0; 
@@ -319,7 +289,6 @@
             ControlLeft: false
         };
 
-        // Splash Giriş Zamanlayıcısı
         window.addEventListener('DOMContentLoaded', () => {
             const wakeupAudio = () => {
                 audio.init();
@@ -335,7 +304,6 @@
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.style.display = 'none';
-                        startMainMenuAnimation();
                     }, 1500);
                 }
             }, 4000);
@@ -359,6 +327,8 @@
                 this.ctx = null; 
                 this.droneOsc = null;
                 this.droneGain = null;
+                this.towerOsc = null;
+                this.towerGain = null;
             }
             init() {
                 if (this.ctx) return;
@@ -392,7 +362,6 @@
                 if (!this.ctx) return;
                 const now = this.ctx.currentTime;
                 if (type === 'grass') {
-                    // TOK ÇİMEN SESİ (Mükemmel bas derinliğiyle tok vuruş)
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'triangle';
@@ -407,7 +376,6 @@
                     osc.start(now);
                     osc.stop(now + 0.12);
                 } else if (type === 'dirt') {
-                    // Tok toprak sesi
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'sine';
@@ -436,34 +404,6 @@
                 osc.start(now);
                 osc.stop(now + 0.45);
             }
-            playGlassShatter(volumeFactor) {
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(160, now);
-                osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
-                gain.gain.setValueAtTime(0.35 * volumeFactor, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.25);
-
-                for(let i = 0; i < 6; i++) {
-                    const ring = this.ctx.createOscillator();
-                    const ringGain = this.ctx.createGain();
-                    ring.type = 'sine';
-                    ring.frequency.setValueAtTime(1300 + Math.random() * 3200, now);
-                    ringGain.gain.setValueAtTime((0.08 + Math.random() * 0.06) * volumeFactor, now);
-                    ringGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2 + Math.random() * 0.9);
-                    ring.connect(ringGain);
-                    ringGain.connect(this.ctx.destination);
-                    ring.start(now);
-                    ring.stop(now + 1.2);
-                }
-            }
             startScaryDrone() {
                 if (!this.ctx || this.droneOsc) return;
                 try {
@@ -481,6 +421,25 @@
                 if (this.droneOsc) {
                     try { this.droneOsc.stop(); this.droneOsc.disconnect(); } catch(e) {}
                     this.droneOsc = null; this.droneGain = null;
+                }
+            }
+            startTowerHum() {
+                if (!this.ctx || this.towerOsc) return;
+                try {
+                    this.towerOsc = this.ctx.createOscillator();
+                    this.towerGain = this.ctx.createGain();
+                    this.towerOsc.type = 'sine';
+                    this.towerOsc.frequency.setValueAtTime(90, this.ctx.currentTime);
+                    this.towerGain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+                    this.towerOsc.connect(this.towerGain);
+                    this.towerGain.connect(this.ctx.destination);
+                    this.towerOsc.start();
+                } catch(e) {}
+            }
+            stopTowerHum() {
+                if (this.towerOsc) {
+                    try { this.towerOsc.stop(); this.towerOsc.disconnect(); } catch(e) {}
+                    this.towerOsc = null; this.towerGain = null;
                 }
             }
             playScream(intensity = 1) {
@@ -539,83 +498,6 @@
         }
         const audio = new SoundSynth();
 
-        function startMainMenuAnimation() {
-            const leftHand = document.getElementById('left-hand');
-            const rightHand = document.getElementById('right-hand');
-            const creepyHead = document.getElementById('creepy-head');
-            const crack1 = document.getElementById('crack-1');
-            const crack2 = document.getElementById('crack-2');
-            const crack3 = document.getElementById('crack-3');
-            const menuBox = document.getElementById('menu-anim-box');
-
-            let animStep = 0;
-
-            function runAnim() {
-                if (gameActive) return; 
-
-                if (animStep === 0) {
-                    leftHand.style.transform = 'translateY(0px)';
-                    setTimeout(() => {
-                        rightHand.style.transform = 'translateY(0px)';
-                    }, 400);
-                    animStep = 1;
-                    setTimeout(runAnim, 1600);
-                } else if (animStep === 1) {
-                    creepyHead.style.transform = 'translateY(0px)';
-                    animStep = 2;
-                    setTimeout(runAnim, 1800);
-                } else if (animStep === 2) {
-                    // 1. Darbe
-                    creepyHead.style.transform = 'translateY(-12px) scale(1.3)';
-                    crack1.classList.remove('hidden');
-                    audio.playGlassShatter(0.4);
-                    menuBox.classList.add('animate-bounce');
-                    setTimeout(() => {
-                        menuBox.classList.remove('animate-bounce');
-                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
-                    }, 220);
-                    animStep = 3;
-                    setTimeout(runAnim, 1300);
-                } else if (animStep === 3) {
-                    // 2. Darbe
-                    creepyHead.style.transform = 'translateY(-18px) scale(1.6)';
-                    crack2.classList.remove('hidden');
-                    audio.playGlassShatter(0.85);
-                    menuBox.classList.add('animate-pulse');
-                    setTimeout(() => {
-                        menuBox.classList.remove('animate-pulse');
-                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
-                    }, 220);
-                    animStep = 4;
-                    setTimeout(runAnim, 1300);
-                } else if (animStep === 4) {
-                    // 3. Darbe
-                    creepyHead.style.transform = 'translateY(-24px) scale(2.0)';
-                    crack3.classList.remove('hidden');
-                    audio.playGlassShatter(1.4);
-                    menuBox.style.borderColor = "#ff0000";
-                    setTimeout(() => {
-                        creepyHead.style.transform = 'translateY(0px) scale(1.0)';
-                    }, 300);
-                    animStep = 5;
-                    setTimeout(runAnim, 2200);
-                } else if (animStep === 5) {
-                    leftHand.style.transform = 'translateY(96px)';
-                    rightHand.style.transform = 'translateY(96px)';
-                    creepyHead.style.transform = 'translateY(144px)';
-                    crack1.classList.add('hidden');
-                    crack2.classList.add('hidden');
-                    crack3.classList.add('hidden');
-                    menuBox.style.borderColor = "rgba(153, 27, 27, 0.4)";
-                    animStep = 0;
-                    setTimeout(runAnim, 3000); 
-                }
-            }
-
-            runAnim();
-        }
-
-        // Başla Butonu Tıklama
         document.getElementById('btn-create').addEventListener('click', (e) => {
             e.stopPropagation();
             audio.init();
@@ -672,12 +554,16 @@
         document.addEventListener('pointerlockchange', handlePointerLockChange);
 
         function generate32BitSeed() {
-            const seed8 = Math.floor(10000000 + Math.random() * 90000000);
-            let h = seed8 ^ 0xdeadbeef;
-            h = Math.imul(h ^ (h >>> 16), 2246822507);
-            h = Math.imul(h ^ (h >>> 13), 3266489909);
-            const seed32 = (h ^ (h >>> 16)) >>> 0;
-            return { raw: seed8, seed32: seed32 };
+            let seed32;
+            try {
+                const array = new Uint32Array(1);
+                window.crypto.getRandomValues(array);
+                seed32 = array[0];
+            } catch (e) {
+                seed32 = Math.floor(Math.random() * 4294967296);
+            }
+            const raw = seed32 % 100000000;
+            return { raw: raw, seed32: seed32 };
         }
 
         function initGame() {
@@ -687,6 +573,9 @@
             isBloodMoon = false;
             hasCheckedBloodMoonThisNight = false;
             lowFpsCount = 0;
+            insideTowerBiome = false;
+            insideTowerBiomeIdx = -1;
+            biomeAggroTriggered.fill(false);
 
             const seeds = generate32BitSeed();
             worldSeed = seeds.seed32;
@@ -704,6 +593,7 @@
             scene.fog = new THREE.FogExp2(0x8a9ba8, 0.025);
 
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.rotation.order = 'YXZ'; 
             
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -731,34 +621,16 @@
             initClouds();
             initStars();
             
-            let spawnX = 0;
-            let spawnZ = 0;
-            let spawnY = 25;
-            let foundSafeSpawn = false;
-            let attempts = 0;
-
-            while (!foundSafeSpawn && attempts < 500) {
-                const rx = Math.floor((Math.random() - 0.5) * 200);
-                const rz = Math.floor((Math.random() - 0.5) * 200);
-                const h = getTerrainHeight(rx, rz);
-                const insideScary = getActiveSpecialBiome(rx, rz) > 0;
-                
-                if (h > SEA_LEVEL + 1 && !insideScary) {
-                    spawnX = rx;
-                    spawnZ = rz;
-                    spawnY = h;
-                    foundSafeSpawn = true;
-                }
-                attempts++;
-            }
-
-            player.spawnPos.set(spawnX, spawnY + 3, spawnZ);
+            // Oyuncu doğrudan ilk "Eski Kuleler" biyomunun merkezinde başlar (evin önü)
+            const firstTower = TOWER_BIOMES[0];
+            player.spawnPos.set(firstTower.x, 21, firstTower.z + 8);
             player.pos.copy(player.spawnPos);
 
             createCreepyObservers();
+            spawnTowerGuardMobs(); 
 
-            const spawnPx = Math.floor(spawnX / CHUNK_SIZE);
-            const spawnPz = Math.floor(spawnZ / CHUNK_SIZE);
+            const spawnPx = Math.floor(player.pos.x / CHUNK_SIZE);
+            const spawnPz = Math.floor(player.pos.z / CHUNK_SIZE);
             for (let x = spawnPx - VIEW_DISTANCE; x <= spawnPx + VIEW_DISTANCE; x++) {
                 for (let z = spawnPz - VIEW_DISTANCE; z <= spawnPz + VIEW_DISTANCE; z++) {
                     createChunk(x, z);
@@ -872,6 +744,95 @@
             });
         }
 
+        function spawnTowerGuardMobs() {
+            TOWER_BIOMES.forEach((center, biomeIdx) => {
+                const offsets = [
+                    { dx: -15, dz: -15 },
+                    { dx: 15, dz: -15 },
+                    { dx: -15, dz: 15 },
+                    { dx: 15, dz: 15 }
+                ];
+
+                offsets.forEach((offset, idx) => {
+                    const guard = new THREE.Group();
+                    const gx = center.x + offset.dx;
+                    const gz = center.z + offset.dz;
+                    const gy = 20; 
+                    guard.position.set(gx, gy, gz);
+
+                    const ironMat = new THREE.MeshLambertMaterial({ color: 0x8e9399 }); 
+                    const skinMat = new THREE.MeshLambertMaterial({ color: 0xdfb087 }); 
+                    const swordMat = new THREE.MeshLambertMaterial({ color: 0xb0c0d0 }); 
+                    const darkEyeMat = new THREE.MeshBasicMaterial({ color: 0x333333 }); 
+
+                    const bodyGeo = new THREE.BoxGeometry(1.0, 1.2, 1.0);
+                    const bodyMesh = new THREE.Mesh(bodyGeo, ironMat);
+                    bodyMesh.position.y = 1.0;
+                    guard.add(bodyMesh);
+
+                    const headGroup = new THREE.Group();
+                    headGroup.position.y = 1.95;
+
+                    const helmetGeo = new THREE.BoxGeometry(0.85, 0.75, 0.85);
+                    const helmetMesh = new THREE.Mesh(helmetGeo, ironMat);
+                    headGroup.add(helmetMesh);
+
+                    const faceGeo = new THREE.BoxGeometry(0.65, 0.5, 0.1);
+                    const faceMesh = new THREE.Mesh(faceGeo, skinMat);
+                    faceMesh.position.set(0, -0.05, 0.38);
+                    headGroup.add(faceMesh);
+
+                    const eyeGeo = new THREE.BoxGeometry(0.12, 0.12, 0.1);
+                    const eyeL = new THREE.Mesh(eyeGeo, darkEyeMat);
+                    eyeL.position.set(-0.16, -0.05, 0.44);
+                    const eyeR = new THREE.Mesh(eyeGeo, darkEyeMat);
+                    eyeR.position.set(0.16, -0.05, 0.44);
+                    headGroup.add(eyeL, eyeR);
+
+                    guard.add(headGroup);
+
+                    const legGeo = new THREE.BoxGeometry(0.35, 0.45, 0.35);
+                    const legL = new THREE.Mesh(legGeo, ironMat);
+                    legL.position.set(-0.25, 0.22, 0);
+                    const legR = new THREE.Mesh(legGeo, ironMat);
+                    legR.position.set(0.25, 0.22, 0);
+                    guard.add(legL, legR);
+
+                    const armGeo = new THREE.BoxGeometry(0.3, 0.95, 0.3);
+                    const armL = new THREE.Mesh(armGeo, ironMat);
+                    armL.position.set(-0.65, 1.0, 0);
+                    const armR = new THREE.Mesh(armGeo, ironMat);
+                    armR.position.set(0.65, 1.0, 0);
+                    guard.add(armL, armR);
+
+                    const swordGeo = new THREE.BoxGeometry(0.12, 1.1, 0.12);
+                    const swordMesh = new THREE.Mesh(swordGeo, swordMat);
+                    swordMesh.position.set(0.65, 1.2, 0.4);
+                    swordMesh.rotation.x = Math.PI / 3; 
+                    guard.add(swordMesh);
+
+                    scene.add(guard);
+
+                    towerGuards.push({
+                        obj: guard,
+                        biomeIdx: biomeIdx,
+                        health: 3,
+                        isTriggered: false,
+                        homeCenter: center,
+                        spawnPos: new THREE.Vector3(gx, gy, gz),
+                        animTime: Math.random() * 50,
+                        eyes: [eyeL, eyeR],
+                        sword: swordMesh,
+                        legL: legL,
+                        legR: legR,
+                        armL: armL,
+                        armR: armR,
+                        velocity: new THREE.Vector3()
+                    });
+                });
+            });
+        }
+
         let matList;
         function initMaterials() {
             const grassTop = new THREE.MeshLambertMaterial({color: 0x2e8b57}); 
@@ -891,6 +852,7 @@
                 wood: new THREE.MeshLambertMaterial({color: 0x50301a}),
                 leaf: new THREE.MeshLambertMaterial({color: 0x1b4d3e, transparent: true, opacity: 0.95}),
                 water: new THREE.MeshLambertMaterial({color: 0x1d4ed8, transparent: true, opacity: 0.65}),
+                chest: new THREE.MeshLambertMaterial({color: 0xffd700}), 
                 
                 grayGrass: [copyGrassSide, copyGrassSide, copyGrassTop, copyGrassSide, copyGrassSide, copyGrassSide],
                 grayDirt: copyDirtMat,
@@ -907,9 +869,24 @@
             return 0;
         }
 
+        function getTowerBiomeIndex(wx, wz) {
+            for(let i = 0; i < TOWER_BIOMES.length; i++) {
+                const tb = TOWER_BIOMES[i];
+                if (Math.abs(wx - tb.x) <= 20 && Math.abs(wz - tb.z) <= 20) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         function getTerrainHeight(x, z) {
-            const inBiome = getActiveSpecialBiome(x, z) > 0;
-            if (inBiome) {
+            const insideT = getTowerBiomeIndex(x, z);
+            if (insideT >= 0) {
+                return 20; 
+            }
+
+            const getSpecial = getActiveSpecialBiome(x, z) > 0;
+            if (getSpecial) {
                 return 19; 
             }
             
@@ -930,7 +907,7 @@
                 finalHeight += Math.floor((mountainScaleNoise - 0.1) * 65);
             }
 
-            return finalHeight;
+            return Math.max(16, finalHeight); // Minimum yükseklik sınırı eklendi (DÜŞÜŞ HATASI ÇÖZÜMÜ)
         }
 
         function isBlockOccluded(wx, wy, wz) {
@@ -954,6 +931,128 @@
                 for (let z = 0; z < CHUNK_SIZE; z++) {
                     const wx = cx * CHUNK_SIZE + x;
                     const wz = cz * CHUNK_SIZE + z;
+                    
+                    const towerBiomeIdx = getTowerBiomeIndex(wx, wz);
+                    const insideTower = towerBiomeIdx >= 0;
+
+                    if (insideTower) {
+                        const center = TOWER_BIOMES[towerBiomeIdx];
+                        const rx = wx - center.x;
+                        const rz = wz - center.z;
+
+                        // Eski Kuleler Biyomunda çimenler olsun
+                        setBlock(wx, 20, wz, 'grass');
+                        for(let y = 1; y <= 3; y++) {
+                            setBlock(wx, 20 - y, wz, 'dirt');
+                        }
+                        for(let y = 4; y <= 20; y++) {
+                            setBlock(wx, 20 - y, wz, 'stone');
+                        }
+
+                        // KULE 1 - 20 Blok yüksekliğe çıksın (Y=21'den Y=40'a kadar)
+                        const tx1 = -12, tz1 = 0;
+                        const dx1 = rx - tx1, dz1 = rz - tz1;
+                        if (Math.abs(dx1) <= 2 && Math.abs(dz1) <= 2) {
+                            // Simetrik 3x3 hollow içi boş kule sistemi
+                            const isHollow = Math.abs(dx1) <= 1 && Math.abs(dz1) <= 1;
+                            setBlock(wx, 20, wz, 'wood');
+
+                            for (let y = 21; y <= 40; y++) {
+                                // Eve bakan tarafta (Doğu) açık giriş kapısı
+                                if (dx1 === 2 && dz1 === 0 && (y === 21 || y === 22 || y === 23)) {
+                                    continue;
+                                }
+                                if (isHollow && y < 40) {
+                                    continue;
+                                }
+                                // Kule ahşap orta bölümü güncellendi
+                                if (y <= 22) {
+                                    setBlock(wx, y, wz, 'stone'); 
+                                } else if (y <= 36) {
+                                    setBlock(wx, y, wz, 'wood'); 
+                                } else {
+                                    if (y === 40) {
+                                        if ((dx1 + dz1) % 2 === 0) {
+                                            setBlock(wx, y, wz, 'stone');
+                                        }
+                                    } else {
+                                        setBlock(wx, y, wz, 'stone');
+                                    }
+                                }
+                            }
+                        } // Corrected: Added missing closing brace for Kule 1 if-block
+
+                        // KULE 2 - 20 Blok yüksekliğe çıksın (Y=21'den Y=40'a kadar)
+                        const tx2 = 12, tz2 = 0;
+                        const dx2 = rx - tx2, dz2 = rz - tz2;
+                        if (Math.abs(dx2) <= 2 && Math.abs(dz2) <= 2) {
+                            // Simetrik 3x3 hollow içi boş kule sistemi
+                            const isHollow = Math.abs(dx2) <= 1 && Math.abs(dz2) <= 1;
+                            setBlock(wx, 20, wz, 'wood');
+
+                            for (let y = 21; y <= 40; y++) {
+                                // Eve bakan tarafta (Batı) açık giriş kapısı
+                                if (dx2 === -2 && dz2 === 0 && (y === 21 || y === 22 || y === 23)) {
+                                    continue;
+                                }
+                                if (isHollow && y < 40) {
+                                    continue;
+                                }
+                                // Kule ahşap orta bölümü güncellendi
+                                if (y <= 22) {
+                                    setBlock(wx, y, wz, 'stone');
+                                } else if (y <= 36) {
+                                    setBlock(wx, y, wz, 'wood');
+                                } else {
+                                    if (y === 40) {
+                                        if ((dx2 + dz2) % 2 === 0) {
+                                            setBlock(wx, y, wz, 'stone');
+                                        }
+                                    } else {
+                                        setBlock(wx, y, wz, 'stone');
+                                    }
+                                }
+                            }
+                        } // Corrected: Added missing closing brace for Kule 2 if-block
+
+                        // İKİ KULE ARASINDAKİ EV - Çok daha büyük (11x11 boyutunda) ve içinde sarı sandık var
+                        const hSize = 5; 
+                        if (Math.abs(rx) <= hSize && Math.abs(rz) <= hSize) {
+                            setBlock(wx, 20, wz, 'wood');
+
+                            for (let y = 21; y <= 26; y++) {
+                                if (y === 26) {
+                                    setBlock(wx, y, wz, 'wood'); 
+                                } else {
+                                    const isEdgeX = Math.abs(rx) === hSize;
+                                    const isEdgeZ = Math.abs(rz) === hSize;
+                                    const isCorner = isEdgeX && isEdgeZ;
+
+                                    if (isCorner) {
+                                        setBlock(wx, y, wz, 'wood'); 
+                                    } else if (isEdgeX || isEdgeZ) {
+                                        // Giriş kapısı artık ön tarafta (Spawn noktasına tam paralel) açık durur
+                                        if (rz === hSize && rx === 0 && (y === 21 || y === 22 || y === 23)) {
+                                            continue; 
+                                        }
+                                        setBlock(wx, y, wz, 'stone'); 
+                                    }
+                                }
+                            }
+
+                            // Evin içerisindeki sarı sandık
+                            if (rx === 2 && rz === 2) {
+                                setBlock(wx, 21, wz, 'chest');
+                            }
+                        }
+
+                        if (rx === -8 && rz === -8) {
+                            setBlock(wx, 20, wz, 'water');
+                        }
+
+                        continue; 
+                    }
+
                     const h = getTerrainHeight(wx, wz);
                     const biomeNum = getActiveSpecialBiome(wx, wz);
                     const isGray = biomeNum > 0;
@@ -982,7 +1081,6 @@
                         }
                     }
 
-                    // Sadece aktif yüklenen chunklar için optimize edilmiş 1x1x1 Voxel ağaçlar
                     const noise3Val = simplex3.noise2D(wx * 0.05, wz * 0.05);
                     if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && noise3Val > 0.4 && Math.random() < 0.06) {
                         const trunkType = isGray ? 'grayWood' : 'wood';
@@ -994,7 +1092,6 @@
                         const trunkGeo = new THREE.BoxGeometry(1, 1, 1);
                         const leafGeo = new THREE.BoxGeometry(1, 1, 1);
 
-                        // Odun voxel blokları tek tek yerleştirilir
                         for (let i = 1; i <= 5; i++) {
                             const woodMesh = new THREE.Mesh(trunkGeo, matList[trunkType]);
                             woodMesh.position.set(0, i - 0.5, 0);
@@ -1003,7 +1100,6 @@
                             setBlock(wx, h + i, wz, trunkType);
                         }
 
-                        // Yaprak voxel blokları tek tek yerleştirilir
                         for (let ly = 4; ly <= 6; ly++) {
                             for (let lx = -1; lx <= 1; lx++) {
                                 for (let lz = -1; lz <= 1; lz++) {
@@ -1043,7 +1139,7 @@
             const geo = new THREE.BoxGeometry(1, 1, 1);
             
             const blocks = { 
-                grass: [], dirt: [], stone: [], wood: [], leaf: [], water: [],
+                grass: [], dirt: [], stone: [], wood: [], leaf: [], water: [], chest: [],
                 grayGrass: [], grayDirt: [], grayStone: [], grayWood: [], grayLeaf: []
             };
 
@@ -1055,7 +1151,6 @@
                     for (let y = 0; y <= 65; y++) {
                         const type = getBlock(wx, y, wz);
                         if (type && blocks[type] !== undefined) {
-                            // OPTIMIZASYON: Odun ve yapraklar zaten treeGroup içinde bireysel mesh olarak var
                             if (type === 'wood' || type === 'leaf' || type === 'grayWood' || type === 'grayLeaf') {
                                 continue;
                             }
@@ -1112,7 +1207,6 @@
                 for (let oz of [-r, r]) {
                     for (let oy of [0.05, h * 0.5, h - 0.05]) {
                         const block = getBlock(x + ox, y + oy, z + oz);
-                        // Yaprakların ('leaf' ve 'grayLeaf') içinden geçilebilir, diğer tüm bloklar katıdır.
                         if (block && block !== 'water' && block !== 'leaf' && block !== 'grayLeaf') return true;
                     }
                 }
@@ -1157,7 +1251,6 @@
             let currentSpeed = player.inWater ? player.speed * 0.45 : player.speed;
             currentSpeed *= speedMultiplier;
 
-            // Katil Balık Yavaşlatma Etkisi
             if (fishDebuffTimer > 0) {
                 currentSpeed *= 0.5;
             }
@@ -1165,11 +1258,9 @@
             const dx = moveDir.x * currentSpeed;
             const dz = moveDir.z * currentSpeed;
 
-            // X Ekseninde Çarpışma ve Sadece 1 Blok Otomatik Tırmanma
             if (dx !== 0) {
                 player.pos.x += dx;
                 if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                    // Eğer önümüzdeki engel 2 blok veya daha yüksekse tırmanamayız.
                     const chestCollides = checkCollision(player.pos.x, player.pos.y + 1.1, player.pos.z);
                     if (!player.isCrouching && !chestCollides) {
                         player.pos.y += 1.0; 
@@ -1183,7 +1274,6 @@
                 }
             }
 
-            // Z Ekseninde Çarpışma ve Sadece 1 Blok Otomatik Tırmanma
             if (dz !== 0) {
                 player.pos.z += dz;
                 if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
@@ -1200,9 +1290,14 @@
                 }
             }
 
-            // Dikey Hız ve Yerçekimi
             const gravity = player.inWater ? 0.003 : 0.008;
             
+            // Düşüşten kurtarma mekaniği
+            if (player.pos.y < -5) {
+                player.pos.y = 40;
+                player.vel.y = 0;
+            }
+
             const onGroundNow = checkCollision(player.pos.x, player.pos.y - 0.05, player.pos.z);
             if (onGroundNow) {
                 player.onGround = true;
@@ -1214,7 +1309,6 @@
 
             player.pos.y += player.vel.y;
 
-            // Zemin ve Tavan Çarpışma Hizalaması
             if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
                 if (player.vel.y < 0) {
                     player.pos.y = Math.ceil(player.pos.y);
@@ -1232,7 +1326,6 @@
                 }
             }
 
-            // Yürüme Ses Mekanizması
             if (player.onGround && (dx !== 0 || dz !== 0)) {
                 player.stepAccumulator += currentSpeed;
                 const stepInterval = player.isSprinting ? 0.5 : 0.75;
@@ -1249,7 +1342,6 @@
                 player.stepAccumulator = 0;
             }
 
-            // Space ile Zıplama & Suda Yüzme
             if (keys['Space']) {
                 if (player.onGround) {
                     player.vel.y = player.jumpForce;
@@ -1271,14 +1363,12 @@
 
             const targets = [...Array.from(chunkMeshes.values())];
             
-            // Aktif ağaç gruplarını ekle
             grayBiomeTrees.forEach(t => {
                 if (t.obj.visible && !t.isSunk) {
                     targets.push(t.obj);
                 }
             });
 
-            // Katil balıkları hedefe ekle
             killerFishList.forEach(f => {
                 targets.push(f.obj);
             });
@@ -1289,7 +1379,6 @@
                 const hit = intersects[0];
                 const clickedObj = hit.object;
 
-                // 1. Katil Balık Vurma Tespiti
                 let hitFish = null;
                 let hitFishIndex = -1;
                 for (let i = 0; i < killerFishList.length; i++) {
@@ -1304,9 +1393,8 @@
                 if (hitFish) {
                     if (type === 'break') {
                         hitFish.health--;
-                        audio.playBreakTıkTık(); // Hasar Sesi
+                        audio.playBreakTıkTık(); 
                         
-                        // Kırmızı hasar flaşı
                         hitFish.obj.children.forEach(c => {
                             if (c.material && c.material.color) {
                                 const origColor = c.material.color.getHex();
@@ -1320,13 +1408,12 @@
                         if (hitFish.health <= 0) {
                             scene.remove(hitFish.obj);
                             killerFishList.splice(hitFishIndex, 1);
-                            audio.playScream(1); // Ölüm Sesi
+                            audio.playScream(1); 
                         }
                     }
                     return;
                 }
 
-                // 2. Voxel Ağaç Kırma Tespiti (Grup içi çocuk mesh)
                 let hitTreeGroup = null;
                 for (let i = 0; i < grayBiomeTrees.length; i++) {
                     const treeObj = grayBiomeTrees[i].obj;
@@ -1353,7 +1440,6 @@
                     return;
                 }
 
-                // 3. Normal Arazi Blok Kırma / Yerleştirme
                 const point = hit.point;
                 const normal = hit.face.normal;
 
@@ -1367,13 +1453,18 @@
                         worldBlocks.delete(`${bx},${by},${bz}`);
                         audio.playBreakTıkTık(); 
                         updateAffectedChunks(bx, bz);
+
+                        // Muhafızlara haber sal (Zarar verilirse aggro çekerler)
+                        const towerIdx = getTowerBiomeIndex(bx, bz);
+                        if (towerIdx >= 0) {
+                            triggerTowerAggro(towerIdx);
+                        }
                     }
                 } else if (type === 'place') {
                     const px = Math.round(point.x + normal.x * 0.4);
                     const py = Math.round(point.y + normal.y * 0.4);
                     const pz = Math.round(point.z + normal.z * 0.4);
 
-                    // Y:52 YÜKSEKLİK SINIRI
                     if (py >= 52) {
                         audio.playPlaceTık(); 
                         setTimeout(() => {
@@ -1387,7 +1478,8 @@
                         const targetBlock = getBlock(px, py, pz);
                         if (!targetBlock || targetBlock === 'water') {
                             const insideSScary = getActiveSpecialBiome(px, pz) > 0;
-                            const placingType = insideSScary ? 'grayGrass' : 'grass';
+                            const insideT = getTowerBiomeIndex(px, pz) >= 0;
+                            const placingType = (insideSScary || insideT) ? 'grayGrass' : 'grass';
                             setBlock(px, py, pz, placingType);
                             audio.playPlaceTık(); 
                             updateAffectedChunks(px, pz);
@@ -1397,7 +1489,22 @@
             }
         }
 
-        // Klavye Girdileri
+        function triggerTowerAggro(biomeIdx) {
+            if (biomeAggroTriggered[biomeIdx]) return;
+            biomeAggroTriggered[biomeIdx] = true;
+
+            towerGuards.forEach(g => {
+                if (g.biomeIdx === biomeIdx) {
+                    g.isTriggered = true;
+                    g.eyes.forEach(eye => {
+                        eye.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                    });
+                }
+            });
+
+            audio.playScream(2); 
+        }
+
         function handleKeyDown(e) {
             if (isPaused) return;
             
@@ -1450,16 +1557,14 @@
 
         function createKillerFishMesh() {
             const group = new THREE.Group();
-            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x800080 }); // Mor Gövde
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Kırmızı Gözler
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x800080 }); 
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
             
-            // Baş
             const headGeo = new THREE.BoxGeometry(0.3, 0.2, 0.4);
             const head = new THREE.Mesh(headGeo, bodyMat);
             head.position.set(0, 0, 0.2);
             group.add(head);
             
-            // Gözler
             const eyeGeo = new THREE.BoxGeometry(0.05, 0.05, 0.05);
             const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
             leftEye.position.set(-0.16, 0.05, 0.3);
@@ -1467,7 +1572,6 @@
             rightEye.position.set(0.16, 0.05, 0.3);
             group.add(leftEye, rightEye);
             
-            // Kuyruğa doğru incelen uzun gövde parçaları
             const segGeo = new THREE.BoxGeometry(0.24, 0.16, 0.3);
             for (let i = 0; i < 3; i++) {
                 const seg = new THREE.Mesh(segGeo, bodyMat);
@@ -1486,11 +1590,10 @@
             let found = false;
             let sx, sy, sz;
             
-            // HER DENİZDE DOĞMASI İÇİN GENİŞ ALANLI DOĞAL TARAMA (120 Blok Yarıçapı, 200 Deneme)
             for (let attempt = 0; attempt < 200; attempt++) {
                 const rx = px + Math.floor((Math.random() - 0.5) * 120);
                 const rz = pz + Math.floor((Math.random() - 0.5) * 120);
-                const ry = 8 + Math.floor(Math.random() * 10); // Su seviyesinin altı
+                const ry = 8 + Math.floor(Math.random() * 10); 
                 
                 if (getBlock(rx, ry, rz) === 'water') {
                     sx = rx;
@@ -1501,7 +1604,6 @@
                 }
             }
             
-            // Sadece gerçek bir su hücresi bulunursa doğar, böylece havada uçmaları engellenir!
             if (found) {
                 const fishObj = createKillerFishMesh();
                 fishObj.position.set(sx, sy, sz);
@@ -1517,7 +1619,6 @@
         }
 
         function updateKillerFishLogic(dt) {
-            // Su içindeyse doğma sıklığını yükselt
             if (killerFishList.length < 3 && Math.random() < 0.05) {
                 spawnKillerFish();
             }
@@ -1535,7 +1636,7 @@
                 
                 if (playerInWaterZone && dist < 25) {
                     isChasing = true;
-                    speed = 5.5; // Oyuncuya hızlıca saldırır
+                    speed = 5.5; 
                     fish.swimTarget.copy(playerPos);
                 } else {
                     fish.swimTimer -= dt;
@@ -1562,7 +1663,6 @@
                     fish.obj.position.y = SEA_LEVEL - 0.2;
                 }
                 
-                // Oyuncuya vurduğunda tetiklenen debuff etkisi
                 if (dist < 1.4 && !isPaused) {
                     triggerFishHit();
                     const pushDir = new THREE.Vector3().subVectors(fish.obj.position, player.pos).normalize();
@@ -1570,7 +1670,6 @@
                 }
             }
             
-            // 20 Saniye Süren Siyah Gel-Git (Flash Debuff) Etkisi
             if (fishDebuffTimer > 0) {
                 fishDebuffTimer -= dt;
                 fishDebuffFlashTimer += dt;
@@ -1594,11 +1693,69 @@
             if (fishDebuffTimer <= 0) {
                 audio.playScream(1);
             }
-            fishDebuffTimer = 20.0; // 20 Saniye Etki
+            fishDebuffTimer = 20.0; 
             fishDebuffFlashTimer = 0;
             fishDebuffScreenActive = true;
             const debuffOverlay = document.getElementById('fish-debuff-overlay');
             if (debuffOverlay) debuffOverlay.style.opacity = "0.9";
+        }
+
+        function updateTowerGuardsLogic(dt) {
+            towerGuards.forEach(g => {
+                const distToPlayer = g.obj.position.distanceTo(player.pos);
+                let speed = g.isTriggered ? 3.8 : 1.2; 
+
+                // 40x40 boyutuna göre sınırlar ayarlandı (rx > 20 || rz > 20)
+                const rx = Math.abs(g.obj.position.x - g.homeCenter.x);
+                const rz = Math.abs(g.obj.position.z - g.homeCenter.z);
+                const outOfBounds = rx > 20 || rz > 20;
+
+                let target = new THREE.Vector3();
+
+                if (g.isTriggered) {
+                    target.copy(player.pos);
+                    target.y = g.obj.position.y; 
+                } else {
+                    g.animTime += dt;
+                    if (g.animTime > 6.0) {
+                        g.animTime = 0;
+                        g.velocity.set(
+                            (Math.random() - 0.5) * 10,
+                            0,
+                            (Math.random() - 0.5) * 10
+                        ).normalize();
+                    }
+                    target.copy(g.obj.position).addScaledVector(g.velocity, 2);
+                }
+
+                const dir = new THREE.Vector3().subVectors(target, g.obj.position);
+                dir.y = 0;
+                const len = dir.length();
+
+                if (len > 0.1) {
+                    dir.normalize();
+                    g.obj.lookAt(g.obj.position.clone().add(dir));
+                    g.obj.position.addScaledVector(dir, speed * dt);
+                }
+
+                if (outOfBounds) {
+                    const toHome = new THREE.Vector3().subVectors(g.spawnPos, g.obj.position).normalize();
+                    g.obj.position.addScaledVector(toHome, 1.5);
+                }
+
+                const wave = Math.sin(clock.getElapsedTime() * (g.isTriggered ? 12 : 5));
+                g.legL.rotation.x = wave * 0.5;
+                g.legR.rotation.x = -wave * 0.5;
+                g.armL.rotation.x = -wave * 0.4;
+                g.armR.rotation.x = wave * 0.4;
+
+                if (distToPlayer < 1.3 && !isPaused) {
+                    player.vel.y = 0.1;
+                    const push = new THREE.Vector3().subVectors(player.pos, g.obj.position).normalize();
+                    player.pos.addScaledVector(push, 0.8);
+                    audio.playScream(1);
+                }
+            });
         }
 
         function triggerErrorMinus1() {
@@ -1607,6 +1764,7 @@
             document.exitPointerLock();
 
             audio.stopScaryDrone();
+            audio.stopTowerHum();
             stopScaryGlitches();
 
             const errScreen = document.getElementById('error-screen');
@@ -1631,6 +1789,7 @@
 
             stopScaryGlitches();
             audio.stopScaryDrone();
+            audio.stopTowerHum();
 
             if (renderer) {
                 renderer.dispose();
@@ -1645,8 +1804,8 @@
             grayBiomeTrees = [];
             activeChunks = [];
             creepyObservers = [];
+            towerGuards = [];
 
-            // Balık durumlarını tamamen temizleme
             killerFishList.forEach(f => scene.remove(f.obj));
             killerFishList.length = 0;
             fishDebuffTimer = 0;
@@ -1735,6 +1894,7 @@
             
             if (!isPaused) {
                 updateKillerFishLogic(dt);
+                updateTowerGuardsLogic(dt); 
             }
 
             frames++;
@@ -1889,7 +2049,7 @@
                     lastBlackoutTrigger = now;
                     audio.playScream(2);
                 }
-            } else if (!insideGrayBiome) {
+            } else if (!insideGrayBiome && !insideTowerBiome) {
                 stopScaryGlitches();
             }
 
@@ -1903,7 +2063,23 @@
 
             const currentBiomeId = getActiveSpecialBiome(player.pos.x, player.pos.z);
             
-            if (currentBiomeId > 0 && !isPaused) {
+            const towerBiomeIdx = getTowerBiomeIndex(player.pos.x, player.pos.z);
+            const playerInsideTowerBiome = towerBiomeIdx >= 0;
+
+            if (playerInsideTowerBiome && !isPaused) {
+                if (!insideTowerBiome || insideTowerBiomeIdx !== towerBiomeIdx) {
+                    insideTowerBiome = true;
+                    insideTowerBiomeIdx = towerBiomeIdx;
+                    
+                    const biomeEl = document.getElementById('ui-biome');
+                    if (biomeEl) {
+                        biomeEl.innerText = "ESKİ KULELER (Old Towers)";
+                        biomeEl.className = "text-yellow-600 font-black"; 
+                    }
+                    stopScaryGlitches();
+                }
+
+            } else if (currentBiomeId > 0 && !isPaused) {
                 targetSkyColor = 0x030101; 
                 targetFogDensity = 0.12;  
                 targetAmbientIntensity = 0.02; 
@@ -1923,6 +2099,17 @@
                     startScaryGlitches();
                 }
             } else {
+                if (insideTowerBiome) {
+                    insideTowerBiome = false;
+                    insideTowerBiomeIdx = -1;
+                    const biomeEl = document.getElementById('ui-biome');
+                    if (biomeEl) {
+                        biomeEl.innerText = "Sakin Orman";
+                        biomeEl.className = "text-green-400 font-bold";
+                    }
+                    stopScaryGlitches();
+                    audio.stopTowerHum();
+                }
                 if (insideGrayBiome) {
                     insideGrayBiome = false;
                     insideGrayBiomeId = 0;
@@ -1961,7 +2148,6 @@
                 }
             });
 
-            // OPTIMIZASYON: Sadece yakın yüklenen chunkların ağaçları görünür ve yerin dibine gömülebilir
             grayBiomeTrees.forEach(tree => {
                 const chunkParts = tree.chunkKey.split(',');
                 const tcx = parseInt(chunkParts[0]);
@@ -1993,7 +2179,6 @@
                 }
             });
 
-            // Sınır dışı chunkların gizlenmesi ve culling optimizasyonu
             let sleepingCount = 0;
             const totalChunkCount = chunkMeshes.size;
 
