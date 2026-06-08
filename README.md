@@ -29,6 +29,6 @@ Bu yazılımın kodlarının kopyalanması, çoğaltılması veya izinsiz dağı
 
 İhlal durumunda yasal süreç başlatılacaktır.
 
-Bu sürüm "BİLGİSAYAR EDİTİON Alpha 0.03" olarak tescillenmiştir ve değiştirilemez.
+Bu sürüm "BİLGİSAYAR EDİTİON PRE ALPHA 0.08" olarak tescillenmiştir ve değiştirilemez.
 
 Yazılım "olduğu gibi" sunulur; herhangi bir teknik garanti verilmemektedir.
