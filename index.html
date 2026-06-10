@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KORKU MINI PRE-ALPHA 0.09 - PC VERSION</title>
+    <title>KORKU MINI ALPHA 1.0.0 - PC VERSION</title>
     <!-- Tailwind CSS ve Gerekli Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -75,7 +75,7 @@
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">PRE-ALPHA 0.09</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">ALPHA 1.0.0</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 BAŞLA (PC)
@@ -94,10 +94,10 @@
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ PRE-ALPHA 0.09 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ ALPHA 1.0.0 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE-ALPHA 0.09 GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ALPHA 1.0.0 GEÇİLDİ.</span></li>
                 <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ÖZEL BİYOMA ÖZEL BİR MOB EKLENDİ.</span></li>
                 <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MENÜDEKİ ANİMASYON ÇIKARILDI.</span></li>
                 <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE ALPHA 0.08 YAZISI 0.09 OLARAK DEĞİŞTİRİLDİ.</span></li>
@@ -116,7 +116,7 @@
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">PRE-ALPHA 0.09</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">ALPHA 1.0.0</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -139,6 +139,18 @@
 
     <!-- Hedef Artısı (Crosshair) -->
     <div id="crosshair" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-light text-xl select-none pointer-events-none hidden z-40 opacity-70">+</div>
+
+    <!-- Envanter Hotbar ve Sağlık -->
+    <div id="inventory-ui" class="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center hidden z-50 pointer-events-none">
+        <!-- Sağlık Kalpleri -->
+        <div id="health-bar" class="flex mb-2 space-x-1">
+            <!-- JS ile doldurulacak -->
+        </div>
+        <!-- Hotbar -->
+        <div id="hotbar" class="flex bg-black/70 border-2 border-red-600/80 p-1.5 rounded-lg shadow-2xl">
+            <!-- 9 slot JS ile oluşturulacak -->
+        </div>
+    </div>
 
     <!-- Sistem Takipçisi -->
     <div id="gpu-monitor" class="fixed bottom-4 right-4 bg-black/90 border border-red-500/30 p-2.5 rounded text-[8px] text-red-400 font-mono space-y-0.5 hidden z-30 min-w-[130px] shadow-lg pointer-events-none">
@@ -278,6 +290,12 @@
             stepAccumulator: 0,
             spawnPos: new THREE.Vector3(0, 40, 0) 
         };
+
+        // Envanter Sistemi (Alpha 1.0.0)
+        let inventory = Array(9).fill(null).map(() => ({ type: null, count: 0 }));
+        let selectedSlot = 0;
+        let health = 9; // 9 kalp
+        const droppedItems = []; // Düşen bloklar için
 
         const keys = {
             KeyW: false,
@@ -508,6 +526,7 @@
                 document.getElementById('ui-overlay').style.display = 'block';
                 document.getElementById('gpu-monitor').style.display = 'block';
                 document.getElementById('crosshair').style.display = 'block';
+                document.getElementById('inventory-ui').classList.remove('hidden');
                 
                 initGame();
                 requestPointerLock();
@@ -620,6 +639,7 @@
             initMaterials();
             initClouds();
             initStars();
+            initInventoryUI();
             
             // Oyuncu doğrudan ilk "Eski Kuleler" biyomunun merkezinde başlar (evin önü)
             const firstTower = TOWER_BIOMES[0];
@@ -816,7 +836,7 @@
                     towerGuards.push({
                         obj: guard,
                         biomeIdx: biomeIdx,
-                        health: 3,
+                        health: 8,
                         isTriggered: false,
                         homeCenter: center,
                         spawnPos: new THREE.Vector3(gx, gy, gz),
@@ -853,6 +873,7 @@
                 leaf: new THREE.MeshLambertMaterial({color: 0x1b4d3e, transparent: true, opacity: 0.95}),
                 water: new THREE.MeshLambertMaterial({color: 0x1d4ed8, transparent: true, opacity: 0.65}),
                 chest: new THREE.MeshLambertMaterial({color: 0xffd700}), 
+                sand: new THREE.MeshLambertMaterial({color: 0xc2b280}),
                 
                 grayGrass: [copyGrassSide, copyGrassSide, copyGrassTop, copyGrassSide, copyGrassSide, copyGrassSide],
                 grayDirt: copyDirtMat,
@@ -953,8 +974,7 @@
                         const tx1 = -12, tz1 = 0;
                         const dx1 = rx - tx1, dz1 = rz - tz1;
                         if (Math.abs(dx1) <= 2 && Math.abs(dz1) <= 2) {
-                            // Simetrik 3x3 hollow içi boş kule sistemi
-                            const isHollow = Math.abs(dx1) <= 1 && Math.abs(dz1) <= 1;
+                            // Kule tamamen dolu odun ile dolduruldu (Alpha 1.0.0)
                             setBlock(wx, 20, wz, 'wood');
 
                             for (let y = 21; y <= 40; y++) {
@@ -962,10 +982,7 @@
                                 if (dx1 === 2 && dz1 === 0 && (y === 21 || y === 22 || y === 23)) {
                                     continue;
                                 }
-                                if (isHollow && y < 40) {
-                                    continue;
-                                }
-                                // Kule ahşap orta bölümü güncellendi
+                                // İç kısımlar tamamen odun ile dolduruldu
                                 if (y <= 22) {
                                     setBlock(wx, y, wz, 'stone'); 
                                 } else if (y <= 36) {
@@ -986,8 +1003,7 @@
                         const tx2 = 12, tz2 = 0;
                         const dx2 = rx - tx2, dz2 = rz - tz2;
                         if (Math.abs(dx2) <= 2 && Math.abs(dz2) <= 2) {
-                            // Simetrik 3x3 hollow içi boş kule sistemi
-                            const isHollow = Math.abs(dx2) <= 1 && Math.abs(dz2) <= 1;
+                            // Kule tamamen dolu odun ile dolduruldu (Alpha 1.0.0)
                             setBlock(wx, 20, wz, 'wood');
 
                             for (let y = 21; y <= 40; y++) {
@@ -995,10 +1011,7 @@
                                 if (dx2 === -2 && dz2 === 0 && (y === 21 || y === 22 || y === 23)) {
                                     continue;
                                 }
-                                if (isHollow && y < 40) {
-                                    continue;
-                                }
-                                // Kule ahşap orta bölümü güncellendi
+                                // İç kısımlar tamamen odun ile dolduruldu
                                 if (y <= 22) {
                                     setBlock(wx, y, wz, 'stone');
                                 } else if (y <= 36) {
@@ -1018,6 +1031,10 @@
                         // İKİ KULE ARASINDAKİ EV - Çok daha büyük (11x11 boyutunda) ve içinde sarı sandık var
                         const hSize = 5; 
                         if (Math.abs(rx) <= hSize && Math.abs(rz) <= hSize) {
+                            // Ev zemini altında boşluklar odun ile dolduruldu
+                            for (let uy = 1; uy <= 19; uy++) {
+                                setBlock(wx, 20 - uy, wz, 'wood');
+                            }
                             setBlock(wx, 20, wz, 'wood');
 
                             for (let y = 21; y <= 26; y++) {
@@ -1036,6 +1053,9 @@
                                             continue; 
                                         }
                                         setBlock(wx, y, wz, 'stone'); 
+                                    } else {
+                                        // İç alanlar da odun ile dolduruldu
+                                        setBlock(wx, y, wz, 'wood');
                                     }
                                 }
                             }
@@ -1060,6 +1080,10 @@
                     if (!isGray && h < SEA_LEVEL) {
                         for (let y = h + 1; y <= SEA_LEVEL; y++) {
                             setBlock(wx, y, wz, 'water');
+                        }
+                        // Suya yakın kum
+                        if (h >= SEA_LEVEL - 3) {
+                            setBlock(wx, h, wz, 'sand');
                         }
                     }
 
@@ -1139,7 +1163,7 @@
             const geo = new THREE.BoxGeometry(1, 1, 1);
             
             const blocks = { 
-                grass: [], dirt: [], stone: [], wood: [], leaf: [], water: [], chest: [],
+                grass: [], dirt: [], stone: [], wood: [], leaf: [], water: [], chest: [], sand: [],
                 grayGrass: [], grayDirt: [], grayStone: [], grayWood: [], grayLeaf: []
             };
 
@@ -1454,6 +1478,11 @@
                         audio.playBreakTıkTık(); 
                         updateAffectedChunks(bx, bz);
 
+                        // Blok düşürme
+                        if (targetBlock !== 'leaf' && targetBlock !== 'grayLeaf') {
+                            addToInventory(targetBlock, 1); // or drop as item, but for simplicity add to inv
+                        }
+
                         // Muhafızlara haber sal (Zarar verilirse aggro çekerler)
                         const towerIdx = getTowerBiomeIndex(bx, bz);
                         if (towerIdx >= 0) {
@@ -1523,6 +1552,17 @@
                 player.vel.set(0, 0, 0);
                 audio.playBeep(220, 'square', 0.25, 0.15);
             }
+
+            // Envanter slot seçimi (1-9)
+            if (e.code >= 'Digit1' && e.code <= 'Digit9') {
+                selectedSlot = parseInt(e.code.slice(1)) - 1;
+                updateInventoryUI();
+            }
+
+            // Eşya atma B tuşu
+            if (e.code === 'KeyB') {
+                throwSelectedItem(false); // Normal throw
+            }
         }
 
         function handleKeyUp(e) {
@@ -1535,6 +1575,113 @@
             } else if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
                 keys['ControlLeft'] = false;
             }
+        }
+
+        // Envanter UI ve Mantığı
+        function initInventoryUI() {
+            const hotbar = document.getElementById('hotbar');
+            hotbar.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const slot = document.createElement('div');
+                slot.className = `w-12 h-12 border border-zinc-400 bg-zinc-900/80 flex items-center justify-center text-xs font-mono relative ${i === selectedSlot ? 'border-red-500 ring-2 ring-red-500' : ''}`;
+                slot.innerHTML = `<span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white hidden">0</span>`;
+                hotbar.appendChild(slot);
+            }
+            updateHealthUI();
+        }
+
+        function updateInventoryUI() {
+            const hotbar = document.getElementById('hotbar');
+            if (!hotbar) return;
+            const slots = hotbar.children;
+            for (let i = 0; i < 9; i++) {
+                const slot = slots[i];
+                if (!slot) continue;
+                const item = inventory[i];
+                slot.style.borderColor = i === selectedSlot ? '#ef4444' : '#a1a1aa';
+                if (item && item.type) {
+                    slot.style.backgroundColor = getBlockColor(item.type);
+                    slot.innerHTML = `<span class="text-xs text-white">${item.type.slice(0,3).toUpperCase()}</span><span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white">${item.count}</span>`;
+                } else {
+                    slot.innerHTML = `<span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white hidden">0</span>`;
+                }
+            }
+        }
+
+        function getBlockColor(type) {
+            const colors = {
+                'grass': '#2e8b57', 'dirt': '#5c4033', 'stone': '#708090',
+                'wood': '#50301a', 'leaf': '#1b4d3e', 'sand': '#c2b280'
+            };
+            return colors[type] || '#666666';
+        }
+
+        function updateHealthUI() {
+            const healthBar = document.getElementById('health-bar');
+            healthBar.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const heart = document.createElement('div');
+                heart.className = `w-6 h-6 text-red-500 text-xl ${i < health ? 'opacity-100' : 'opacity-30'}`;
+                heart.innerHTML = '♥';
+                healthBar.appendChild(heart);
+            }
+        }
+
+        function addToInventory(type, count = 1) {
+            // Önce mevcut yığınlara ekle
+            for (let i = 0; i < 9; i++) {
+                if (inventory[i].type === type) {
+                    inventory[i].count += count;
+                    updateInventoryUI();
+                    return true;
+                }
+            }
+            // Boş slot bul
+            for (let i = 0; i < 9; i++) {
+                if (!inventory[i].type) {
+                    inventory[i] = { type, count };
+                    updateInventoryUI();
+                    return true;
+                }
+            }
+            return false; // Envanter dolu
+        }
+
+        function throwSelectedItem(isGeneralThrow = false) {
+            const item = inventory[selectedSlot];
+            if (!item || !item.type || item.count <= 0) return;
+
+            const itemPos = player.pos.clone();
+            itemPos.y += 1.5;
+            const throwDir = new THREE.Vector3(0, 0.5, -1).applyQuaternion(camera.quaternion).normalize();
+
+            const dropped = {
+                type: item.type,
+                count: 1,
+                pos: itemPos.clone(),
+                vel: throwDir.multiplyScalar(0.2),
+                rotSpeed: Math.random() * 5,
+                mesh: null,
+                lifeTime: 60
+            };
+
+            // Basit mesh for dropped item
+            const geo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+            const mat = new THREE.MeshLambertMaterial({color: getBlockColorHex(item.type)});
+            dropped.mesh = new THREE.Mesh(geo, mat);
+            dropped.mesh.position.copy(dropped.pos);
+            scene.add(dropped.mesh);
+            droppedItems.push(dropped);
+
+            item.count--;
+            if (item.count <= 0) item.type = null;
+            updateInventoryUI();
+            audio.playBeep(180, 'sine', 0.1, 0.3);
+        }
+
+        function getBlockColorHex(type) {
+            const map = {'grass': 0x2e8b57, 'dirt': 0x5c4033, 'stone': 0x708090, 'wood': 0x50301a, 'leaf': 0x1b4d3e, 'sand': 0xc2b280};
+            return map[type] || 0xaaaaaa;
         }
 
         function handleMouseMove(e) {
@@ -1693,7 +1840,7 @@
             if (fishDebuffTimer <= 0) {
                 audio.playScream(1);
             }
-            fishDebuffTimer = 20.0; 
+            fishDebuffTimer = 10.0; 
             fishDebuffFlashTimer = 0;
             fishDebuffScreenActive = true;
             const debuffOverlay = document.getElementById('fish-debuff-overlay');
@@ -1816,6 +1963,7 @@
             document.getElementById('ui-overlay').style.display = 'none';
             document.getElementById('gpu-monitor').style.display = 'none';
             document.getElementById('crosshair').style.display = 'none';
+            document.getElementById('inventory-ui').classList.add('hidden');
             
             const menu = document.getElementById('menu');
             if (menu) {
@@ -1885,6 +2033,32 @@
             }
         }
 
+        function updateDroppedItems(dt) {
+            for (let i = droppedItems.length - 1; i >= 0; i--) {
+                const item = droppedItems[i];
+                item.lifeTime -= dt;
+                if (item.lifeTime <= 0) {
+                    if (item.mesh) scene.remove(item.mesh);
+                    droppedItems.splice(i, 1);
+                    continue;
+                }
+                if (item.mesh) {
+                    item.pos.addScaledVector(item.vel, dt * 10);
+                    item.mesh.position.copy(item.pos);
+                    item.mesh.rotation.y += item.rotSpeed * dt;
+                    item.vel.y -= 0.015 * dt; // gravity
+                }
+                // Pickup check
+                const dist = item.pos.distanceTo(player.pos);
+                if (dist < 1.5) {
+                    if (addToInventory(item.type, item.count)) {
+                        if (item.mesh) scene.remove(item.mesh);
+                        droppedItems.splice(i, 1);
+                    }
+                }
+            }
+        }
+
         function animate() {
             if (!gameActive) return;
             animationFrameId = requestAnimationFrame(animate);
@@ -1895,6 +2069,7 @@
             if (!isPaused) {
                 updateKillerFishLogic(dt);
                 updateTowerGuardsLogic(dt); 
+                updateDroppedItems(dt);
             }
 
             frames++;
