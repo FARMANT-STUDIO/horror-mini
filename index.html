@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KORKU MINI ALPHA 1.0.0 - PC VERSION</title>
+    <title>HORROR MINI Alpha 1.0.0 - PC VERSION</title>
     <!-- Tailwind CSS ve Gerekli Kütüphaneler -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -45,6 +45,77 @@
             75% { text-shadow: -1px 2px 0 #ff0000, 1px -2px 0 #00ffff; }
             100% { text-shadow: 2px 0 0 #ff0000, -2px 0 0 #00ffff; }
         }
+        #hud-bottom {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 45;
+            pointer-events: none;
+        }
+        #health-bar { display: flex; gap: 4px; }
+        .heart {
+            width: 18px; height: 18px;
+            background: #e11d48;
+            transform: rotate(45deg);
+            position: relative;
+            box-shadow: 0 0 6px rgba(225,29,72,0.5);
+        }
+        .heart::before, .heart::after {
+            content: '';
+            width: 18px; height: 18px;
+            background: #e11d48;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .heart::before { top: -9px; left: 0; }
+        .heart::after { left: -9px; top: 0; }
+        .heart.empty { background: #3f1018; box-shadow: none; }
+        .heart.empty::before, .heart.empty::after { background: #3f1018; }
+        #inventory-bar { display: flex; gap: 4px; }
+        .inv-slot {
+            width: 44px; height: 44px;
+            background: rgba(0,0,0,0.65);
+            border: 2px solid #444;
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .inv-slot.selected { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+        .inv-slot .slot-icon {
+            width: 28px; height: 28px;
+            border-radius: 2px;
+        }
+        .inv-slot .slot-count {
+            position: absolute;
+            bottom: 1px; right: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+        #break-progress {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, 24px);
+            width: 60px; height: 4px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #666;
+            display: none;
+            z-index: 45;
+        }
+        #break-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            transition: width 0.05s linear;
+        }
     </style>
 </head>
 <body class="crt">
@@ -75,7 +146,7 @@
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">ALPHA 1.0.0</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.0</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 BAŞLA (PC)
@@ -94,13 +165,13 @@
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ ALPHA 1.0.0 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.0 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ALPHA 1.0.0 GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ÖZEL BİYOMA ÖZEL BİR MOB EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MENÜDEKİ ANİMASYON ÇIKARILDI.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>PRE ALPHA 0.08 YAZISI 0.09 OLARAK DEĞİŞTİRİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.0 SÜRÜMÜNE GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>9 SLOTLUK ENVANTER, SAĞLIK VE BLOK KIRMA SİSTEMİ EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ESKİ KULELER BİYOMU DÜZENLENDİ, KUM VE GÖLGELENDİRME İYİLEŞTİRİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KATİL BALIK VE KULE MUHAFIZLARI GÜNCELLENDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -116,7 +187,7 @@
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">ALPHA 1.0.0</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.0</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -140,17 +211,12 @@
     <!-- Hedef Artısı (Crosshair) -->
     <div id="crosshair" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-light text-xl select-none pointer-events-none hidden z-40 opacity-70">+</div>
 
-    <!-- Envanter Hotbar ve Sağlık -->
-    <div id="inventory-ui" class="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center hidden z-50 pointer-events-none">
-        <!-- Sağlık Kalpleri -->
-        <div id="health-bar" class="flex mb-2 space-x-1">
-            <!-- JS ile doldurulacak -->
-        </div>
-        <!-- Hotbar -->
-        <div id="hotbar" class="flex bg-black/70 border-2 border-red-600/80 p-1.5 rounded-lg shadow-2xl">
-            <!-- 9 slot JS ile oluşturulacak -->
-        </div>
+    <!-- Sağlık ve Envanter HUD -->
+    <div id="hud-bottom">
+        <div id="health-bar"></div>
+        <div id="inventory-bar"></div>
     </div>
+    <div id="break-progress"><div id="break-progress-fill"></div></div>
 
     <!-- Sistem Takipçisi -->
     <div id="gpu-monitor" class="fixed bottom-4 right-4 bg-black/90 border border-red-500/30 p-2.5 rounded text-[8px] text-red-400 font-mono space-y-0.5 hidden z-30 min-w-[130px] shadow-lg pointer-events-none">
@@ -190,7 +256,7 @@
             </p>
         </div>
         <div class="bg-[#000088] p-4 flex justify-between items-center border-t-2 border-white">
-            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_0x09</span>
+            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_1.0.0</span>
             <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95">
                 MENÜYE GERİ DÖN
             </button>
@@ -199,7 +265,8 @@
 
     <script>
         let scene, camera, renderer, simplex1, simplex2, simplex3, worldSeed;
-        let sunLight, ambientLight;
+        let sunLight, ambientLight, hemiLight, moonLight, playerTorch;
+        let isNightPhase = false;
         let clock = new THREE.Clock();
         let animationFrameId = null;
         let gameActive = false;
@@ -208,6 +275,7 @@
         const CHUNK_SIZE = 12;
         let VIEW_DISTANCE = 3; 
         const SEA_LEVEL = 18;
+        const MAX_WORLD_HEIGHT = 54;
         
         const worldBlocks = new Map();
         const chunkMeshes = new Map();
@@ -291,12 +359,6 @@
             spawnPos: new THREE.Vector3(0, 40, 0) 
         };
 
-        // Envanter Sistemi (Alpha 1.0.0)
-        let inventory = Array(9).fill(null).map(() => ({ type: null, count: 0 }));
-        let selectedSlot = 0;
-        let health = 9; // 9 kalp
-        const droppedItems = []; // Düşen bloklar için
-
         const keys = {
             KeyW: false,
             KeyS: false,
@@ -304,8 +366,199 @@
             KeyD: false,
             Space: false,
             ShiftLeft: false,
-            ControlLeft: false
+            ControlLeft: false,
+            KeyB: false,
+            KeyN: false
         };
+
+        const INVENTORY_SIZE = 9;
+        const MAX_HEALTH = 9;
+        const PLAYER_ID = 'local';
+        let inventory = [];
+        let selectedSlot = 0;
+        let playerHealth = MAX_HEALTH;
+        let playerDamageCooldown = 0;
+        const droppedItems = [];
+        let isMouseBreakHeld = false;
+        let breakTarget = null;
+        let breakProgress = 0;
+        let attackCooldown = 0;
+
+        const BREAK_TIMES = {
+            leaf: 0.5, grayLeaf: 0.5,
+            dirt: 2, grayDirt: 2,
+            sand: 0.5,
+            grass: 2, grayGrass: 2,
+            wood: 10, grayWood: 10,
+            stone: 20, grayStone: 20,
+            chest: 10
+        };
+
+        const BLOCK_COLORS = {
+            grass: '#2e8b57', dirt: '#5c4033', sand: '#8a7338', stone: '#708090',
+            wood: '#6b3a12', leaf: '#1b4d3e', chest: '#ffd700',
+            grayGrass: '#222222', grayDirt: '#151515', grayStone: '#0c0c0c',
+            grayWood: '#0f0f0f', grayLeaf: '#1a1a1a'
+        };
+
+        const PICKUP_TYPES = ['grass','dirt','sand','stone','wood','leaf','chest','grayGrass','grayDirt','grayStone','grayWood','grayLeaf'];
+
+        function initInventoryState() {
+            inventory = Array(INVENTORY_SIZE).fill(null);
+            selectedSlot = 0;
+            playerHealth = MAX_HEALTH;
+            playerDamageCooldown = 0;
+            breakTarget = null;
+            breakProgress = 0;
+            attackCooldown = 0;
+            updateHealthUI();
+            updateInventoryUI();
+        }
+
+        function updateHealthUI() {
+            const bar = document.getElementById('health-bar');
+            if (!bar) return;
+            bar.innerHTML = '';
+            for (let i = 0; i < MAX_HEALTH; i++) {
+                const h = document.createElement('div');
+                h.className = 'heart' + (i < playerHealth ? '' : ' empty');
+                bar.appendChild(h);
+            }
+        }
+
+        function updateInventoryUI() {
+            const bar = document.getElementById('inventory-bar');
+            if (!bar) return;
+            bar.innerHTML = '';
+            for (let i = 0; i < INVENTORY_SIZE; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inv-slot' + (i === selectedSlot ? ' selected' : '');
+                const item = inventory[i];
+                if (item) {
+                    const icon = document.createElement('div');
+                    icon.className = 'slot-icon';
+                    icon.style.background = BLOCK_COLORS[item.type] || '#888';
+                    slot.appendChild(icon);
+                    const count = document.createElement('span');
+                    count.className = 'slot-count';
+                    count.innerText = String(item.count);
+                    slot.appendChild(count);
+                }
+                bar.appendChild(slot);
+            }
+        }
+
+        function addItemToInventory(type, amount = 1) {
+            if (!PICKUP_TYPES.includes(type)) return;
+            for (let i = 0; i < INVENTORY_SIZE; i++) {
+                if (inventory[i] && inventory[i].type === type) {
+                    inventory[i].count += amount;
+                    updateInventoryUI();
+                    return;
+                }
+            }
+            if (inventory[0] === null) {
+                inventory[0] = { type, count: amount };
+            } else {
+                const emptyIdx = inventory.findIndex(s => s === null);
+                if (emptyIdx >= 0) {
+                    inventory[emptyIdx] = { type, count: amount };
+                } else return;
+            }
+            updateInventoryUI();
+        }
+
+        function removeOneFromSlot(slotIdx) {
+            const item = inventory[slotIdx];
+            if (!item) return null;
+            const type = item.type;
+            item.count--;
+            if (item.count <= 0) inventory[slotIdx] = null;
+            updateInventoryUI();
+            return type;
+        }
+
+        function damagePlayer(amount) {
+            if (playerDamageCooldown > 0 || isPaused) return;
+            playerHealth = Math.max(0, playerHealth - amount);
+            playerDamageCooldown = 0.8;
+            updateHealthUI();
+            audio.playBeep(120, 'sawtooth', 0.15, 0.2);
+            if (playerHealth <= 0) {
+                player.pos.copy(player.spawnPos);
+                player.vel.set(0, 0, 0);
+                playerHealth = MAX_HEALTH;
+                playerDamageCooldown = 2;
+                updateHealthUI();
+            }
+        }
+
+        function getBreakTime(type) {
+            return BREAK_TIMES[type] || 4;
+        }
+
+        function isNearWaterAt(wx, wz, h) {
+            if (h < SEA_LEVEL) return true;
+            for (let dx = -4; dx <= 4; dx++) {
+                for (let dz = -4; dz <= 4; dz++) {
+                    if (dx === 0 && dz === 0) continue;
+                    const nh = getTerrainHeight(wx + dx, wz + dz);
+                    if (nh < SEA_LEVEL) return true;
+                }
+            }
+            return false;
+        }
+
+        function createDroppedItemMesh(type) {
+            const color = BLOCK_COLORS[type] || '#888888';
+            const geo = new THREE.BoxGeometry(0.28, 0.28, 0.28);
+            const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(color) });
+            return new THREE.Mesh(geo, mat);
+        }
+
+        function spawnDroppedItem(type, x, y, z, count = 1, ownerId = null) {
+            const mesh = createDroppedItemMesh(type);
+            mesh.position.set(x + 0.5, y + 0.35, z + 0.5);
+            scene.add(mesh);
+            droppedItems.push({
+                mesh, type, count,
+                bobPhase: Math.random() * Math.PI * 2,
+                baseY: y + 0.35,
+                ownerId,
+                rotSpeed: 1.5 + Math.random() * 1.5
+            });
+        }
+
+        function updateDroppedItems(dt) {
+            for (let i = droppedItems.length - 1; i >= 0; i--) {
+                const item = droppedItems[i];
+                item.bobPhase += dt * 3;
+                item.mesh.position.y = item.baseY + Math.sin(item.bobPhase) * 0.12;
+                item.mesh.rotation.y += item.rotSpeed * dt;
+                const dist = item.mesh.position.distanceTo(player.pos);
+                if (dist < 1.6) {
+                    if (item.ownerId && item.ownerId === PLAYER_ID) continue;
+                    addItemToInventory(item.type, item.count);
+                    scene.remove(item.mesh);
+                    droppedItems.splice(i, 1);
+                }
+            }
+        }
+
+        function dropSelectedItem(throwFar = false) {
+            const item = inventory[selectedSlot];
+            if (!item) return;
+            const type = removeOneFromSlot(selectedSlot);
+            if (!type) return;
+            const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            fwd.y = 0;
+            fwd.normalize();
+            const dist = throwFar ? 2.5 : 1.2;
+            const px = player.pos.x + fwd.x * dist;
+            const pz = player.pos.z + fwd.z * dist;
+            const py = Math.floor(player.pos.y);
+            spawnDroppedItem(type, Math.floor(px), py, Math.floor(pz), 1, throwFar ? PLAYER_ID : null);
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             const wakeupAudio = () => {
@@ -526,7 +779,7 @@
                 document.getElementById('ui-overlay').style.display = 'block';
                 document.getElementById('gpu-monitor').style.display = 'block';
                 document.getElementById('crosshair').style.display = 'block';
-                document.getElementById('inventory-ui').classList.remove('hidden');
+                document.getElementById('hud-bottom').style.display = 'flex';
                 
                 initGame();
                 requestPointerLock();
@@ -577,12 +830,26 @@
             try {
                 const array = new Uint32Array(1);
                 window.crypto.getRandomValues(array);
-                seed32 = array[0];
+                seed32 = array[0] >>> 0;
             } catch (e) {
-                seed32 = Math.floor(Math.random() * 4294967296);
+                seed32 = (Math.floor(Math.random() * 0x100000000)) >>> 0;
             }
-            const raw = seed32 % 100000000;
-            return { raw: raw, seed32: seed32 };
+            return { raw: seed32, seed32: seed32 };
+        }
+
+        function chunkSeed(cx, cz, salt = 0) {
+            let h = (worldSeed ^ salt) >>> 0;
+            h = Math.imul(h ^ cx, 374761393) >>> 0;
+            h = Math.imul(h ^ cz, 668265263) >>> 0;
+            return h >>> 0;
+        }
+
+        function makeChunkRng(cx, cz, salt = 0) {
+            let state = chunkSeed(cx, cz, salt) || 1;
+            return function() {
+                state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+                return state / 4294967296;
+            };
         }
 
         function initGame() {
@@ -599,7 +866,7 @@
             const seeds = generate32BitSeed();
             worldSeed = seeds.seed32;
             const seedEl = document.getElementById('ui-seed');
-            if (seedEl) seedEl.innerText = seeds.raw + " (" + worldSeed + ")";
+            if (seedEl) seedEl.innerText = String(worldSeed >>> 0);
 
             simplex1 = new SimplexNoise((worldSeed).toString());
             simplex2 = new SimplexNoise((worldSeed + 1).toString());
@@ -616,15 +883,45 @@
             
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2)); 
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
 
-            sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            sunLight = new THREE.DirectionalLight(0xfff4e0, 1.2);
             sunLight.position.set(40, 100, 20);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.set(1024, 1024);
+            sunLight.shadow.camera.near = 1;
+            sunLight.shadow.camera.far = 180;
+            sunLight.shadow.camera.left = -55;
+            sunLight.shadow.camera.right = 55;
+            sunLight.shadow.camera.top = 55;
+            sunLight.shadow.camera.bottom = -55;
+            sunLight.shadow.bias = -0.0008;
             scene.add(sunLight);
+            sunLight.target = new THREE.Object3D();
+            scene.add(sunLight.target);
+
+            moonLight = new THREE.DirectionalLight(0x8899cc, 0);
+            moonLight.position.set(-40, 80, -20);
+            moonLight.castShadow = false;
+            moonLight.target = new THREE.Object3D();
+            scene.add(moonLight);
+            scene.add(moonLight.target);
 
             ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
             scene.add(ambientLight);
+
+            hemiLight = new THREE.HemisphereLight(0xb8d4f0, 0x3d2817, 0.45);
+            scene.add(hemiLight);
+
+            playerTorch = new THREE.PointLight(0xfff8f0, 0, 5.5, 1.2);
+            playerTorch.position.set(0, 0.25, 0);
+            camera.add(playerTorch);
+            scene.add(camera);
+
+            initInventoryState();
 
             const sunGeo = new THREE.SphereGeometry(6, 16, 16);
             const sunMat = new THREE.MeshBasicMaterial({ color: 0xfffebb, fog: false });
@@ -639,7 +936,6 @@
             initMaterials();
             initClouds();
             initStars();
-            initInventoryUI();
             
             // Oyuncu doğrudan ilk "Eski Kuleler" biyomunun merkezinde başlar (evin önü)
             const firstTower = TOWER_BIOMES[0];
@@ -661,6 +957,7 @@
             window.addEventListener('keyup', handleKeyUp);
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mousedown', handleMouseDown);
+            window.addEventListener('mouseup', handleMouseUp);
             document.body.addEventListener('click', requestPointerLock);
             window.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -837,11 +1134,18 @@
                         obj: guard,
                         biomeIdx: biomeIdx,
                         health: 8,
+                        maxHealth: 8,
                         isTriggered: false,
+                        isDamaged: false,
+                        attackCooldown: 0,
                         homeCenter: center,
                         spawnPos: new THREE.Vector3(gx, gy, gz),
                         animTime: Math.random() * 50,
                         eyes: [eyeL, eyeR],
+                        normalEyeMat: darkEyeMat,
+                        bodyMesh: bodyMesh,
+                        ironMat: ironMat,
+                        skinMat: skinMat,
                         sword: swordMesh,
                         legL: legL,
                         legR: legR,
@@ -858,6 +1162,7 @@
             const grassTop = new THREE.MeshLambertMaterial({color: 0x2e8b57}); 
             const grassSide = new THREE.MeshLambertMaterial({color: 0x8b5a2b}); 
             const dirtMat = new THREE.MeshLambertMaterial({color: 0x5c4033}); 
+            const sandMat = new THREE.MeshLambertMaterial({color: 0x8a7338});
             const stoneMat = new THREE.MeshLambertMaterial({color: 0x708090});
             
             const copyGrassTop = new THREE.MeshLambertMaterial({color: 0x222222}); 
@@ -867,13 +1172,13 @@
 
             matList = {
                 grass: [grassSide, grassSide, grassTop, grassSide, grassSide, grassSide],
-                dirt: dirtMat, 
+                dirt: dirtMat,
+                sand: sandMat,
                 stone: stoneMat,
-                wood: new THREE.MeshLambertMaterial({color: 0x50301a}),
+                wood: new THREE.MeshLambertMaterial({ color: 0x6b3a12, emissive: 0x2a1205, emissiveIntensity: 0.12 }),
                 leaf: new THREE.MeshLambertMaterial({color: 0x1b4d3e, transparent: true, opacity: 0.95}),
                 water: new THREE.MeshLambertMaterial({color: 0x1d4ed8, transparent: true, opacity: 0.65}),
                 chest: new THREE.MeshLambertMaterial({color: 0xffd700}), 
-                sand: new THREE.MeshLambertMaterial({color: 0xc2b280}),
                 
                 grayGrass: [copyGrassSide, copyGrassSide, copyGrassTop, copyGrassSide, copyGrassSide, copyGrassSide],
                 grayDirt: copyDirtMat,
@@ -925,10 +1230,10 @@
             // BÜYÜK DAĞ MEKANİĞİ
             const mountainScaleNoise = simplex3.noise2D(x * 0.003, z * 0.003);
             if (mountainScaleNoise > 0.1) {
-                finalHeight += Math.floor((mountainScaleNoise - 0.1) * 65);
+                finalHeight += Math.floor((mountainScaleNoise - 0.1) * 36);
             }
 
-            return Math.max(16, finalHeight); // Minimum yükseklik sınırı eklendi (DÜŞÜŞ HATASI ÇÖZÜMÜ)
+            return Math.min(MAX_WORLD_HEIGHT, Math.max(16, finalHeight));
         }
 
         function isBlockOccluded(wx, wy, wz) {
@@ -947,6 +1252,7 @@
             const key = `${cx},${cz}`;
             if (generatedChunks.has(key)) return;
             generatedChunks.add(key);
+            const chunkRng = makeChunkRng(cx, cz);
 
             for (let x = 0; x < CHUNK_SIZE; x++) {
                 for (let z = 0; z < CHUNK_SIZE; z++) {
@@ -974,7 +1280,8 @@
                         const tx1 = -12, tz1 = 0;
                         const dx1 = rx - tx1, dz1 = rz - tz1;
                         if (Math.abs(dx1) <= 2 && Math.abs(dz1) <= 2) {
-                            // Kule tamamen dolu odun ile dolduruldu (Alpha 1.0.0)
+                            // Simetrik 3x3 hollow içi boş kule sistemi
+                            const isHollow = Math.abs(dx1) <= 1 && Math.abs(dz1) <= 1;
                             setBlock(wx, 20, wz, 'wood');
 
                             for (let y = 21; y <= 40; y++) {
@@ -982,7 +1289,11 @@
                                 if (dx1 === 2 && dz1 === 0 && (y === 21 || y === 22 || y === 23)) {
                                     continue;
                                 }
-                                // İç kısımlar tamamen odun ile dolduruldu
+                                if (isHollow && y < 40) {
+                                    setBlock(wx, y, wz, 'wood');
+                                    continue;
+                                }
+                                // Kule ahşap orta bölümü güncellendi
                                 if (y <= 22) {
                                     setBlock(wx, y, wz, 'stone'); 
                                 } else if (y <= 36) {
@@ -1003,7 +1314,8 @@
                         const tx2 = 12, tz2 = 0;
                         const dx2 = rx - tx2, dz2 = rz - tz2;
                         if (Math.abs(dx2) <= 2 && Math.abs(dz2) <= 2) {
-                            // Kule tamamen dolu odun ile dolduruldu (Alpha 1.0.0)
+                            // Simetrik 3x3 hollow içi boş kule sistemi
+                            const isHollow = Math.abs(dx2) <= 1 && Math.abs(dz2) <= 1;
                             setBlock(wx, 20, wz, 'wood');
 
                             for (let y = 21; y <= 40; y++) {
@@ -1011,7 +1323,11 @@
                                 if (dx2 === -2 && dz2 === 0 && (y === 21 || y === 22 || y === 23)) {
                                     continue;
                                 }
-                                // İç kısımlar tamamen odun ile dolduruldu
+                                if (isHollow && y < 40) {
+                                    setBlock(wx, y, wz, 'wood');
+                                    continue;
+                                }
+                                // Kule ahşap orta bölümü güncellendi
                                 if (y <= 22) {
                                     setBlock(wx, y, wz, 'stone');
                                 } else if (y <= 36) {
@@ -1029,38 +1345,32 @@
                         } // Corrected: Added missing closing brace for Kule 2 if-block
 
                         // İKİ KULE ARASINDAKİ EV - Çok daha büyük (11x11 boyutunda) ve içinde sarı sandık var
-                        const hSize = 5; 
+                        const hSize = 5;
                         if (Math.abs(rx) <= hSize && Math.abs(rz) <= hSize) {
-                            // Ev zemini altında boşluklar odun ile dolduruldu
-                            for (let uy = 1; uy <= 19; uy++) {
-                                setBlock(wx, 20 - uy, wz, 'wood');
+                            const isInterior = Math.abs(rx) < hSize && Math.abs(rz) < hSize;
+                            for (let y = 1; y <= 19; y++) {
+                                setBlock(wx, y, wz, 'wood');
                             }
                             setBlock(wx, 20, wz, 'wood');
 
-                            for (let y = 21; y <= 26; y++) {
-                                if (y === 26) {
-                                    setBlock(wx, y, wz, 'wood'); 
-                                } else {
-                                    const isEdgeX = Math.abs(rx) === hSize;
-                                    const isEdgeZ = Math.abs(rz) === hSize;
-                                    const isCorner = isEdgeX && isEdgeZ;
+                            for (let y = 21; y <= 25; y++) {
+                                const isEdgeX = Math.abs(rx) === hSize;
+                                const isEdgeZ = Math.abs(rz) === hSize;
+                                const isCorner = isEdgeX && isEdgeZ;
+                                const isDoorWall = rz === hSize && Math.abs(rx) <= 1;
 
-                                    if (isCorner) {
-                                        setBlock(wx, y, wz, 'wood'); 
-                                    } else if (isEdgeX || isEdgeZ) {
-                                        // Giriş kapısı artık ön tarafta (Spawn noktasına tam paralel) açık durur
-                                        if (rz === hSize && rx === 0 && (y === 21 || y === 22 || y === 23)) {
-                                            continue; 
-                                        }
-                                        setBlock(wx, y, wz, 'stone'); 
-                                    } else {
-                                        // İç alanlar da odun ile dolduruldu
-                                        setBlock(wx, y, wz, 'wood');
-                                    }
+                                if (y === 25) {
+                                    setBlock(wx, y, wz, 'wood');
+                                } else if (isCorner) {
+                                    setBlock(wx, y, wz, 'wood');
+                                } else if (isEdgeX || isEdgeZ) {
+                                    if (isDoorWall && y <= 24) continue;
+                                    setBlock(wx, y, wz, 'stone');
+                                } else if (isInterior && y === 21) {
+                                    setBlock(wx, y, wz, 'wood');
                                 }
                             }
 
-                            // Evin içerisindeki sarı sandık
                             if (rx === 2 && rz === 2) {
                                 setBlock(wx, 21, wz, 'chest');
                             }
@@ -1081,10 +1391,6 @@
                         for (let y = h + 1; y <= SEA_LEVEL; y++) {
                             setBlock(wx, y, wz, 'water');
                         }
-                        // Suya yakın kum
-                        if (h >= SEA_LEVEL - 3) {
-                            setBlock(wx, h, wz, 'sand');
-                        }
                     }
 
                     if (isGray) {
@@ -1096,9 +1402,12 @@
                             setBlock(wx, h - y, wz, 'grayStone');
                         }
                     } else {
-                        setBlock(wx, h, wz, 'grass');
+                        const nearWater = isNearWaterAt(wx, wz, h);
+                        const surfaceType = nearWater ? 'sand' : 'grass';
+                        const subType = nearWater ? 'sand' : 'dirt';
+                        setBlock(wx, h, wz, surfaceType);
                         for(let y = 1; y <= 4; y++) {
-                            setBlock(wx, h - y, wz, 'dirt');
+                            setBlock(wx, h - y, wz, nearWater && y <= 3 ? 'sand' : subType);
                         }
                         for(let y = 5; y <= 20; y++) {
                             setBlock(wx, h - y, wz, 'stone');
@@ -1106,7 +1415,7 @@
                     }
 
                     const noise3Val = simplex3.noise2D(wx * 0.05, wz * 0.05);
-                    if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && noise3Val > 0.4 && Math.random() < 0.06) {
+                    if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && h + 6 <= MAX_WORLD_HEIGHT && noise3Val > 0.4 && chunkRng() < 0.06) {
                         const trunkType = isGray ? 'grayWood' : 'wood';
                         const leafType = isGray ? 'grayLeaf' : 'leaf';
 
@@ -1117,10 +1426,6 @@
                         const leafGeo = new THREE.BoxGeometry(1, 1, 1);
 
                         for (let i = 1; i <= 5; i++) {
-                            const woodMesh = new THREE.Mesh(trunkGeo, matList[trunkType]);
-                            woodMesh.position.set(0, i - 0.5, 0);
-                            woodMesh.userData = { type: trunkType, localX: 0, localY: i, localZ: 0 };
-                            treeGroup.add(woodMesh);
                             setBlock(wx, h + i, wz, trunkType);
                         }
 
@@ -1153,17 +1458,11 @@
             }
         }
 
-        function createChunk(cx, cz) {
-            const key = `${cx},${cz}`;
-            if (chunkMeshes.has(key)) return;
-
-            generateChunkData(cx, cz);
-
+        function buildChunkMeshGroup(cx, cz) {
             const group = new THREE.Group();
             const geo = new THREE.BoxGeometry(1, 1, 1);
-            
-            const blocks = { 
-                grass: [], dirt: [], stone: [], wood: [], leaf: [], water: [], chest: [], sand: [],
+            const blocks = {
+                grass: [], dirt: [], sand: [], stone: [], wood: [], leaf: [], water: [], chest: [],
                 grayGrass: [], grayDirt: [], grayStone: [], grayWood: [], grayLeaf: []
             };
 
@@ -1171,16 +1470,12 @@
                 for (let z = 0; z < CHUNK_SIZE; z++) {
                     const wx = cx * CHUNK_SIZE + x;
                     const wz = cz * CHUNK_SIZE + z;
-                    
-                    for (let y = 0; y <= 65; y++) {
+                    for (let y = 0; y <= MAX_WORLD_HEIGHT; y++) {
                         const type = getBlock(wx, y, wz);
-                        if (type && blocks[type] !== undefined) {
-                            if (type === 'wood' || type === 'leaf' || type === 'grayWood' || type === 'grayLeaf') {
-                                continue;
-                            }
-                            if (!isBlockOccluded(wx, y, wz)) {
-                                blocks[type].push(new THREE.Vector3(wx, y, wz));
-                            }
+                        if (!type || blocks[type] === undefined) continue;
+                        if (type === 'leaf' || type === 'grayLeaf') continue;
+                        if (!isBlockOccluded(wx, y, wz)) {
+                            blocks[type].push(new THREE.Vector3(wx, y, wz));
                         }
                     }
                 }
@@ -1189,20 +1484,27 @@
             Object.keys(blocks).forEach(type => {
                 const list = blocks[type];
                 if (list.length === 0) return;
-                
                 let material = matList[type];
-                if(type === 'grass') material = matList.grass;
-                if(type === 'grayGrass') material = matList.grayGrass;
-
+                if (type === 'grass') material = matList.grass;
+                if (type === 'grayGrass') material = matList.grayGrass;
                 const inst = new THREE.InstancedMesh(geo, material, list.length);
+                inst.receiveShadow = true;
                 const mat = new THREE.Matrix4();
                 list.forEach((pos, i) => {
                     mat.setPosition(pos);
                     inst.setMatrixAt(i, mat);
                 });
+                inst.instanceMatrix.needsUpdate = true;
                 group.add(inst);
             });
+            return group;
+        }
 
+        function createChunk(cx, cz) {
+            const key = `${cx},${cz}`;
+            if (chunkMeshes.has(key)) return;
+            generateChunkData(cx, cz);
+            const group = buildChunkMeshGroup(cx, cz);
             scene.add(group);
             chunkMeshes.set(key, group);
         }
@@ -1217,11 +1519,14 @@
 
         function rebuildChunk(cx, cz) {
             const key = `${cx},${cz}`;
+            if (!generatedChunks.has(key)) return;
             if (chunkMeshes.has(key)) {
                 scene.remove(chunkMeshes.get(key));
                 chunkMeshes.delete(key);
             }
-            createChunk(cx, cz);
+            const group = buildChunkMeshGroup(cx, cz);
+            scene.add(group);
+            chunkMeshes.set(key, group);
         }
 
         function checkCollision(x, y, z) {
@@ -1358,6 +1663,8 @@
                     const blockBelow = getBlock(player.pos.x, player.pos.y - 0.15, player.pos.z);
                     if (blockBelow === 'grass' || blockBelow === 'grayGrass') {
                         audio.playStepSound('grass');
+                    } else if (blockBelow === 'sand') {
+                        audio.playStepSound('dirt');
                     } else if (blockBelow === 'dirt' || blockBelow === 'grayDirt' || blockBelow === 'stone' || blockBelow === 'grayStone') {
                         audio.playStepSound('dirt');
                     }
@@ -1381,139 +1688,256 @@
             camera.position.y += (player.pos.y + targetHeight - camera.position.y) * 0.3;
         }
 
-        function triggerWorldInteraction(type) {
+        function getRaycastHit(maxDist = 6) {
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-
             const targets = [...Array.from(chunkMeshes.values())];
-            
             grayBiomeTrees.forEach(t => {
-                if (t.obj.visible && !t.isSunk) {
-                    targets.push(t.obj);
-                }
+                if (t.obj.visible && !t.isSunk) targets.push(t.obj);
             });
-
-            killerFishList.forEach(f => {
-                targets.push(f.obj);
-            });
-
+            killerFishList.forEach(f => targets.push(f.obj));
+            towerGuards.forEach(g => targets.push(g.obj));
             const intersects = raycaster.intersectObjects(targets, true);
+            if (intersects.length > 0 && intersects[0].distance < maxDist) return intersects[0];
+            return null;
+        }
 
-            if (intersects.length > 0 && intersects[0].distance < 6) {
-                const hit = intersects[0];
-                const clickedObj = hit.object;
+        function flashMobRed(obj) {
+            obj.traverse(c => {
+                if (c.material && c.material.color) {
+                    const orig = c.material.color.getHex();
+                    c.material.color.setHex(0xff0000);
+                    setTimeout(() => { if (c.material && c.material.color) c.material.color.setHex(orig); }, 150);
+                }
+            });
+        }
 
-                let hitFish = null;
-                let hitFishIndex = -1;
-                for (let i = 0; i < killerFishList.length; i++) {
-                    const fObj = killerFishList[i].obj;
-                    if (fObj === clickedObj || fObj.children.includes(clickedObj)) {
-                        hitFish = killerFishList[i];
-                        hitFishIndex = i;
-                        break;
+        function attackEntity(hit, clickedObj) {
+            if (attackCooldown > 0) return false;
+
+            for (let i = 0; i < killerFishList.length; i++) {
+                const fObj = killerFishList[i].obj;
+                if (fObj === clickedObj || fObj.children.includes(clickedObj)) {
+                    killerFishList[i].health--;
+                    attackCooldown = 0.35;
+                    audio.playBreakTıkTık();
+                    flashMobRed(fObj);
+                    if (killerFishList[i].health <= 0) {
+                        scene.remove(fObj);
+                        killerFishList.splice(i, 1);
+                        audio.playScream(1);
+                    }
+                    return true;
+                }
+            }
+
+            for (let i = 0; i < towerGuards.length; i++) {
+                const gObj = towerGuards[i].obj;
+                if (gObj === clickedObj || gObj.children.includes(clickedObj)) {
+                    const g = towerGuards[i];
+                    g.health--;
+                    g.isTriggered = true;
+                    g.isDamaged = true;
+                    attackCooldown = 0.35;
+                    audio.playBreakTıkTık();
+                    flashMobRed(gObj);
+                    g.eyes.forEach(eye => { eye.material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); });
+                    if (performance.now() - lastTowerScreamTime > 1200) {
+                        audio.playScream(2);
+                        lastTowerScreamTime = performance.now();
+                    }
+                    if (g.health <= 0) {
+                        killTowerGuard(i);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function killTowerGuard(index) {
+            const g = towerGuards[index];
+            if (!g) return;
+            scene.remove(g.obj);
+            g.obj.traverse(child => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material && !child.material.isShared) child.material.dispose();
+            });
+            towerGuards.splice(index, 1);
+        }
+
+        function resetTowerGuardsOnBiomeExit(biomeIdx) {
+            towerGuards.forEach(g => {
+                if (g.biomeIdx !== biomeIdx) return;
+                g.isTriggered = false;
+                g.attackCooldown = 0;
+                g.eyes.forEach(eye => { eye.material = g.normalEyeMat; });
+                if (g.isDamaged && g.bodyMesh) {
+                    g.bodyMesh.material.color.setHex(0x8e9399);
+                    g.legL.material.color.setHex(0x8e9399);
+                    g.legR.material.color.setHex(0x8e9399);
+                    g.armL.material.color.setHex(0x8e9399);
+                    g.armR.material.color.setHex(0x8e9399);
+                }
+            });
+            audio.stopTowerHum();
+            lastTowerScreamTime = performance.now();
+        }
+
+        function reactivateTowerGuardsOnBiomeEnter(biomeIdx) {
+            if (!biomeAggroTriggered[biomeIdx]) return;
+            towerGuards.forEach(g => {
+                if (g.biomeIdx !== biomeIdx) return;
+                g.isTriggered = true;
+                g.eyes.forEach(eye => {
+                    eye.material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                });
+            });
+        }
+
+        function getBlockTargetFromHit(hit) {
+            const clickedObj = hit.object;
+            for (let i = 0; i < grayBiomeTrees.length; i++) {
+                const treeObj = grayBiomeTrees[i].obj;
+                if (treeObj === clickedObj.parent || treeObj === clickedObj) {
+                    const uData = clickedObj.userData;
+                    if (uData) {
+                        return {
+                            kind: 'tree',
+                            treeObj,
+                            mesh: clickedObj,
+                            bx: Math.round(treeObj.position.x + uData.localX),
+                            by: Math.round(treeObj.position.y + uData.localY),
+                            bz: Math.round(treeObj.position.z + uData.localZ),
+                            type: uData.type
+                        };
                     }
                 }
+            }
+            const point = hit.point;
+            const normal = hit.face.normal;
+            const bx = Math.round(point.x - normal.x * 0.4);
+            const by = Math.round(point.y - normal.y * 0.4);
+            const bz = Math.round(point.z - normal.z * 0.4);
+            const type = getBlock(bx, by, bz);
+            if (type && type !== 'water') {
+                return { kind: 'block', bx, by, bz, type };
+            }
+            return null;
+        }
 
-                if (hitFish) {
-                    if (type === 'break') {
-                        hitFish.health--;
-                        audio.playBreakTıkTık(); 
-                        
-                        hitFish.obj.children.forEach(c => {
-                            if (c.material && c.material.color) {
-                                const origColor = c.material.color.getHex();
-                                c.material.color.setHex(0xff0000);
-                                setTimeout(() => {
-                                    if (c.material && c.material.color) c.material.color.setHex(origColor);
-                                }, 150);
-                            }
-                        });
+        function breakBlockTarget(target) {
+            if (target.kind === 'tree') {
+                target.treeObj.remove(target.mesh);
+            }
+            worldBlocks.delete(`${target.bx},${target.by},${target.bz}`);
+            updateAffectedChunks(target.bx, target.by, target.bz);
+            const towerIdx = getTowerBiomeIndex(target.bx, target.bz);
+            if (towerIdx >= 0) triggerTowerAggro(towerIdx);
+            if (PICKUP_TYPES.includes(target.type)) {
+                spawnDroppedItem(target.type, target.bx, target.by, target.bz);
+            }
+            audio.playBreakTıkTık();
+        }
 
-                        if (hitFish.health <= 0) {
-                            scene.remove(hitFish.obj);
-                            killerFishList.splice(hitFishIndex, 1);
-                            audio.playScream(1); 
-                        }
-                    }
+        function startBreaking() {
+            const hit = getRaycastHit();
+            if (!hit) { breakTarget = null; breakProgress = 0; return; }
+            if (attackEntity(hit, hit.object)) {
+                breakTarget = null;
+                breakProgress = 0;
+                return;
+            }
+            const target = getBlockTargetFromHit(hit);
+            if (!target) { breakTarget = null; breakProgress = 0; return; }
+            const key = target.kind === 'tree'
+                ? `tree,${target.bx},${target.by},${target.bz}`
+                : `block,${target.bx},${target.by},${target.bz}`;
+            if (!breakTarget || breakTarget.key !== key) {
+                breakTarget = { ...target, key };
+                breakProgress = 0;
+            }
+        }
+
+        function updateBreaking(dt) {
+            const progEl = document.getElementById('break-progress');
+            const fillEl = document.getElementById('break-progress-fill');
+            if (!isMouseBreakHeld || isPaused) {
+                if (progEl) progEl.style.display = 'none';
+                if (!isMouseBreakHeld) { breakTarget = null; breakProgress = 0; }
+                return;
+            }
+            if (!breakTarget) {
+                startBreaking();
+                if (!breakTarget) {
+                    if (progEl) progEl.style.display = 'none';
                     return;
                 }
+            }
+            const hit = getRaycastHit();
+            if (!hit) { breakTarget = null; breakProgress = 0; if (progEl) progEl.style.display = 'none'; return; }
+            const current = getBlockTargetFromHit(hit);
+            const match = current && (
+                (breakTarget.kind === 'tree' && current.kind === 'tree' && breakTarget.bx === current.bx && breakTarget.by === current.by && breakTarget.bz === current.bz) ||
+                (breakTarget.kind === 'block' && current.kind === 'block' && breakTarget.bx === current.bx && breakTarget.by === current.by && breakTarget.bz === current.bz)
+            );
+            if (!match) { breakTarget = null; breakProgress = 0; if (progEl) progEl.style.display = 'none'; return; }
 
-                let hitTreeGroup = null;
-                for (let i = 0; i < grayBiomeTrees.length; i++) {
-                    const treeObj = grayBiomeTrees[i].obj;
-                    if (treeObj === clickedObj.parent || treeObj === clickedObj) {
-                        hitTreeGroup = treeObj;
-                        break;
-                    }
-                }
+            const needed = getBreakTime(breakTarget.type);
+            breakProgress += dt;
+            if (progEl) progEl.style.display = 'block';
+            if (fillEl) fillEl.style.width = Math.min(100, (breakProgress / needed) * 100) + '%';
 
-                if (hitTreeGroup) {
-                    if (type === 'break') {
-                        const blockMesh = clickedObj;
-                        const uData = blockMesh.userData;
-                        if (uData) {
-                            const wx = Math.round(hitTreeGroup.position.x + uData.localX);
-                            const wy = Math.round(hitTreeGroup.position.y + uData.localY);
-                            const wz = Math.round(hitTreeGroup.position.z + uData.localZ);
-                            
-                            hitTreeGroup.remove(blockMesh);
-                            worldBlocks.delete(`${wx},${wy},${wz}`);
-                            audio.playBreakTıkTık();
-                        }
-                    }
-                    return;
-                }
+            if (breakProgress >= needed) {
+                breakBlockTarget(breakTarget);
+                breakTarget = null;
+                breakProgress = 0;
+                if (progEl) progEl.style.display = 'none';
+                if (isMouseBreakHeld) startBreaking();
+            }
+        }
 
+        function triggerWorldInteraction(type) {
+            const hit = getRaycastHit();
+            if (!hit) return;
+
+            if (type === 'break') {
+                attackEntity(hit, hit.object);
+                return;
+            }
+
+            if (type === 'place') {
                 const point = hit.point;
                 const normal = hit.face.normal;
+                const px = Math.round(point.x + normal.x * 0.4);
+                const py = Math.round(point.y + normal.y * 0.4);
+                const pz = Math.round(point.z + normal.z * 0.4);
 
-                if (type === 'break') {
-                    const bx = Math.round(point.x - normal.x * 0.4);
-                    const by = Math.round(point.y - normal.y * 0.4);
-                    const bz = Math.round(point.z - normal.z * 0.4);
+                if (py > MAX_WORLD_HEIGHT) {
+                    audio.playPlaceTık();
+                    setTimeout(() => audio.playBreakTıkTık(), 120);
+                    return;
+                }
 
-                    const targetBlock = getBlock(bx, by, bz);
-                    if (targetBlock && targetBlock !== 'water') {
-                        worldBlocks.delete(`${bx},${by},${bz}`);
-                        audio.playBreakTıkTık(); 
-                        updateAffectedChunks(bx, bz);
+                const slotItem = inventory[selectedSlot];
+                if (!slotItem) return;
 
-                        // Blok düşürme
-                        if (targetBlock !== 'leaf' && targetBlock !== 'grayLeaf') {
-                            addToInventory(targetBlock, 1); // or drop as item, but for simplicity add to inv
-                        }
+                const placePos = new THREE.Vector3(px + 0.5, py + 0.5, pz + 0.5);
+                const pDist = player.pos.distanceTo(placePos);
+                if (pDist < 1.4) return;
 
-                        // Muhafızlara haber sal (Zarar verilirse aggro çekerler)
-                        const towerIdx = getTowerBiomeIndex(bx, bz);
-                        if (towerIdx >= 0) {
-                            triggerTowerAggro(towerIdx);
-                        }
-                    }
-                } else if (type === 'place') {
-                    const px = Math.round(point.x + normal.x * 0.4);
-                    const py = Math.round(point.y + normal.y * 0.4);
-                    const pz = Math.round(point.z + normal.z * 0.4);
-
-                    if (py >= 52) {
-                        audio.playPlaceTık(); 
-                        setTimeout(() => {
-                            audio.playBreakTıkTık(); 
-                        }, 120);
-                        return; 
-                    }
-
-                    const pDist = player.pos.distanceTo(new THREE.Vector3(px, py, pz));
-                    if (pDist > 0.8) {
-                        const targetBlock = getBlock(px, py, pz);
-                        if (!targetBlock || targetBlock === 'water') {
-                            const insideSScary = getActiveSpecialBiome(px, pz) > 0;
-                            const insideT = getTowerBiomeIndex(px, pz) >= 0;
-                            const placingType = (insideSScary || insideT) ? 'grayGrass' : 'grass';
-                            setBlock(px, py, pz, placingType);
-                            audio.playPlaceTık(); 
-                            updateAffectedChunks(px, pz);
-                        }
-                    }
+                const targetBlock = getBlock(px, py, pz);
+                if (!targetBlock || targetBlock === 'water') {
+                    const blockInPlayer = (
+                        Math.abs(px + 0.5 - player.pos.x) < player.radius + 0.55 &&
+                        Math.abs(pz + 0.5 - player.pos.z) < player.radius + 0.55 &&
+                        py >= Math.floor(player.pos.y) && py <= Math.floor(player.pos.y + player.height)
+                    );
+                    if (blockInPlayer) return;
+                    setBlock(px, py, pz, slotItem.type);
+                    removeOneFromSlot(selectedSlot);
+                    audio.playPlaceTık();
+                    updateAffectedChunks(px, py, pz);
                 }
             }
         }
@@ -1521,7 +1945,6 @@
         function triggerTowerAggro(biomeIdx) {
             if (biomeAggroTriggered[biomeIdx]) return;
             biomeAggroTriggered[biomeIdx] = true;
-
             towerGuards.forEach(g => {
                 if (g.biomeIdx === biomeIdx) {
                     g.isTriggered = true;
@@ -1530,8 +1953,6 @@
                     });
                 }
             });
-
-            audio.playScream(2); 
         }
 
         function handleKeyDown(e) {
@@ -1547,21 +1968,23 @@
                 keys['ControlLeft'] = true;
             }
 
+            if (e.code >= 'Digit1' && e.code <= 'Digit9') {
+                selectedSlot = parseInt(e.code.replace('Digit', ''), 10) - 1;
+                updateInventoryUI();
+            }
+
+            if (e.code === 'KeyB' && !e.repeat) {
+                if (keys['KeyN']) dropSelectedItem(true);
+                else dropSelectedItem(false);
+            }
+            if (e.code === 'KeyN' && keys['KeyB'] && !e.repeat) {
+                dropSelectedItem(true);
+            }
+
             if (e.code === 'KeyI') {
                 player.pos.copy(player.spawnPos);
                 player.vel.set(0, 0, 0);
                 audio.playBeep(220, 'square', 0.25, 0.15);
-            }
-
-            // Envanter slot seçimi (1-9)
-            if (e.code >= 'Digit1' && e.code <= 'Digit9') {
-                selectedSlot = parseInt(e.code.slice(1)) - 1;
-                updateInventoryUI();
-            }
-
-            // Eşya atma B tuşu
-            if (e.code === 'KeyB') {
-                throwSelectedItem(false); // Normal throw
             }
         }
 
@@ -1577,113 +2000,6 @@
             }
         }
 
-        // Envanter UI ve Mantığı
-        function initInventoryUI() {
-            const hotbar = document.getElementById('hotbar');
-            hotbar.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const slot = document.createElement('div');
-                slot.className = `w-12 h-12 border border-zinc-400 bg-zinc-900/80 flex items-center justify-center text-xs font-mono relative ${i === selectedSlot ? 'border-red-500 ring-2 ring-red-500' : ''}`;
-                slot.innerHTML = `<span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white hidden">0</span>`;
-                hotbar.appendChild(slot);
-            }
-            updateHealthUI();
-        }
-
-        function updateInventoryUI() {
-            const hotbar = document.getElementById('hotbar');
-            if (!hotbar) return;
-            const slots = hotbar.children;
-            for (let i = 0; i < 9; i++) {
-                const slot = slots[i];
-                if (!slot) continue;
-                const item = inventory[i];
-                slot.style.borderColor = i === selectedSlot ? '#ef4444' : '#a1a1aa';
-                if (item && item.type) {
-                    slot.style.backgroundColor = getBlockColor(item.type);
-                    slot.innerHTML = `<span class="text-xs text-white">${item.type.slice(0,3).toUpperCase()}</span><span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white">${item.count}</span>`;
-                } else {
-                    slot.innerHTML = `<span id="slot-count-${i}" class="absolute bottom-0 right-0 bg-black/70 px-1 text-[10px] text-white hidden">0</span>`;
-                }
-            }
-        }
-
-        function getBlockColor(type) {
-            const colors = {
-                'grass': '#2e8b57', 'dirt': '#5c4033', 'stone': '#708090',
-                'wood': '#50301a', 'leaf': '#1b4d3e', 'sand': '#c2b280'
-            };
-            return colors[type] || '#666666';
-        }
-
-        function updateHealthUI() {
-            const healthBar = document.getElementById('health-bar');
-            healthBar.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const heart = document.createElement('div');
-                heart.className = `w-6 h-6 text-red-500 text-xl ${i < health ? 'opacity-100' : 'opacity-30'}`;
-                heart.innerHTML = '♥';
-                healthBar.appendChild(heart);
-            }
-        }
-
-        function addToInventory(type, count = 1) {
-            // Önce mevcut yığınlara ekle
-            for (let i = 0; i < 9; i++) {
-                if (inventory[i].type === type) {
-                    inventory[i].count += count;
-                    updateInventoryUI();
-                    return true;
-                }
-            }
-            // Boş slot bul
-            for (let i = 0; i < 9; i++) {
-                if (!inventory[i].type) {
-                    inventory[i] = { type, count };
-                    updateInventoryUI();
-                    return true;
-                }
-            }
-            return false; // Envanter dolu
-        }
-
-        function throwSelectedItem(isGeneralThrow = false) {
-            const item = inventory[selectedSlot];
-            if (!item || !item.type || item.count <= 0) return;
-
-            const itemPos = player.pos.clone();
-            itemPos.y += 1.5;
-            const throwDir = new THREE.Vector3(0, 0.5, -1).applyQuaternion(camera.quaternion).normalize();
-
-            const dropped = {
-                type: item.type,
-                count: 1,
-                pos: itemPos.clone(),
-                vel: throwDir.multiplyScalar(0.2),
-                rotSpeed: Math.random() * 5,
-                mesh: null,
-                lifeTime: 60
-            };
-
-            // Basit mesh for dropped item
-            const geo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-            const mat = new THREE.MeshLambertMaterial({color: getBlockColorHex(item.type)});
-            dropped.mesh = new THREE.Mesh(geo, mat);
-            dropped.mesh.position.copy(dropped.pos);
-            scene.add(dropped.mesh);
-            droppedItems.push(dropped);
-
-            item.count--;
-            if (item.count <= 0) item.type = null;
-            updateInventoryUI();
-            audio.playBeep(180, 'sine', 0.1, 0.3);
-        }
-
-        function getBlockColorHex(type) {
-            const map = {'grass': 0x2e8b57, 'dirt': 0x5c4033, 'stone': 0x708090, 'wood': 0x50301a, 'leaf': 0x1b4d3e, 'sand': 0xc2b280};
-            return map[type] || 0xaaaaaa;
-        }
-
         function handleMouseMove(e) {
             if (!gameActive || isPaused) return;
             if (document.pointerLockElement === document.body) {
@@ -1696,9 +2012,20 @@
         function handleMouseDown(e) {
             if (!gameActive || isPaused || document.pointerLockElement !== document.body) return;
             if (e.button === 0) {
-                triggerWorldInteraction('break');
+                isMouseBreakHeld = true;
+                startBreaking();
             } else if (e.button === 2) {
                 triggerWorldInteraction('place');
+            }
+        }
+
+        function handleMouseUp(e) {
+            if (e.button === 0) {
+                isMouseBreakHeld = false;
+                breakTarget = null;
+                breakProgress = 0;
+                const progEl = document.getElementById('break-progress');
+                if (progEl) progEl.style.display = 'none';
             }
         }
 
@@ -1812,6 +2139,7 @@
                 
                 if (dist < 1.4 && !isPaused) {
                     triggerFishHit();
+                    damagePlayer(1);
                     const pushDir = new THREE.Vector3().subVectors(fish.obj.position, player.pos).normalize();
                     fish.obj.position.addScaledVector(pushDir, 3.0);
                 }
@@ -1840,7 +2168,7 @@
             if (fishDebuffTimer <= 0) {
                 audio.playScream(1);
             }
-            fishDebuffTimer = 10.0; 
+            fishDebuffTimer = 10.0;
             fishDebuffFlashTimer = 0;
             fishDebuffScreenActive = true;
             const debuffOverlay = document.getElementById('fish-debuff-overlay');
@@ -1848,9 +2176,11 @@
         }
 
         function updateTowerGuardsLogic(dt) {
+            const playerTowerIdx = getTowerBiomeIndex(player.pos.x, player.pos.z);
             towerGuards.forEach(g => {
+                const playerInSameBiome = playerTowerIdx === g.biomeIdx;
                 const distToPlayer = g.obj.position.distanceTo(player.pos);
-                let speed = g.isTriggered ? 3.8 : 1.2; 
+                let speed = (g.isTriggered && playerInSameBiome) ? 3.8 : 1.2;
 
                 // 40x40 boyutuna göre sınırlar ayarlandı (rx > 20 || rz > 20)
                 const rx = Math.abs(g.obj.position.x - g.homeCenter.x);
@@ -1859,9 +2189,9 @@
 
                 let target = new THREE.Vector3();
 
-                if (g.isTriggered) {
+                if (g.isTriggered && playerInSameBiome) {
                     target.copy(player.pos);
-                    target.y = g.obj.position.y; 
+                    target.y = g.obj.position.y;
                 } else {
                     g.animTime += dt;
                     if (g.animTime > 6.0) {
@@ -1896,11 +2226,26 @@
                 g.armL.rotation.x = -wave * 0.4;
                 g.armR.rotation.x = wave * 0.4;
 
-                if (distToPlayer < 1.3 && !isPaused) {
+                if (g.attackCooldown > 0) g.attackCooldown -= dt;
+
+                if (g.isDamaged && playerInSameBiome) {
+                    if (g.bodyMesh) g.bodyMesh.material.color.setHex(0xaa3333);
+                    if (performance.now() - lastTowerScreamTime > 2500 && Math.random() < 0.02) {
+                        audio.playScream(2);
+                        lastTowerScreamTime = performance.now();
+                    }
+                }
+
+                if (distToPlayer < 1.3 && !isPaused && g.attackCooldown <= 0 && playerInSameBiome && g.isTriggered) {
                     player.vel.y = 0.1;
                     const push = new THREE.Vector3().subVectors(player.pos, g.obj.position).normalize();
                     player.pos.addScaledVector(push, 0.8);
-                    audio.playScream(1);
+                    damagePlayer(2);
+                    g.attackCooldown = 1.2;
+                    if (g.isDamaged && performance.now() - lastTowerScreamTime > 800) {
+                        audio.playScream(2);
+                        lastTowerScreamTime = performance.now();
+                    }
                 }
             });
         }
@@ -1955,7 +2300,11 @@
 
             killerFishList.forEach(f => scene.remove(f.obj));
             killerFishList.length = 0;
+            droppedItems.forEach(d => scene.remove(d.mesh));
+            droppedItems.length = 0;
             fishDebuffTimer = 0;
+            isMouseBreakHeld = false;
+            breakTarget = null;
             const debuffOverlay = document.getElementById('fish-debuff-overlay');
             if (debuffOverlay) debuffOverlay.style.opacity = "0";
 
@@ -1963,7 +2312,9 @@
             document.getElementById('ui-overlay').style.display = 'none';
             document.getElementById('gpu-monitor').style.display = 'none';
             document.getElementById('crosshair').style.display = 'none';
-            document.getElementById('inventory-ui').classList.add('hidden');
+            document.getElementById('hud-bottom').style.display = 'none';
+            const progEl = document.getElementById('break-progress');
+            if (progEl) progEl.style.display = 'none';
             
             const menu = document.getElementById('menu');
             if (menu) {
@@ -1974,16 +2325,21 @@
             }
         }
 
-        function updateAffectedChunks(bx, bz) {
+        function updateAffectedChunks(bx, by, bz) {
             const cx = Math.floor(bx / CHUNK_SIZE);
             const cz = Math.floor(bz / CHUNK_SIZE);
-            
+            const modX = ((bx % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+            const modZ = ((bz % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+
             rebuildChunk(cx, cz);
-            
-            if ((bx % CHUNK_SIZE) === 0) rebuildChunk(cx - 1, cz);
-            if ((bx % CHUNK_SIZE) === CHUNK_SIZE - 1) rebuildChunk(cx + 1, cz);
-            if ((bz % CHUNK_SIZE) === 0) rebuildChunk(cx, cz - 1);
-            if ((bz % CHUNK_SIZE) === CHUNK_SIZE - 1) rebuildChunk(cx, cz + 1);
+            if (modX === 0) rebuildChunk(cx - 1, cz);
+            if (modX === CHUNK_SIZE - 1) rebuildChunk(cx + 1, cz);
+            if (modZ === 0) rebuildChunk(cx, cz - 1);
+            if (modZ === CHUNK_SIZE - 1) rebuildChunk(cx, cz + 1);
+
+            if (by === 0 || by === MAX_WORLD_HEIGHT) {
+                rebuildChunk(cx, cz);
+            }
         }
 
         function onWindowResize() {
@@ -2033,43 +2389,21 @@
             }
         }
 
-        function updateDroppedItems(dt) {
-            for (let i = droppedItems.length - 1; i >= 0; i--) {
-                const item = droppedItems[i];
-                item.lifeTime -= dt;
-                if (item.lifeTime <= 0) {
-                    if (item.mesh) scene.remove(item.mesh);
-                    droppedItems.splice(i, 1);
-                    continue;
-                }
-                if (item.mesh) {
-                    item.pos.addScaledVector(item.vel, dt * 10);
-                    item.mesh.position.copy(item.pos);
-                    item.mesh.rotation.y += item.rotSpeed * dt;
-                    item.vel.y -= 0.015 * dt; // gravity
-                }
-                // Pickup check
-                const dist = item.pos.distanceTo(player.pos);
-                if (dist < 1.5) {
-                    if (addToInventory(item.type, item.count)) {
-                        if (item.mesh) scene.remove(item.mesh);
-                        droppedItems.splice(i, 1);
-                    }
-                }
-            }
-        }
-
         function animate() {
             if (!gameActive) return;
             animationFrameId = requestAnimationFrame(animate);
 
             const dt = clock.getDelta();
             updatePhysics();
+
+            if (playerDamageCooldown > 0) playerDamageCooldown -= dt;
+            if (attackCooldown > 0) attackCooldown -= dt;
             
             if (!isPaused) {
+                updateBreaking(dt);
+                updateDroppedItems(dt);
                 updateKillerFishLogic(dt);
                 updateTowerGuardsLogic(dt); 
-                updateDroppedItems(dt);
             }
 
             frames++;
@@ -2120,61 +2454,87 @@
 
             let phaseName = "Gündüz";
             let celestialAngle = 0;
-            let targetSkyColor = 0xb0c0d0;
-            let targetFogDensity = 0.025;
-            let targetAmbientIntensity = 0.75;
-            let targetSunIntensity = 1.2;
+            let targetSkyColor = 0x87b8e8;
+            let targetFogDensity = 0.018;
+            let targetAmbientIntensity = 0.55;
+            let targetSunIntensity = 1.35;
+            let targetHemiIntensity = 0.55;
+            let targetHemiSky = 0xb8d8f8;
+            let targetHemiGround = 0x6b8f4e;
+            let targetMoonIntensity = 0;
             let starOpacity = 0.0;
+            isNightPhase = false;
             
             if (dayNightTimer < DAY_DURATION) {
                 phaseName = "Gündüz";
-                celestialAngle = (dayNightTimer / DAY_DURATION) * Math.PI; 
-                targetSkyColor = 0xb0c0d0;
-                targetFogDensity = 0.015;
-                targetAmbientIntensity = 0.8;
-                targetSunIntensity = 1.3;
-                VIEW_DISTANCE = 3; 
-            } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION) {
-                phaseName = "Öğle"; 
-                const localTimer = dayNightTimer - DAY_DURATION;
-                celestialAngle = Math.PI + (localTimer / AFTERNOON_DURATION) * (Math.PI * 0.5); 
-                targetSkyColor = 0xcc8855; 
-                targetFogDensity = 0.02;
+                const t = dayNightTimer / DAY_DURATION;
+                celestialAngle = t * Math.PI;
+                targetSkyColor = 0x87b8e8;
+                targetFogDensity = 0.014;
                 targetAmbientIntensity = 0.5;
-                targetSunIntensity = 0.7;
+                targetSunIntensity = 1.2 + Math.sin(t * Math.PI) * 0.25;
+                targetHemiIntensity = 0.6;
+                targetHemiSky = 0xc8e4ff;
+                targetHemiGround = 0x5a8a3a;
+                VIEW_DISTANCE = 3;
+            } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION) {
+                phaseName = "Öğle";
+                const localTimer = dayNightTimer - DAY_DURATION;
+                const t = localTimer / AFTERNOON_DURATION;
+                celestialAngle = Math.PI + t * (Math.PI * 0.5);
+                targetSkyColor = 0xe8a860;
+                targetFogDensity = 0.016;
+                targetAmbientIntensity = 0.42;
+                targetSunIntensity = 0.85;
+                targetHemiIntensity = 0.48;
+                targetHemiSky = 0xffd090;
+                targetHemiGround = 0x8a6030;
             } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION + EVENING_DURATION) {
-                phaseName = "Akşam"; 
+                phaseName = "Akşam";
                 const localTimer = dayNightTimer - (DAY_DURATION + AFTERNOON_DURATION);
-                celestialAngle = Math.PI * 1.5 + (localTimer / EVENING_DURATION) * (Math.PI * 0.3);
-                targetSkyColor = 0x882211; 
-                targetFogDensity = 0.035;
-                targetAmbientIntensity = 0.25;
-                targetSunIntensity = 0.2;
+                const t = localTimer / EVENING_DURATION;
+                celestialAngle = Math.PI * 1.5 + t * (Math.PI * 0.3);
+                targetSkyColor = 0x6a2818;
+                targetFogDensity = 0.028;
+                targetAmbientIntensity = 0.22;
+                targetSunIntensity = 0.15 + (1 - t) * 0.2;
+                targetHemiIntensity = 0.28;
+                targetHemiSky = 0x884433;
+                targetHemiGround = 0x2a1810;
             } else {
-                phaseName = "Gece"; 
+                phaseName = "Gece";
+                isNightPhase = true;
                 const localTimer = dayNightTimer - (DAY_DURATION + AFTERNOON_DURATION + EVENING_DURATION);
                 celestialAngle = Math.PI * 1.8 + (localTimer / NIGHT_DURATION) * (Math.PI * 1.2);
                 
                 if (!hasCheckedBloodMoonThisNight) {
                     hasCheckedBloodMoonThisNight = true;
-                    isBloodMoon = Math.random() < 0.01; 
+                    isBloodMoon = Math.random() < 0.01;
                 }
 
                 if (isBloodMoon) {
                     phaseName = "🩸 KANLI AY 🩸";
-                    targetSkyColor = 0x220101; 
-                    targetFogDensity = 0.12; 
-                    targetAmbientIntensity = 0.01;
-                    targetSunIntensity = 0.01;
+                    targetSkyColor = 0x220101;
+                    targetFogDensity = 0.1;
+                    targetAmbientIntensity = 0.04;
+                    targetSunIntensity = 0.02;
+                    targetHemiIntensity = 0.08;
+                    targetHemiSky = 0x440000;
+                    targetHemiGround = 0x110000;
+                    targetMoonIntensity = 0.15;
                 } else {
-                    targetSkyColor = 0x050811; 
-                    targetFogDensity = 0.07; 
-                    targetAmbientIntensity = 0.06;
+                    targetSkyColor = 0x060a18;
+                    targetFogDensity = 0.055;
+                    targetAmbientIntensity = 0.08;
                     targetSunIntensity = 0.0;
+                    targetHemiIntensity = 0.15;
+                    targetHemiSky = 0x1a2848;
+                    targetHemiGround = 0x0a0a14;
+                    targetMoonIntensity = 0.35;
                 }
                 
                 starOpacity = 1.0;
-                VIEW_DISTANCE = 3; 
+                VIEW_DISTANCE = 3;
             }
 
             const timeEl = document.getElementById('ui-time');
@@ -2189,12 +2549,16 @@
 
             sunMesh.position.set(player.pos.x + sunX, player.pos.y + Math.max(-10, sunY), player.pos.z + sunZ);
             sunLight.position.copy(sunMesh.position);
+            sunLight.target.position.copy(player.pos);
+            sunLight.shadow.camera.position.copy(sunLight.position);
 
             const moonX = Math.cos(celestialAngle + Math.PI) * 120;
             const moonY = Math.sin(celestialAngle + Math.PI) * 120;
             const moonZ = -30;
 
             moonMesh.position.set(player.pos.x + moonX, player.pos.y + Math.max(-10, moonY), player.pos.z + moonZ);
+            moonLight.position.set(player.pos.x + moonX, player.pos.y + Math.max(-10, moonY), player.pos.z + moonZ);
+            moonLight.target.position.copy(player.pos);
 
             if (isBloodMoon) {
                 moonMat.color.setHex(0xff0000); 
@@ -2252,6 +2616,8 @@
                         biomeEl.className = "text-yellow-600 font-black"; 
                     }
                     stopScaryGlitches();
+                    audio.stopScaryDrone();
+                    reactivateTowerGuardsOnBiomeEnter(towerBiomeIdx);
                 }
 
             } else if (currentBiomeId > 0 && !isPaused) {
@@ -2275,6 +2641,8 @@
                 }
             } else {
                 if (insideTowerBiome) {
+                    const exitedIdx = insideTowerBiomeIdx;
+                    if (exitedIdx >= 0) resetTowerGuardsOnBiomeExit(exitedIdx);
                     insideTowerBiome = false;
                     insideTowerBiomeIdx = -1;
                     const biomeEl = document.getElementById('ui-biome');
@@ -2284,6 +2652,7 @@
                     }
                     stopScaryGlitches();
                     audio.stopTowerHum();
+                    audio.stopScaryDrone();
                 }
                 if (insideGrayBiome) {
                     insideGrayBiome = false;
@@ -2303,7 +2672,20 @@
             scene.fog.density += (targetFogDensity - scene.fog.density) * 0.03;
             ambientLight.intensity += (targetAmbientIntensity - ambientLight.intensity) * 0.03;
             sunLight.intensity += (targetSunIntensity - sunLight.intensity) * 0.03;
+            if (hemiLight) {
+                hemiLight.intensity += (targetHemiIntensity - hemiLight.intensity) * 0.03;
+                hemiLight.color.lerp(new THREE.Color(targetHemiSky), 0.03);
+                hemiLight.groundColor.lerp(new THREE.Color(targetHemiGround), 0.03);
+            }
+            if (moonLight) {
+                moonLight.intensity += (targetMoonIntensity - moonLight.intensity) * 0.03;
+            }
+            if (playerTorch) {
+                const torchTarget = isNightPhase && !isBloodMoon ? 1.8 : (isBloodMoon ? 0.6 : 0);
+                playerTorch.intensity += (torchTarget - playerTorch.intensity) * 0.08;
+            }
             renderer.setClearColor(scene.fog.color);
+            scene.background.lerp(new THREE.Color(targetSkyColor), 0.03);
 
             creepyObservers.forEach((obs) => {
                 const targetPos = new THREE.Vector3(player.pos.x, obs.obj.position.y, player.pos.z);
