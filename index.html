@@ -242,28 +242,71 @@
         </div>
     </div>
 
-    <!-- MAVİ SİSTEM HATASI EKRANI (ERROR -1) -->
-    <div id="error-screen" class="fixed inset-0 bg-[#0000aa] z-[150] flex flex-col justify-between hidden p-8 font-mono text-white select-text">
-        <div class="bg-[#000088] p-4 text-center border-b-2 border-white text-sm md:text-base font-bold tracking-wider">
-            FARMANT STUDIOS | HORROR MİNİ | OYUN HATASI | ERROR -1
-        </div>
-        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <p class="text-lg md:text-xl font-bold max-w-3xl leading-relaxed mb-6 uppercase text-red-300">
-                OYUNU OYNARKEN/BAŞLARKEN HATA OLUŞTU BU OYUNUN ÇOK KASMASINDAN VEYA FPS DÜŞÜSÜNDEN OLABİLİR
-            </p>
-            <p class="text-xs text-blue-300 max-w-xl">
-                Sistem yükü optimize edilemedi. Ağır chunk işlem hatası oluştu. Çözmek için aşağıdaki butona tıklayarak ana menüye dönebilirsiniz.
-            </p>
-        </div>
-        <div class="bg-[#000088] p-4 flex justify-between items-center border-t-2 border-white">
-            <span class="text-[10px] text-zinc-400">STATUS: SYSTEM_HALTED_CRITICAL_1.0.1</span>
-            <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95">
-                MENÜYE GERİ DÖN
-            </button>
-        </div>
+    <div id="error-screen" class="fixed inset-0 bg-white z-[150] flex flex-col justify-between font-mono text-black hidden select-text">
+    
+    <div class="bg-[#0000aa] p-4 text-center border-b-4 border-black text-white text-sm md:text-base font-bold tracking-wider">
+        FARMANT STUDIOS | HORROR MİNİ | OYUN HATASI | ERROR -1
     </div>
 
-    <script>
+    <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <p class="text-lg md:text-xl font-bold max-w-3xl leading-relaxed mb-6 uppercase text-red-600">
+            OYUNU OYNARKEN/BAŞLARKEN HATA OLUŞTU BU OYUNUN ÇOK KASMASINDAN VEYA FPS DÜŞÜSÜNDEN OLABİLİR
+        </p>
+        <p class="text-xs text-blue-900 max-w-xl">
+            Sistem yükü optimize edilemedi. Ağır chunk işlem hatası oluştu. Çözmek için aşağıdaki butona tıklayarak ana menüye dönebilirsiniz.
+        </p>
+    </div>
+
+    <div class="bg-[#0000aa] p-4 flex justify-between items-center border-t-4 border-black text-white">
+        <span class="text-[10px] text-zinc-300">STATUS: SYSTEM_HALTED_CRITICAL_1.0.1</span>
+        <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95 shadow-lg">
+            MENÜYE GERİ DÖN
+        </button>
+    </div>
+</div>
+
+<script>
+    // 5 Saniye FPS < 10 Kontrolü
+    let lowFpsCounter = 0; 
+    let lastTime = performance.now();
+    let frames = 0;
+    let fps = 60;
+
+    function monitorFPS() {
+        const now = performance.now();
+        frames++;
+
+        if (now - lastTime >= 1000) {
+            fps = Math.round((frames * 1000) / (now - lastTime));
+            frames = 0;
+            lastTime = now;
+
+            // FPS 10'un altındaysa sayacı artır
+            if (fps < 10) {
+                lowFpsCounter++;
+            } else {
+                lowFpsCounter = 0; // 10'un üstüne çıkarsa sıfırla
+            }
+
+            // 5 saniye boyunca (5 kez 1 saniyelik kontrol) düşükse göster
+            if (lowFpsCounter >= 5) {
+                document.getElementById('error-screen').classList.remove('hidden');
+            }
+        }
+        requestAnimationFrame(monitorFPS);
+    }
+
+    // Butona basınca menüye dön
+    document.getElementById('btn-error-back').addEventListener('click', () => {
+        // Buraya menüye yönlendirme kodunu ekle (Örn: window.location.href = 'menu.html';)
+        console.log("Menüye dönülüyor...");
+        document.getElementById('error-screen').classList.add('hidden');
+        lowFpsCounter = 0;
+    });
+
+    // Başlat
+    monitorFPS();
+</script>
         let scene, camera, renderer, simplex1, simplex2, simplex3, worldSeed;
         let sunLight, ambientLight, hemiLight, moonLight, playerTorch;
         let isNightPhase = false;
