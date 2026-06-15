@@ -3,19 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI Alpha 1.0.1 - PC VERSION</title>
-<script src="three.min.js"></script>
-<script src="simplex-noise.min.js"></script>
+    <title>HORROR MINI Alpha 1.0.1</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="three.min.js"></script>
+    <script src="simplex-noise.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-        body { 
-            margin: 0; 
-            overflow: hidden; 
-            background: #020202; 
-            font-family: 'Courier Prime', monospace; 
-            user-select: none; 
+    <style>
+        body { margin: 0; overflow: hidden; background: #020202; font-family: 'Courier Prime', monospace; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        
+        .crt::after {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06));
+            z-index: 99; background-size: 100% 4px, 6px 100%; pointer-events: none;
+        }
+        #hud-bottom { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 45; }
+    </style>
+</head>
+
+<body>
+    <div id="hud-bottom" class="crt">
+        </div>
+
+    <script>
+        // Kütüphaneler yüklendiği için Three.js burada artık çalışır
+        function init() {
+            console.log("Oyun sahnesi başlatılıyor...");
+            // Three.js kodların, sahne, kamera, renderer burada...
+        }
+        
+        // Sayfa tamamen hazır olunca oyunu başlat
+        window.onload = init;
+    </script>
+</body>
+</html>
             -webkit-user-select: none;
         }
         canvas {
