@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI Alpha 1.0.1</title>
+    <title>HORROR MINI Alpha 1.0.2</title>
 
     <script src="three.min.js"></script>
     <script src="simplex-noise.min.js"></script>
@@ -11,36 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
     <style>
-        body { margin: 0; overflow: hidden; background: #020202; font-family: 'Courier Prime', monospace; }
-        canvas { display: block; width: 100vw; height: 100vh; }
-        
-        .crt::after {
-            content: " "; display: block; position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06));
-            z-index: 99; background-size: 100% 4px, 6px 100%; pointer-events: none;
-        }
-        #hud-bottom { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 45; }
-    </style>
-</head>
-
-<body>
-    <div id="hud-bottom" class="crt">
-        </div>
-
-    <script>
-        // Kütüphaneler yüklendiği için Three.js burada artık çalışır
-        function init() {
-            console.log("Oyun sahnesi başlatılıyor...");
-            // Three.js kodların, sahne, kamera, renderer burada...
-        }
-        
-        // Sayfa tamamen hazır olunca oyunu başlat
-        window.onload = init;
-    </script>
-</body>
-</html>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #020202;
+            font-family: 'Courier Prime', monospace;
             -webkit-user-select: none;
         }
         canvas {
@@ -140,6 +115,20 @@
             background: #fff;
             transition: width 0.05s linear;
         }
+        #guard-note-modal { pointer-events: auto; }
+        #rain-overlay {
+            background: linear-gradient(rgba(120,140,180,0.08), rgba(80,100,140,0.12));
+        }
+        .slot-icon.note-icon {
+            background: #f5d042 !important;
+            border: 1px solid #c9a020;
+        }
+        .slot-icon.note-icon::after {
+            content: 'N';
+            color: #5c4a00;
+            font-weight: bold;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body class="crt">
@@ -170,7 +159,7 @@
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.1</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.2</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 oyna
@@ -189,13 +178,15 @@
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.1 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.2 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.1 SÜRÜMÜNE GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KUMUN RENGİ DEĞİŞTİRİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>HAJKHAJKHAJKH.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>KATİL BALIK VE KULE MUHAFIZLARI GÜNCELLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.2 SÜRÜMÜNE GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>BULUT BİRLEŞME VE YAĞMUR SİSTEMİ EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ISLANMIŞ KUM MEKANİĞİ EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>BLOK KIRMA SÜRELERİ GÜNCELLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ DEV YARATIK EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MUHAFIZLAR VE NOT EŞYASI GÜNCELLENDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -211,7 +202,7 @@
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.1</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.2</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -241,6 +232,17 @@
         <div id="inventory-bar"></div>
     </div>
     <div id="break-progress"><div id="break-progress-fill"></div></div>
+
+    <!-- Muhafız Notu Okuma Penceresi -->
+    <div id="guard-note-modal" class="fixed inset-0 bg-black/60 z-[85] hidden flex items-center justify-center p-4">
+        <div class="relative bg-yellow-400 border-4 border-yellow-600 rounded-lg max-w-lg w-full p-6 md:p-8 shadow-[0_0_30px_rgba(255,200,0,0.4)] font-mono text-sm md:text-base text-yellow-950 leading-relaxed">
+            <button id="guard-note-close" class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-yellow-600 hover:bg-yellow-700 text-yellow-100 font-black rounded text-lg leading-none transition-colors" title="Kapat">X</button>
+            <p id="guard-note-text" class="pr-6 mt-2"></p>
+        </div>
+    </div>
+
+    <!-- Yağmur Katmanı -->
+    <div id="rain-overlay" class="fixed inset-0 pointer-events-none z-[35] opacity-0 transition-opacity duration-500"></div>
 
     <!-- Sistem Takipçisi -->
     <div id="gpu-monitor" class="fixed bottom-4 right-4 bg-black/90 border border-red-500/30 p-2.5 rounded text-[8px] text-red-400 font-mono space-y-0.5 hidden z-30 min-w-[130px] shadow-lg pointer-events-none">
@@ -282,7 +284,7 @@
     </div>
 
     <div class="bg-[#0000aa] p-4 flex justify-between items-center border-t-4 border-black text-white">
-        <span class="text-[10px] text-zinc-300">STATUS: SYSTEM_HALTED_CRITICAL_1.0.1</span>
+        <span class="text-[10px] text-zinc-300">STATUS: SYSTEM_HALTED_CRITICAL_1.0.2</span>
         <button id="btn-error-back" class="px-6 py-2 bg-white text-blue-900 font-bold hover:bg-zinc-200 transition-all rounded active:scale-95 shadow-lg">
             MENÜYE GERİ DÖN
         </button>
@@ -404,6 +406,14 @@
 
         let starsField = null;
         let cloudsGroup = null;
+        let cloudDataList = [];
+        let mergedCloudRainZones = [];
+        let rainParticlesGroup = null;
+        let isRainActive = false;
+        let cloudMergeCheckTimer = 0;
+        const sandRainHits = new Map();
+        let horrorGiant = null;
+        const GUARD_NOTE_TEXT = 'Canavarlar bizim yerleşim yerine saldırdı. Sadece bize değil, bize benzeyenlere de saldırdılar. Burayı sonsuza kadar korumaya yemin ettik.';
         let sunMesh = null;
         let moonMesh = null;
         let moonMat = null;
@@ -452,23 +462,26 @@
         let attackCooldown = 0;
 
         const BREAK_TIMES = {
-            leaf: 0.5, grayLeaf: 0.5,
-            dirt: 2, grayDirt: 2,
-            sand: 0.5,
-            grass: 2, grayGrass: 2,
-            wood: 10, grayWood: 10,
+            leaf: 0.2, grayLeaf: 0.2,
+            dirt: 0.1, grayDirt: 0.1,
+            sand: 0.1, slightlyWetSand: 0.1, wetSand: 0.1,
+            grass: 0.9, grayGrass: 0.9,
+            wood: 14, grayWood: 14,
             stone: 20, grayStone: 20,
             chest: 10
         };
 
         const BLOCK_COLORS = {
-            grass: '#2e8b57', dirt: '#5c4033', sand: '#EDC9AF', stone: '#708090',
+            grass: '#2e8b57', dirt: '#5c4033', sand: '#EDC9AF',
+            slightlyWetSand: '#756030', wetSand: '#5a4825',
+            stone: '#708090',
             wood: '#6b3a12', leaf: '#1b4d3e', chest: '#ffd700',
             grayGrass: '#222222', grayDirt: '#151515', grayStone: '#0c0c0c',
-            grayWood: '#0f0f0f', grayLeaf: '#1a1a1a'
+            grayWood: '#0f0f0f', grayLeaf: '#1a1a1a',
+            guardNote: '#f5d042'
         };
 
-        const PICKUP_TYPES = ['grass','dirt','sand','stone','wood','leaf','chest','grayGrass','grayDirt','grayStone','grayWood','grayLeaf'];
+        const PICKUP_TYPES = ['grass','dirt','sand','slightlyWetSand','wetSand','stone','wood','leaf','chest','grayGrass','grayDirt','grayStone','grayWood','grayLeaf','guardNote'];
 
         function initInventoryState() {
             inventory = Array(INVENTORY_SIZE).fill(null);
@@ -503,8 +516,10 @@
                 const item = inventory[i];
                 if (item) {
                     const icon = document.createElement('div');
-                    icon.className = 'slot-icon';
-                    icon.style.background = BLOCK_COLORS[item.type] || '#888';
+                    icon.className = 'slot-icon' + (item.type === 'guardNote' ? ' note-icon' : '');
+                    if (item.type !== 'guardNote') {
+                        icon.style.background = BLOCK_COLORS[item.type] || '#888';
+                    }
                     slot.appendChild(icon);
                     const count = document.createElement('span');
                     count.className = 'slot-count';
@@ -517,6 +532,15 @@
 
         function addItemToInventory(type, amount = 1) {
             if (!PICKUP_TYPES.includes(type)) return;
+            if (type === 'guardNote') {
+                for (let i = 0; i < INVENTORY_SIZE; i++) {
+                    if (inventory[i] && inventory[i].type === 'guardNote') {
+                        inventory[i].count += amount;
+                        updateInventoryUI();
+                        return;
+                    }
+                }
+            }
             for (let i = 0; i < INVENTORY_SIZE; i++) {
                 if (inventory[i] && inventory[i].type === type) {
                     inventory[i].count += amount;
@@ -577,10 +601,34 @@
         }
 
         function createDroppedItemMesh(type) {
+            if (type === 'guardNote') {
+                const geo = new THREE.BoxGeometry(0.28, 0.32, 0.04);
+                const mat = new THREE.MeshLambertMaterial({ color: 0xf5d042 });
+                return new THREE.Mesh(geo, mat);
+            }
             const color = BLOCK_COLORS[type] || '#888888';
             const geo = new THREE.BoxGeometry(0.28, 0.28, 0.28);
             const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(color) });
             return new THREE.Mesh(geo, mat);
+        }
+
+        function openGuardNoteModal() {
+            const modal = document.getElementById('guard-note-modal');
+            const textEl = document.getElementById('guard-note-text');
+            if (!modal || !textEl) return;
+            textEl.innerText = GUARD_NOTE_TEXT;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            isPaused = true;
+            document.exitPointerLock();
+        }
+
+        function closeGuardNoteModal() {
+            const modal = document.getElementById('guard-note-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            isPaused = false;
         }
 
         function spawnDroppedItem(type, x, y, z, count = 1, ownerId = null) {
@@ -659,6 +707,14 @@
             document.getElementById('notes-modal').classList.add('hidden');
             document.getElementById('notes-modal').classList.remove('flex');
         });
+
+        const guardNoteCloseBtn = document.getElementById('guard-note-close');
+        if (guardNoteCloseBtn) {
+            guardNoteCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeGuardNoteModal();
+            });
+        }
 
         class SoundSynth {
             constructor() { 
@@ -1010,7 +1066,8 @@
             player.pos.copy(player.spawnPos);
 
             createCreepyObservers();
-            spawnTowerGuardMobs(); 
+            spawnTowerGuardMobs();
+            spawnHorrorGiant();
 
             const spawnPx = Math.floor(player.pos.x / CHUNK_SIZE);
             const spawnPz = Math.floor(player.pos.z / CHUNK_SIZE);
@@ -1063,15 +1120,20 @@
 
         function initClouds() {
             cloudsGroup = new THREE.Group();
-            const cloudGeo = new THREE.BoxGeometry(22, 1.5, 14);
-            const cloudMat = new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.45,
-                fog: true
-            });
+            cloudDataList = [];
+            mergedCloudRainZones = [];
 
             for (let i = 0; i < 18; i++) {
+                const w = 18 + Math.random() * 10;
+                const h = 1.2 + Math.random() * 0.6;
+                const d = 10 + Math.random() * 8;
+                const cloudGeo = new THREE.BoxGeometry(w, h, d);
+                const cloudMat = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.45,
+                    fog: true
+                });
                 const cloud = new THREE.Mesh(cloudGeo, cloudMat);
                 cloud.position.set(
                     (Math.random() - 0.5) * 350,
@@ -1079,8 +1141,186 @@
                     (Math.random() - 0.5) * 350
                 );
                 cloudsGroup.add(cloud);
+                cloudDataList.push({
+                    mesh: cloud,
+                    merged: false,
+                    baseSpeed: 0.04 + Math.random() * 0.02
+                });
             }
             scene.add(cloudsGroup);
+            initRainParticles();
+        }
+
+        function initRainParticles() {
+            if (rainParticlesGroup) {
+                scene.remove(rainParticlesGroup);
+                rainParticlesGroup.traverse(c => {
+                    if (c.geometry) c.geometry.dispose();
+                    if (c.material) c.material.dispose();
+                });
+            }
+            rainParticlesGroup = new THREE.Group();
+            const dropGeo = new THREE.BoxGeometry(0.04, 0.5, 0.04);
+            const dropMat = new THREE.MeshBasicMaterial({ color: 0x88aacc, transparent: true, opacity: 0.55 });
+            for (let i = 0; i < 120; i++) {
+                const drop = new THREE.Mesh(dropGeo, dropMat);
+                drop.visible = false;
+                rainParticlesGroup.add(drop);
+            }
+            scene.add(rainParticlesGroup);
+        }
+
+        function isMorningHours() {
+            return dayNightTimer < DAY_DURATION && (dayNightTimer / DAY_DURATION) < 0.35;
+        }
+
+        function mergeClouds(a, b) {
+            if (a.merged || b.merged) return;
+            a.merged = true;
+            b.merged = true;
+
+            const survivor = a.mesh;
+            const consumed = b.mesh;
+            const newW = survivor.geometry.parameters.width * 1.55;
+            const newH = survivor.geometry.parameters.height * 1.35;
+            const newD = survivor.geometry.parameters.depth * 1.85;
+            survivor.geometry.dispose();
+            survivor.geometry = new THREE.BoxGeometry(newW, newH, newD);
+            survivor.material.color.setHex(0x666666);
+            survivor.material.opacity = 0.62;
+            survivor.position.x = (survivor.position.x + consumed.position.x) * 0.5;
+            survivor.position.z = (survivor.position.z + consumed.position.z) * 0.5;
+
+            cloudsGroup.remove(consumed);
+            consumed.geometry.dispose();
+            consumed.material.dispose();
+
+            const zone = {
+                mesh: survivor,
+                rainDelay: 60,
+                isRaining: false,
+                rainDuration: 90 + Math.random() * 60
+            };
+            mergedCloudRainZones.push(zone);
+            cloudDataList = cloudDataList.filter(c => c.mesh !== consumed);
+        }
+
+        function tryMergeNearbyClouds() {
+            const mergeChance = isMorningHours() ? 0.70 : 0.50;
+            for (let i = 0; i < cloudDataList.length; i++) {
+                for (let j = i + 1; j < cloudDataList.length; j++) {
+                    const a = cloudDataList[i];
+                    const b = cloudDataList[j];
+                    if (a.merged || b.merged) continue;
+                    const dist = a.mesh.position.distanceTo(b.mesh.position);
+                    if (dist < 28 && Math.random() < mergeChance) {
+                        mergeClouds(a, b);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function applyRainToSandBlock(x, y, z) {
+            const key = `${x},${y},${z}`;
+            let hits = sandRainHits.get(key) || 0;
+            hits++;
+            sandRainHits.set(key, hits);
+            const type = getBlock(x, y, z);
+            if (type === 'sand' && hits >= 5) {
+                setBlock(x, y, z, 'slightlyWetSand');
+                sandRainHits.set(key, 0);
+                updateAffectedChunks(x, y, z);
+            } else if (type === 'slightlyWetSand' && hits >= 15) {
+                setBlock(x, y, z, 'wetSand');
+                sandRainHits.delete(key);
+                updateAffectedChunks(x, y, z);
+            }
+        }
+
+        function processRainWetness() {
+            if (!isRainActive || isPaused) return;
+            const dropsPerFrame = 6;
+            for (let n = 0; n < dropsPerFrame; n++) {
+                const rx = Math.floor(player.pos.x + (Math.random() - 0.5) * 100);
+                const rz = Math.floor(player.pos.z + (Math.random() - 0.5) * 100);
+                for (let y = MAX_WORLD_HEIGHT; y >= 0; y--) {
+                    const block = getBlock(rx, y, rz);
+                    if (block === 'sand' || block === 'slightlyWetSand' || block === 'wetSand') {
+                        applyRainToSandBlock(rx, y, rz);
+                        break;
+                    }
+                    if (block && block !== 'leaf' && block !== 'grayLeaf') break;
+                }
+            }
+        }
+
+        function updateRainVisuals(dt) {
+            const overlay = document.getElementById('rain-overlay');
+            if (overlay) overlay.style.opacity = isRainActive ? '1' : '0';
+            if (!rainParticlesGroup) return;
+
+            rainParticlesGroup.children.forEach((drop, idx) => {
+                drop.visible = isRainActive;
+                if (!isRainActive) return;
+                if (!drop.userData.speed) {
+                    drop.userData.speed = 18 + Math.random() * 12;
+                    drop.userData.offsetX = (Math.random() - 0.5) * 80;
+                    drop.userData.offsetZ = (Math.random() - 0.5) * 80;
+                }
+                drop.position.x = player.pos.x + drop.userData.offsetX;
+                drop.position.z = player.pos.z + drop.userData.offsetZ;
+                drop.position.y += drop.userData.speed * dt;
+                if (drop.position.y < player.pos.y - 5) {
+                    drop.position.y = player.pos.y + 25 + (idx % 10);
+                }
+            });
+        }
+
+        function updateWeatherSystem(dt) {
+            cloudMergeCheckTimer += dt;
+            if (cloudMergeCheckTimer >= 2.5) {
+                cloudMergeCheckTimer = 0;
+                tryMergeNearbyClouds();
+            }
+
+            let anyRain = false;
+            for (let i = mergedCloudRainZones.length - 1; i >= 0; i--) {
+                const zone = mergedCloudRainZones[i];
+                if (!zone.isRaining) {
+                    zone.rainDelay -= dt;
+                    if (zone.rainDelay <= 0) zone.isRaining = true;
+                } else {
+                    zone.rainDuration -= dt;
+                    anyRain = true;
+                    if (zone.rainDuration <= 0) {
+                        zone.isRaining = false;
+                        zone.mesh.material.color.setHex(0x888888);
+                        zone.mesh.material.opacity = 0.5;
+                    }
+                }
+                if (zone.isRaining) anyRain = true;
+            }
+            isRainActive = anyRain;
+
+            if (cloudsGroup) {
+                cloudDataList.forEach(c => {
+                    if (c.merged) return;
+                    c.mesh.position.x += c.baseSpeed;
+                    if (c.mesh.position.x > player.pos.x + 150) {
+                        c.mesh.position.x = player.pos.x - 150;
+                    }
+                });
+                mergedCloudRainZones.forEach(z => {
+                    z.mesh.position.x += 0.03;
+                    if (z.mesh.position.x > player.pos.x + 150) {
+                        z.mesh.position.x = player.pos.x - 150;
+                    }
+                });
+            }
+
+            processRainWetness();
+            updateRainVisuals(dt);
         }
 
         function createCreepyObservers() {
@@ -1200,8 +1440,8 @@
                     towerGuards.push({
                         obj: guard,
                         biomeIdx: biomeIdx,
-                        health: 8,
-                        maxHealth: 8,
+                        health: 9,
+                        maxHealth: 9,
                         isTriggered: false,
                         isDamaged: false,
                         attackCooldown: 0,
@@ -1230,6 +1470,8 @@
             const grassSide = new THREE.MeshLambertMaterial({color: 0x8b5a2b}); 
             const dirtMat = new THREE.MeshLambertMaterial({color: 0x5c4033}); 
             const sandMat = new THREE.MeshLambertMaterial({color: 0x8a7338});
+            const slightlyWetSandMat = new THREE.MeshLambertMaterial({color: 0x756030});
+            const wetSandMat = new THREE.MeshLambertMaterial({color: 0x5a4825});
             const stoneMat = new THREE.MeshLambertMaterial({color: 0x708090});
             
             const copyGrassTop = new THREE.MeshLambertMaterial({color: 0x222222}); 
@@ -1241,6 +1483,8 @@
                 grass: [grassSide, grassSide, grassTop, grassSide, grassSide, grassSide],
                 dirt: dirtMat,
                 sand: sandMat,
+                slightlyWetSand: slightlyWetSandMat,
+                wetSand: wetSandMat,
                 stone: stoneMat,
                 wood: new THREE.MeshLambertMaterial({ color: 0x6b3a12, emissive: 0x2a1205, emissiveIntensity: 0.12 }),
                 leaf: new THREE.MeshLambertMaterial({color: 0x1b4d3e, transparent: true, opacity: 0.95}),
@@ -1529,7 +1773,7 @@
             const group = new THREE.Group();
             const geo = new THREE.BoxGeometry(1, 1, 1);
             const blocks = {
-                grass: [], dirt: [], sand: [], stone: [], wood: [], leaf: [], water: [], chest: [],
+                grass: [], dirt: [], sand: [], slightlyWetSand: [], wetSand: [], stone: [], wood: [], leaf: [], water: [], chest: [],
                 grayGrass: [], grayDirt: [], grayStone: [], grayWood: [], grayLeaf: []
             };
 
@@ -1730,7 +1974,7 @@
                     const blockBelow = getBlock(player.pos.x, player.pos.y - 0.15, player.pos.z);
                     if (blockBelow === 'grass' || blockBelow === 'grayGrass') {
                         audio.playStepSound('grass');
-                    } else if (blockBelow === 'sand') {
+                    } else if (blockBelow === 'sand' || blockBelow === 'slightlyWetSand' || blockBelow === 'wetSand') {
                         audio.playStepSound('dirt');
                     } else if (blockBelow === 'dirt' || blockBelow === 'grayDirt' || blockBelow === 'stone' || blockBelow === 'grayStone') {
                         audio.playStepSound('dirt');
@@ -1764,6 +2008,7 @@
             });
             killerFishList.forEach(f => targets.push(f.obj));
             towerGuards.forEach(g => targets.push(g.obj));
+            if (horrorGiant && horrorGiant.obj) targets.push(horrorGiant.obj);
             const intersects = raycaster.intersectObjects(targets, true);
             if (intersects.length > 0 && intersects[0].distance < maxDist) return intersects[0];
             return null;
@@ -1781,6 +2026,27 @@
 
         function attackEntity(hit, clickedObj) {
             if (attackCooldown > 0) return false;
+
+            if (horrorGiant && horrorGiant.obj) {
+                const gObj = horrorGiant.obj;
+                if (gObj === clickedObj || gObj.children.includes(clickedObj)) {
+                    horrorGiant.health--;
+                    horrorGiant.targetPlayer = true;
+                    attackCooldown = 0.35;
+                    audio.playBreakTıkTık();
+                    flashMobRed(gObj);
+                    if (horrorGiant.health <= 0) {
+                        scene.remove(gObj);
+                        gObj.traverse(c => {
+                            if (c.geometry) c.geometry.dispose();
+                            if (c.material) c.material.dispose();
+                        });
+                        horrorGiant = null;
+                        audio.playScream(2);
+                    }
+                    return true;
+                }
+            }
 
             for (let i = 0; i < killerFishList.length; i++) {
                 const fObj = killerFishList[i].obj;
@@ -1825,6 +2091,12 @@
         function killTowerGuard(index) {
             const g = towerGuards[index];
             if (!g) return;
+            const gx = g.obj.position.x;
+            const gy = g.obj.position.y;
+            const gz = g.obj.position.z;
+            if (Math.random() < 0.01) {
+                spawnDroppedItem('guardNote', Math.floor(gx), Math.floor(gy), Math.floor(gz));
+            }
             scene.remove(g.obj);
             g.obj.traverse(child => {
                 if (child.geometry) child.geometry.dispose();
@@ -1898,6 +2170,7 @@
                 target.treeObj.remove(target.mesh);
             }
             worldBlocks.delete(`${target.bx},${target.by},${target.bz}`);
+            sandRainHits.delete(`${target.bx},${target.by},${target.bz}`);
             updateAffectedChunks(target.bx, target.by, target.bz);
             const towerIdx = getTowerBiomeIndex(target.bx, target.bz);
             if (towerIdx >= 0) triggerTowerAggro(towerIdx);
@@ -1974,6 +2247,12 @@
             }
 
             if (type === 'place') {
+                const slotItem = inventory[selectedSlot];
+                if (slotItem && slotItem.type === 'guardNote') {
+                    openGuardNoteModal();
+                    return;
+                }
+
                 const point = hit.point;
                 const normal = hit.face.normal;
                 const px = Math.round(point.x + normal.x * 0.4);
@@ -1986,7 +2265,6 @@
                     return;
                 }
 
-                const slotItem = inventory[selectedSlot];
                 if (!slotItem) return;
 
                 const placePos = new THREE.Vector3(px + 0.5, py + 0.5, pz + 0.5);
@@ -2001,6 +2279,7 @@
                         py >= Math.floor(player.pos.y) && py <= Math.floor(player.pos.y + player.height)
                     );
                     if (blockInPlayer) return;
+                    if (slotItem.type === 'guardNote') return;
                     setBlock(px, py, pz, slotItem.type);
                     removeOneFromSlot(selectedSlot);
                     audio.playPlaceTık();
@@ -2082,6 +2361,11 @@
                 isMouseBreakHeld = true;
                 startBreaking();
             } else if (e.button === 2) {
+                const slotItem = inventory[selectedSlot];
+                if (slotItem && slotItem.type === 'guardNote') {
+                    openGuardNoteModal();
+                    return;
+                }
                 triggerWorldInteraction('place');
             }
         }
@@ -2093,6 +2377,230 @@
                 breakProgress = 0;
                 const progEl = document.getElementById('break-progress');
                 if (progEl) progEl.style.display = 'none';
+            }
+        }
+
+        function createHorrorGiantMesh() {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshLambertMaterial({ color: 0x2a1a1a });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+            const bodyGeo = new THREE.BoxGeometry(2.2, 3.2, 1.6);
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 2.8;
+            group.add(body);
+
+            const headGeo = new THREE.BoxGeometry(1.4, 1.3, 1.2);
+            const head = new THREE.Mesh(headGeo, bodyMat);
+            head.position.y = 5.0;
+            group.add(head);
+
+            const eyeGeo = new THREE.BoxGeometry(0.28, 0.28, 0.12);
+            const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeL.position.set(-0.35, 5.1, 0.62);
+            const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+            eyeR.position.set(0.35, 5.1, 0.62);
+            group.add(eyeL, eyeR);
+
+            const armGeo = new THREE.BoxGeometry(0.55, 2.4, 0.55);
+            const armPositions = [
+                [-1.45, 3.2, 0.35], [1.45, 3.2, 0.35],
+                [-1.15, 3.0, -0.45], [1.15, 3.0, -0.45]
+            ];
+            const arms = [];
+            armPositions.forEach(pos => {
+                const arm = new THREE.Mesh(armGeo, bodyMat);
+                arm.position.set(pos[0], pos[1], pos[2]);
+                group.add(arm);
+                arms.push(arm);
+            });
+
+            const legGeo = new THREE.BoxGeometry(0.7, 1.6, 0.7);
+            const legL = new THREE.Mesh(legGeo, bodyMat);
+            legL.position.set(-0.55, 0.8, 0);
+            const legR = new THREE.Mesh(legGeo, bodyMat);
+            legR.position.set(0.55, 0.8, 0);
+            group.add(legL, legR);
+
+            group.scale.set(1.15, 1.15, 1.15);
+            return { group, body, arms, legL, legR, eyeL, eyeR };
+        }
+
+        function spawnHorrorGiant() {
+            if (horrorGiant) return;
+            const meshData = createHorrorGiantMesh();
+            const sx = 80 + Math.random() * 240;
+            const sz = 80 + Math.random() * 240;
+            const sy = getTerrainHeight(sx, sz) + 2;
+            meshData.group.position.set(sx, sy, sz);
+            scene.add(meshData.group);
+            horrorGiant = {
+                obj: meshData.group,
+                body: meshData.body,
+                arms: meshData.arms,
+                legL: meshData.legL,
+                legR: meshData.legR,
+                health: 15,
+                maxHealth: 15,
+                targetPlayer: false,
+                attackCooldown: 0,
+                wanderTimer: 0,
+                wanderDir: new THREE.Vector3(1, 0, 0),
+                currentTarget: null,
+                currentTargetType: null
+            };
+        }
+
+        function getHorrorGiantForward(g) {
+            const fwd = new THREE.Vector3(0, 0, 1);
+            fwd.applyQuaternion(g.obj.quaternion);
+            fwd.y = 0;
+            return fwd.normalize();
+        }
+
+        function findEnemyMobInFront(g) {
+            const origin = g.obj.position.clone();
+            origin.y += 3;
+            const forward = getHorrorGiantForward(g);
+            let best = null;
+            let bestType = null;
+            let bestDist = 14;
+
+            towerGuards.forEach((guard) => {
+                const pos = guard.obj.position;
+                const toEnemy = new THREE.Vector3().subVectors(pos, origin);
+                toEnemy.y = 0;
+                const dist = toEnemy.length();
+                if (dist > 14 || dist < 0.5) return;
+                toEnemy.normalize();
+                if (forward.dot(toEnemy) > 0.55 && dist < bestDist) {
+                    best = { obj: guard.obj, pos, type: 'guard' };
+                    bestType = 'guard';
+                    bestDist = dist;
+                }
+            });
+
+            killerFishList.forEach((fish) => {
+                const pos = fish.obj.position;
+                const toEnemy = new THREE.Vector3().subVectors(pos, origin);
+                toEnemy.y = 0;
+                const dist = toEnemy.length();
+                if (dist > 12 || dist < 0.5) return;
+                toEnemy.normalize();
+                if (forward.dot(toEnemy) > 0.5 && dist < bestDist) {
+                    best = { obj: fish.obj, pos, type: 'fish' };
+                    bestType = 'fish';
+                    bestDist = dist;
+                }
+            });
+
+            if (best) {
+                g.currentTarget = best;
+                g.currentTargetType = bestType;
+                return best;
+            }
+            return null;
+        }
+
+        function horrorGiantAttackTarget(g) {
+            if (g.attackCooldown > 0) return;
+            const target = g.currentTarget;
+            if (!target) return;
+            const dist = g.obj.position.distanceTo(target.pos);
+            if (dist > 2.2) return;
+
+            g.attackCooldown = 1.4;
+            flashMobRed(target.obj);
+            audio.playBreakTıkTık();
+
+            if (target.type === 'guard') {
+                const idx = towerGuards.findIndex(gr => gr.obj === target.obj);
+                if (idx < 0) return;
+                const guard = towerGuards[idx];
+                guard.health -= 5;
+                guard.isTriggered = true;
+                guard.isDamaged = true;
+                guard.eyes.forEach(eye => { eye.material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); });
+                if (guard.health <= 0) killTowerGuard(idx);
+            } else if (target.type === 'fish') {
+                const idx = killerFishList.findIndex(f => f.obj === target.obj);
+                if (idx < 0) return;
+                const fish = killerFishList[idx];
+                fish.health -= 5;
+                if (fish.health <= 0) {
+                    scene.remove(fish.obj);
+                    killerFishList.splice(idx, 1);
+                    audio.playScream(1);
+                }
+            }
+        }
+
+        function updateHorrorGiantLogic(dt) {
+            if (!horrorGiant) return;
+            const g = horrorGiant;
+
+            if (g.attackCooldown > 0) g.attackCooldown -= dt;
+
+            let moveTarget = null;
+
+            if (g.targetPlayer) {
+                moveTarget = player.pos.clone();
+                moveTarget.y = g.obj.position.y;
+            } else {
+                const enemy = findEnemyMobInFront(g);
+                if (enemy) {
+                    moveTarget = enemy.pos.clone();
+                    moveTarget.y = g.obj.position.y;
+                } else {
+                    g.currentTarget = null;
+                    g.wanderTimer -= dt;
+                    if (g.wanderTimer <= 0) {
+                        g.wanderTimer = 4 + Math.random() * 6;
+                        g.wanderDir.set(
+                            (Math.random() - 0.5) * 2,
+                            0,
+                            (Math.random() - 0.5) * 2
+                        ).normalize();
+                    }
+                    moveTarget = g.obj.position.clone().addScaledVector(g.wanderDir, 30);
+                    moveTarget.y = g.obj.position.y;
+                }
+            }
+
+            const dir = new THREE.Vector3().subVectors(moveTarget, g.obj.position);
+            dir.y = 0;
+            const len = dir.length();
+            if (len > 0.5) {
+                dir.normalize();
+                g.obj.lookAt(g.obj.position.clone().add(dir));
+                const speed = g.targetPlayer ? 4.2 : 2.8;
+                g.obj.position.addScaledVector(dir, Math.min(len, speed * dt));
+            }
+
+            const groundY = getTerrainHeight(g.obj.position.x, g.obj.position.z) + 2;
+            g.obj.position.y += (groundY - g.obj.position.y) * 0.15;
+
+            const wave = Math.sin(clock.getElapsedTime() * 6);
+            g.legL.rotation.x = wave * 0.45;
+            g.legR.rotation.x = -wave * 0.45;
+            g.arms.forEach((arm, i) => {
+                arm.rotation.x = (i % 2 === 0 ? 1 : -1) * wave * 0.35;
+            });
+
+            if (g.currentTarget && !g.targetPlayer) {
+                horrorGiantAttackTarget(g);
+            }
+
+            if (g.targetPlayer && !isPaused) {
+                const dist = g.obj.position.distanceTo(player.pos);
+                if (dist < 2.5 && g.attackCooldown <= 0) {
+                    g.attackCooldown = 1.5;
+                    damagePlayer(5);
+                    player.vel.y = 0.12;
+                    const push = new THREE.Vector3().subVectors(player.pos, g.obj.position).normalize();
+                    player.pos.addScaledVector(push, 1.2);
+                    audio.playScream(2);
+                }
             }
         }
 
@@ -2367,6 +2875,22 @@
 
             killerFishList.forEach(f => scene.remove(f.obj));
             killerFishList.length = 0;
+            if (horrorGiant && horrorGiant.obj) {
+                scene.remove(horrorGiant.obj);
+                horrorGiant.obj.traverse(c => {
+                    if (c.geometry) c.geometry.dispose();
+                    if (c.material) c.material.dispose();
+                });
+            }
+            horrorGiant = null;
+            cloudDataList = [];
+            mergedCloudRainZones = [];
+            isRainActive = false;
+            sandRainHits.clear();
+            cloudMergeCheckTimer = 0;
+            const rainOverlay = document.getElementById('rain-overlay');
+            if (rainOverlay) rainOverlay.style.opacity = '0';
+            closeGuardNoteModal();
             droppedItems.forEach(d => scene.remove(d.mesh));
             droppedItems.length = 0;
             fishDebuffTimer = 0;
@@ -2470,7 +2994,9 @@
                 updateBreaking(dt);
                 updateDroppedItems(dt);
                 updateKillerFishLogic(dt);
-                updateTowerGuardsLogic(dt); 
+                updateTowerGuardsLogic(dt);
+                updateHorrorGiantLogic(dt);
+                updateWeatherSystem(dt);
             }
 
             frames++;
@@ -2636,15 +3162,6 @@
             if (starsField) {
                 starsField.material.opacity += (starOpacity - starsField.material.opacity) * 0.05;
                 starsField.position.copy(player.pos); 
-            }
-
-            if (cloudsGroup) {
-                cloudsGroup.children.forEach(cloud => {
-                    cloud.position.x += 0.05; 
-                    if (cloud.position.x > player.pos.x + 150) {
-                        cloud.position.x = player.pos.x - 150;
-                    }
-                });
             }
 
             if (isBloodMoon && !isPaused) {
