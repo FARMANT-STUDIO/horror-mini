@@ -133,27 +133,35 @@
 </head>
 <body class="crt">
 
-    <!-- Splash Giriş Ekranı -->
     <div id="splash-screen" class="fixed inset-0 bg-gradient-to-b from-[#0b0c0e] via-[#050607] to-black flex flex-col items-center justify-center z-[100] transition-all duration-[1500ms] ease-in-out opacity-100">
-        <div class="text-center select-none pointer-events-none transform scale-95 flex flex-col items-center">
-            <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
-                <div class="absolute inset-0 bg-white/5 blur-2xl rounded-full"></div>
-                <svg class="w-32 h-32 text-zinc-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern id="lines" width="10" height="3" patternUnits="userSpaceOnUse">
-                            <line x1="0" y1="1" x2="10" y2="1" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-                        </pattern>
-                    </defs>
-                    <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" fill="#1b1c1e" />
-                    <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" fill="url(#lines)" />
-                    <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" />
-                </svg>
-            </div>
-            <h1 class="text-white text-4xl md:text-5xl font-sans font-bold tracking-[0.25em] mb-2 uppercase drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)]">FARMANT</h1>
-            <h2 class="text-zinc-500 text-sm md:text-base font-sans tracking-[0.45em] font-medium uppercase opacity-80">STUDIOS</h2>
+    <div class="text-center select-none pointer-events-none transform scale-95 flex flex-col items-center">
+        <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
+            <div class="absolute inset-0 bg-white/5 blur-2xl rounded-full"></div>
+            <svg class="w-32 h-32 text-zinc-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="lines" width="10" height="3" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="1" x2="10" y2="1" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" fill="#1b1c1e" />
+                <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" fill="url(#lines)" />
+                <path d="M32 15 L70 15 L62 25 H45 V45 H58 L52 55 H45 V85 L32 77 Z" stroke="rgba(255,255,255,0.4)" stroke-width="0.8" />
+            </svg>
         </div>
+        <h1 class="text-white text-4xl md:text-5xl font-sans font-bold tracking-[0.25em] mb-2 uppercase drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)]">FARMANT</h1>
+        <h2 class="text-zinc-500 text-sm md:text-base font-sans tracking-[0.45em] font-medium uppercase opacity-80">STUDIOS</h2>
     </div>
+</div>
 
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const splash = document.getElementById("splash-screen");
+        setTimeout(() => {
+            splash.style.opacity = "0";
+            setTimeout(() => { splash.style.display = "none"; }, 1500);
+        }, 5000);
+    });
+</div>
     <!-- PC Ana Menü -->
     <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700">
         <div class="text-center max-w-lg flex flex-col items-center">
