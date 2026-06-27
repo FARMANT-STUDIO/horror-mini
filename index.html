@@ -133,7 +133,7 @@
 </head>
 <body class="crt">
 
-    <div id="splash-screen" class="fixed inset-0 bg-gradient-to-b from-[#0b0c0e] via-[#050607] to-black flex flex-col items-center justify-center z-[100] transition-all duration-[1500ms] ease-in-out opacity-100">
+ <div id="splash-screen" class="fixed inset-0 bg-gradient-to-b from-[#0b0c0e] via-[#050607] to-black flex flex-col items-center justify-center z-[100] transition-all duration-[1500ms] ease-in-out opacity-100">
     <div class="text-center select-none pointer-events-none transform scale-95 flex flex-col items-center">
         <div class="relative w-40 h-40 mb-6 flex items-center justify-center">
             <div class="absolute inset-0 bg-white/5 blur-2xl rounded-full"></div>
@@ -153,6 +153,24 @@
     </div>
 </div>
 
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const splash = document.getElementById("splash-screen");
+        
+        // 5 saniye bekle
+        setTimeout(() => {
+            // Fade-out animasyonunu başlat
+            splash.style.opacity = "0";
+            // Tıklamaların alt tarafa geçmesi için
+            splash.style.pointerEvents = "none";
+            
+            // Animasyon süresi sonunda (1.5s) DOM'dan tamamen kaldır
+            setTimeout(() => {
+                splash.remove(); // .remove() ile elementi sayfadan tamamen siliyoruz
+            }, 1500);
+        }, 5000);
+    });
+</div>
 <script>
     window.addEventListener("DOMContentLoaded", () => {
         const splash = document.getElementById("splash-screen");
