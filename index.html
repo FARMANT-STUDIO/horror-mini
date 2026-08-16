@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI BETA 1.0.2</title>
+    <title>HORROR MINI Alpha 1.0.3</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='%23ff0000'%3EH%3C/text%3E%3C/svg%3E">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
@@ -395,7 +396,7 @@ svg{display:block;vertical-align:middle}
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.2</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.3</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 oyna
@@ -414,15 +415,13 @@ svg{display:block;vertical-align:middle}
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.2 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.3 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.2 SÜRÜMÜNE GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>BULUT BİRLEŞME VE YAĞMUR SİSTEMİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ISLANMIŞ KUM MEKANİĞİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>BLOK KIRMA SÜRELERİ GÜNCELLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ DEV YARATIK EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MUHAFIZLAR VE NOT EŞYASI GÜNCELLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.3 SÜRÜMÜNE GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>2 SORUN GİDERİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ FIRTINA SİSTEMİ EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ BİYOM EKLENDİ: WHARIN GİZLİ ORMANI.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -438,7 +437,7 @@ svg{display:block;vertical-align:middle}
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.2</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.3</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -450,6 +449,13 @@ svg{display:block;vertical-align:middle}
     <div id="scary-overlay" class="fixed inset-0 pointer-events-none z-40 flex items-center justify-center hidden bg-red-950/10 transition-all duration-200">
         <div id="scary-text" class="text-red-600 font-black text-2xl md:text-5xl text-center glitch-text tracking-widest px-4 leading-normal drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]">
             HATA: İLK BİYOM!
+        </div>
+    </div>
+
+    <!-- Wharin kesif yazisi -->
+    <div id="discovery-overlay" class="fixed inset-0 pointer-events-none z-40 flex items-center justify-center hidden">
+        <div id="discovery-text" class="text-amber-200 font-black text-xl md:text-3xl text-center tracking-widest px-4 drop-shadow-[0_0_20px_rgba(255,200,100,0.6)]" style="color:#fde68a;text-shadow:0 0 18px rgba(255,180,50,0.7);">
+            YENİ KEŞİF: BURASI NORMAL DEĞİL...
         </div>
     </div>
 
@@ -533,7 +539,7 @@ svg{display:block;vertical-align:middle}
         let isPaused = false;
 
         const CHUNK_SIZE = 12;
-        let VIEW_DISTANCE = 3; 
+        let VIEW_DISTANCE = 2; 
         const SEA_LEVEL = 18;
         const MAX_WORLD_HEIGHT = 54;
         
@@ -552,6 +558,10 @@ svg{display:block;vertical-align:middle}
         const B3_MIN_X = 235, B3_MAX_X = 285;
         const B3_MIN_Z = 35, B3_MAX_Z = 85;
 
+        // 100x100 WHARIN GİZLİ ORMANI (kule/spawn disinda)
+        const WHARIN_MIN_X = -160, WHARIN_MAX_X = -60;
+        const WHARIN_MIN_Z = -160, WHARIN_MAX_Z = -60;
+
         // 40x40 Boyutunda Tam 20 Adet "Eski Kuleler" (Old Towers) Biyomu Merkez Koordinatları (Her 100 Blokta Bir)
         const TOWER_BIOMES = [];
         for (let i = 0; i < 5; i++) {
@@ -564,7 +574,12 @@ svg{display:block;vertical-align:middle}
         let insideGrayBiomeId = 0; 
         let grayBiomeTrees = []; 
         let creepyObservers = []; 
-        let lastScreamTime = 0; 
+        let lastScreamTime = 0;
+        let insideWharinBiome = false;
+        let wharinDiscoveryShown = false;
+        let discoveryTimer = 0;
+        const explosiveSquares = [];
+        let wharinTreesPlaced = 0; 
 
         // Eski Kuleler Biyomu Değişkenleri
         let insideTowerBiome = false;
@@ -574,7 +589,10 @@ svg{display:block;vertical-align:middle}
         let lastTowerScreamTime = 0;
         
         let frames = 0, lastTime = performance.now(), currentFps = 60;
-        let lowFpsCount = 0; 
+        let lowFpsCount = 0;
+        const TARGET_FPS = 40;
+        const FRAME_MS = 1000 / TARGET_FPS;
+        let lastFrameTime = 0; 
 
         // Katil Balık Yapay Zekası ve Durumu
         const killerFishList = [];
@@ -610,6 +628,11 @@ svg{display:block;vertical-align:middle}
         let windStormDir = new THREE.Vector3(1, 0, 0);
         let windStormCenter = null;
         let stormMergeCount = 0;
+        let stormsCompleted = 0;
+        let isFirstStormEvent = true;
+        let tornadoAllowedThisStorm = false;
+        let stormsSinceLastTornado = 0;
+        let lastTornadoType = null;
         let tornado = null; // { mesh, active, life }
         const sandRainHits = new Map();
         const DARK_CLOUD_SPAWN_INTERVAL = 300; // 5 dakika
@@ -670,14 +693,14 @@ svg{display:block;vertical-align:middle}
             leaf: 0.2, grayLeaf: 0.2,
             dirt: 0.1, grayDirt: 0.1,
             sand: 0.1, slightlyWetSand: 0.1, wetSand: 0.1,
-            grass: 0.9, grayGrass: 0.9,
+            grass: 0.9, darkGrass: 0.9, grayGrass: 0.9,
             wood: 14, grayWood: 14,
             stone: 20, grayStone: 20,
             chest: 10
         };
 
         const BLOCK_COLORS = {
-            grass: '#2e8b57', dirt: '#5c4033', sand: '#EDC9AF',
+            grass: '#2e8b57', darkGrass: '#1a3d28', dirt: '#5c4033', sand: '#EDC9AF',
             slightlyWetSand: '#b8893a', wetSand: '#c47a2a',
             stone: '#708090',
             wood: '#6b3a12', leaf: '#1b4d3e', chest: '#ffd700',
@@ -686,7 +709,7 @@ svg{display:block;vertical-align:middle}
             guardNote: '#f5d042'
         };
 
-        const PICKUP_TYPES = ['grass','dirt','sand','slightlyWetSand','wetSand','stone','wood','leaf','chest','grayGrass','grayDirt','grayStone','grayWood','grayLeaf','guardNote'];
+        const PICKUP_TYPES = ['grass','darkGrass','dirt','sand','slightlyWetSand','wetSand','stone','wood','leaf','chest','grayGrass','grayDirt','grayStone','grayWood','grayLeaf','guardNote'];
 
         function initInventoryState() {
             inventory = Array(INVENTORY_SIZE).fill(null);
@@ -1199,8 +1222,18 @@ svg{display:block;vertical-align:middle}
             windStormTimer = 0;
             windStormCenter = null;
             stormMergeCount = 0;
+            stormsCompleted = 0;
+            isFirstStormEvent = true;
+            tornadoAllowedThisStorm = false;
+            stormsSinceLastTornado = 0;
+            lastTornadoType = null;
             destroyTornado();
             isRainActive = false;
+            insideWharinBiome = false;
+            wharinDiscoveryShown = false;
+            discoveryTimer = 0;
+            wharinTreesPlaced = 0;
+            explosiveSquares.length = 0;
             insideTowerBiome = false;
             insideTowerBiomeIdx = -1;
             biomeAggroTriggered.fill(false);
@@ -1216,36 +1249,23 @@ svg{display:block;vertical-align:middle}
 
             scene = new THREE.Scene();
             
-            const skyColor = 0xb0c0d0; 
+            const skyColor = 0xa8bdd0; 
             scene.background = new THREE.Color(skyColor);
-            scene.fog = new THREE.FogExp2(0x9aabba, 0.018);
+            scene.fog = new THREE.FogExp2(0x8fa8bc, 0.016);
 
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.rotation.order = 'YXZ'; 
             
-            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.setPixelRatio(1); // FPS icin sabit 1
+            renderer.shadowMap.enabled = false; // golgeler kapali - buyuk FPS kazanci
             if (renderer.outputEncoding !== undefined) renderer.outputEncoding = THREE.sRGBEncoding;
-            if (THREE.ACESFilmicToneMapping !== undefined) {
-                renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                renderer.toneMappingExposure = 1.15;
-            }
             document.body.appendChild(renderer.domElement);
 
             sunLight = new THREE.DirectionalLight(0xfff4e0, 1.2);
             sunLight.position.set(40, 100, 20);
-            sunLight.castShadow = true;
-            sunLight.shadow.mapSize.set(1024, 1024);
-            sunLight.shadow.camera.near = 1;
-            sunLight.shadow.camera.far = 180;
-            sunLight.shadow.camera.left = -55;
-            sunLight.shadow.camera.right = 55;
-            sunLight.shadow.camera.top = 55;
-            sunLight.shadow.camera.bottom = -55;
-            sunLight.shadow.bias = -0.0008;
+            sunLight.castShadow = false;
             scene.add(sunLight);
             sunLight.target = new THREE.Object3D();
             scene.add(sunLight.target);
@@ -1257,10 +1277,10 @@ svg{display:block;vertical-align:middle}
             scene.add(moonLight);
             scene.add(moonLight.target);
 
-            ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+            ambientLight = new THREE.AmbientLight(0xe8eef5, 0.62);
             scene.add(ambientLight);
 
-            hemiLight = new THREE.HemisphereLight(0xb8d4f0, 0x3d2817, 0.45);
+            hemiLight = new THREE.HemisphereLight(0xc5daf0, 0x3d2a1a, 0.5);
             scene.add(hemiLight);
 
             playerTorch = new THREE.PointLight(0xfff8f0, 0, 5.5, 1.2);
@@ -1284,32 +1304,47 @@ svg{display:block;vertical-align:middle}
             initClouds();
             initStars();
             
-            // Oyuncu ilk "Eski Kuleler" biyomunun ev onunde baslar
-            const firstTower = TOWER_BIOMES[0];
-            // Once gecici konum (chunk uretimi icin)
-            player.spawnPos.set(firstTower.x, 30, firstTower.z + 12);
+            // Oyuncu baslangicta WHARIN GIZLI ORMANI merkezine isinlanir
+            const wharinSpawnX = (WHARIN_MIN_X + WHARIN_MAX_X) * 0.5;
+            const wharinSpawnZ = (WHARIN_MIN_Z + WHARIN_MAX_Z) * 0.5;
+            player.spawnPos.set(wharinSpawnX, 30, wharinSpawnZ);
             player.pos.copy(player.spawnPos);
 
             createCreepyObservers();
             spawnTowerGuardMobs();
             spawnHorrorGiant();
 
-            // Chunk'lari once uret, sonra guvenli spawn hesapla (blok icinde dogmamak icin)
-            const spawnPx = Math.floor(firstTower.x / CHUNK_SIZE);
-            const spawnPz = Math.floor((firstTower.z + 12) / CHUNK_SIZE);
+            // Chunk'lari once uret, sonra guvenli spawn hesapla
+            const spawnPx = Math.floor(wharinSpawnX / CHUNK_SIZE);
+            const spawnPz = Math.floor(wharinSpawnZ / CHUNK_SIZE);
             for (let x = spawnPx - VIEW_DISTANCE; x <= spawnPx + VIEW_DISTANCE; x++) {
                 for (let z = spawnPz - VIEW_DISTANCE; z <= spawnPz + VIEW_DISTANCE; z++) {
                     createChunk(x, z);
                 }
             }
 
-            const safe = findSafeSpawnPosition(firstTower.x, firstTower.z + 12);
+            const safe = findSafeSpawnPosition(wharinSpawnX, wharinSpawnZ);
             player.spawnPos.copy(safe);
             player.pos.copy(safe);
             player.vel.set(0, 0, 0);
             camera.position.set(safe.x, safe.y + 1.6, safe.z);
 
+            // Wharin kesif yazisini baslangicta goster
+            insideWharinBiome = true;
+            if (!wharinDiscoveryShown) {
+                wharinDiscoveryShown = true;
+                showDiscoveryMessage();
+            }
+            const biomeEl = document.getElementById('ui-biome');
+            if (biomeEl) {
+                biomeEl.innerText = "WHARIN GİZLİ ORMANI";
+                biomeEl.className = "text-amber-400 font-black";
+                biomeEl.style.color = "#fbbf24";
+            }
+
             startOpeningStorm();
+            lastFrameTime = performance.now();
+            clock.getDelta(); // sifirla
 
             window.addEventListener('keydown', handleKeyDown);
             window.addEventListener('keyup', handleKeyUp);
@@ -1324,7 +1359,7 @@ svg{display:block;vertical-align:middle}
 
         function initStars() {
             const starsGeo = new THREE.BufferGeometry();
-            const starsCount = 450;
+            const starsCount = 120;
             const starPositions = new Float32Array(starsCount * 3);
 
             for (let i = 0; i < starsCount * 3; i += 3) {
@@ -1357,18 +1392,19 @@ svg{display:block;vertical-align:middle}
             cloudDataList = [];
             mergedCloudRainZones = [];
 
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 10; i++) {
                 const w = 18 + Math.random() * 10;
                 const h = 1.4 + Math.random() * 0.8;
                 const d = 10 + Math.random() * 8;
                 const cloudGeo = new THREE.BoxGeometry(w, h, d);
                 const cloudMat = new THREE.MeshLambertMaterial({
-                    color: 0xf0f4fa,
+                    color: 0xdde3ea,
                     transparent: true,
-                    opacity: 0.55,
-                    emissive: 0x8899aa,
-                    emissiveIntensity: 0.08,
-                    fog: true
+                    opacity: 0.48,
+                    emissive: 0x667788,
+                    emissiveIntensity: 0.05,
+                    fog: true,
+                    depthWrite: false
                 });
                 const cloud = new THREE.Mesh(cloudGeo, cloudMat);
                 cloud.position.set(
@@ -1399,9 +1435,9 @@ svg{display:block;vertical-align:middle}
                 });
             }
             rainParticlesGroup = new THREE.Group();
-            const dropGeo = new THREE.BoxGeometry(0.06, 0.85, 0.06);
-            const dropMat = new THREE.MeshBasicMaterial({ color: 0x4aa8ff, transparent: true, opacity: 0.7 });
-            for (let i = 0; i < 180; i++) {
+            const dropGeo = new THREE.BoxGeometry(0.04, 1.1, 0.04);
+            const dropMat = new THREE.MeshBasicMaterial({ color: 0x6a8aaa, transparent: true, opacity: 0.45, depthWrite: false });
+            for (let i = 0; i < 40; i++) {
                 const drop = new THREE.Mesh(dropGeo, dropMat);
                 drop.visible = false;
                 rainParticlesGroup.add(drop);
@@ -1414,21 +1450,35 @@ svg{display:block;vertical-align:middle}
         }
 
         function startOpeningStorm() {
-            const cx = player.spawnPos.x;
-            const cz = player.spawnPos.z;
-            const cy = 72;
             stormMergeCount = 0;
             destroyTornado();
+            isWindStormActive = false;
+            isRainActive = false;
+            // Ilk dogusta hortum garantili
+            tornadoAllowedThisStorm = true;
+            isFirstStormEvent = false;
+            stormsSinceLastTornado = 0;
 
-            // Merkez siyah bulut (tek, henuz kule degil)
-            const centerGeo = new THREE.BoxGeometry(22, 2.8, 18);
+            // Rastgele konumda siyah bulut (spawn yakininda)
+            const cx = player.spawnPos.x + (Math.random() - 0.5) * 40;
+            const cz = player.spawnPos.z + (Math.random() - 0.5) * 40;
+            const cy = 70 + Math.random() * 8;
+
+            // Dikey veya yatay genislik
+            const vertical = Math.random() < 0.5;
+            const w = vertical ? (10 + Math.random() * 8) : (22 + Math.random() * 16);
+            const h = vertical ? (6 + Math.random() * 5) : (2.2 + Math.random() * 1.5);
+            const d = vertical ? (10 + Math.random() * 8) : (14 + Math.random() * 12);
+
+            const centerGeo = new THREE.BoxGeometry(w, h, d);
             const centerMat = new THREE.MeshLambertMaterial({
-                color: 0x111118,
+                color: 0x1c1c24,
                 transparent: true,
-                opacity: 0.88,
-                emissive: 0x050508,
-                emissiveIntensity: 0.22,
-                fog: true
+                opacity: 0.82,
+                emissive: 0x0a0a10,
+                emissiveIntensity: 0.12,
+                fog: true,
+                depthWrite: false
             });
             const centerCloud = new THREE.Mesh(centerGeo, centerMat);
             centerCloud.position.set(cx, cy, cz);
@@ -1440,23 +1490,24 @@ svg{display:block;vertical-align:middle}
                 isDark: true,
                 isTower: false,
                 isStormCore: true,
-                baseSpeed: 0.01,
+                baseSpeed: 0.006,
                 target: null,
                 openingStorm: true
             });
 
-            // Uzaktan 7 kara bulut - merkeze dogru yavas gelsin
-            const incomingCount = 7;
+            // 30 blok ilerisinde 1-10 kara bulut; tamamen merkez buluta gitsin
+            const incomingCount = 1 + Math.floor(Math.random() * 6);
             for (let i = 0; i < incomingCount; i++) {
-                const angle = (i / incomingCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.25;
-                const dist = (18 + Math.random() * 6) * CHUNK_SIZE;
+                const angle = (i / Math.max(1, incomingCount)) * Math.PI * 2 + Math.random() * 0.4;
+                const dist = 30 + Math.random() * 25;
                 const sx = cx + Math.cos(angle) * dist;
                 const sz = cz + Math.sin(angle) * dist;
                 const sy = 64 + Math.random() * 14;
-                const w = 12 + Math.random() * 10;
-                const h = 1.6 + Math.random() * 1.5;
-                const d = 10 + Math.random() * 8;
-                const geo = new THREE.BoxGeometry(w, h, d);
+                const iv = Math.random() < 0.45;
+                const iw = iv ? (8 + Math.random() * 6) : (14 + Math.random() * 12);
+                const ih = iv ? (5 + Math.random() * 4) : (1.5 + Math.random() * 1.2);
+                const id = iv ? (8 + Math.random() * 6) : (10 + Math.random() * 10);
+                const geo = new THREE.BoxGeometry(iw, ih, id);
                 const mat = new THREE.MeshLambertMaterial({
                     color: 0x1a1a24,
                     transparent: true,
@@ -1474,19 +1525,21 @@ svg{display:block;vertical-align:middle}
                     isDark: true,
                     isTower: false,
                     isStormCore: false,
-                    baseSpeed: 0.022 + Math.random() * 0.012,
+                    baseSpeed: 0.015 + Math.random() * 0.01, // cok yavas
                     target: centerCloud,
                     openingStorm: true
                 });
             }
 
-            // Firtina aktif (yagmur + ruzgar); hortum 5+ birlesmeden sonra
+            windStormCenter = centerCloud.position.clone();
+            windStormDir.set(0.7, 0, 0.3).normalize();
+            // Ilk dogusta hortum hemen olussun (5 birlesme beklemeden)
             isWindStormActive = true;
             isRainActive = true;
-            windStormTimer = WIND_STORM_DURATION;
-            windStormCenter = centerCloud.position.clone();
-            windStormDir.set(0.85, 0, 0.4).normalize();
-
+            stormMergeCount = 5;
+            // Merkez kayit: listenin storm core'u
+            const coreEntry = cloudDataList.find(c => c.isStormCore);
+            if (coreEntry) coreEntry.merged = true;
             mergedCloudRainZones.push({
                 mesh: centerCloud,
                 rainDelay: 0,
@@ -1497,7 +1550,7 @@ svg{display:block;vertical-align:middle}
                 openingStorm: true,
                 heavyRain: true
             });
-
+            spawnOrRefreshTornado(centerCloud);
             rainsToday = Math.min(MAX_RAINS_PER_DAY, rainsToday + 1);
             darkCloudSpawnTimer = 0;
         }
@@ -1579,7 +1632,7 @@ svg{display:block;vertical-align:middle}
                     (Math.random() - 0.5) * 2
                 ).normalize();
                 a.isStormCore = true;
-                if (stormMergeCount >= 5) spawnOrRefreshTornado(survivor);
+                if (stormMergeCount >= 5 && tornadoAllowedThisStorm) spawnOrRefreshTornado(survivor);
                 mergedCloudRainZones.push({
                     mesh: survivor,
                     rainDelay: 0,
@@ -1610,9 +1663,11 @@ svg{display:block;vertical-align:middle}
                     const b = cloudDataList[j];
                     // Acilis firtinasinda merkez merged olabilir; yine de yaklasan kara bulutlari yut
                     if (a.merged && b.merged) continue;
-                    if (!a.isDark && !b.isDark) continue;
+                    // Beyaz veya siyah fark etmez: cekirdege degince katilir
+                    const involvesCore = a.isStormCore || b.isStormCore || a.openingStorm || b.openingStorm;
+                    if (!involvesCore && !a.isDark && !b.isDark) continue;
                     const dist = a.mesh.position.distanceTo(b.mesh.position);
-                    const mergeDist = (a.openingStorm || b.openingStorm || isWindStormActive) ? 30 : 22;
+                    const mergeDist = involvesCore ? 28 : 22;
                     if (dist < mergeDist) {
                         if (a.isStormCore && !b.merged) {
                             absorbCloudIntoStorm(b, a);
@@ -1646,16 +1701,15 @@ svg{display:block;vertical-align:middle}
             const mesh = centerEntry.mesh;
             if (mesh && mesh.geometry) {
                 const p = mesh.geometry.parameters || { width: 22, height: 3, depth: 18 };
-                // 5+ birlesme: cumulonimbus gibi ust uste binme
                 const tower = stormMergeCount >= 5;
-                const newH = tower ? Math.min(18, p.height + 2.2) : Math.min(10, p.height + 1.1);
-                const newW = Math.min(48, p.width * (tower ? 1.12 : 1.06));
-                const newD = Math.min(40, p.depth * (tower ? 1.12 : 1.06));
+                const newH = tower ? Math.min(18, p.height + 2.4) : Math.min(12, p.height + 1.0);
+                const newW = Math.min(50, p.width * (tower ? 1.14 : 1.07));
+                const newD = Math.min(42, p.depth * (tower ? 1.14 : 1.07));
                 mesh.geometry.dispose();
                 mesh.geometry = new THREE.BoxGeometry(newW, newH, newD);
-                mesh.position.y += tower ? 1.1 : 0.45;
+                mesh.position.y += tower ? 1.2 : 0.4;
                 mesh.material.color.setHex(tower ? 0x0a0a10 : 0x15151c);
-                mesh.material.opacity = tower ? 0.92 : 0.85;
+                mesh.material.opacity = tower ? 0.92 : 0.86;
                 centerEntry.isTower = tower;
                 centerEntry.merged = true;
                 centerEntry.isStormCore = true;
@@ -1664,11 +1718,45 @@ svg{display:block;vertical-align:middle}
             if (incoming.mesh.geometry) incoming.mesh.geometry.dispose();
             if (incoming.mesh.material) incoming.mesh.material.dispose();
             cloudDataList = cloudDataList.filter(c => c !== incoming);
-            centerEntry.baseSpeed = Math.max(0.004, (centerEntry.baseSpeed || 0.02) * 0.82);
+            centerEntry.baseSpeed = Math.max(0.003, (centerEntry.baseSpeed || 0.02) * 0.8);
 
-            if (stormMergeCount >= 5) {
+            // 3+ birlesme: yagmur + ruzgar
+            if (stormMergeCount >= 3) {
+                isRainActive = true;
+                isWindStormActive = true;
+                windStormTimer = WIND_STORM_DURATION;
+                windStormCenter = mesh.position.clone();
+                let zone = mergedCloudRainZones.find(z => z.mesh === mesh);
+                if (!zone) {
+                    mergedCloudRainZones.push({
+                        mesh: mesh,
+                        rainDelay: 0,
+                        isRaining: true,
+                        isWind: true,
+                        rainDuration: WIND_STORM_DURATION,
+                        separating: false,
+                        openingStorm: true,
+                        heavyRain: true
+                    });
+                } else {
+                    zone.isRaining = true;
+                    zone.isWind = true;
+                    zone.rainDuration = Math.max(zone.rainDuration, 40);
+                }
+            }
+            // 5+ : kule; hortum sadece izinliyse (ilk firtina veya %10)
+            if (stormMergeCount >= 5 && tornadoAllowedThisStorm) {
                 spawnOrRefreshTornado(centerEntry.mesh);
             }
+        }
+
+        function beginNewStormEvent() {
+            stormsCompleted++;
+            stormsSinceLastTornado++;
+            // Hortum: ilk dogustan sonra ancak 5 firtina gecince tekrar
+            tornadoAllowedThisStorm = (stormsSinceLastTornado >= 5);
+            isFirstStormEvent = false;
+            stormMergeCount = 0;
         }
 
         function destroyTornado() {
@@ -1680,54 +1768,146 @@ svg{display:block;vertical-align:middle}
                 });
             }
             tornado = null;
+            const biomeEl = document.getElementById('ui-biome');
+            if (biomeEl && biomeEl.dataset.prev) {
+                biomeEl.innerText = biomeEl.dataset.prev;
+                biomeEl.style.color = insideWharinBiome ? '#fbbf24' : '';
+                delete biomeEl.dataset.prev;
+            }
+        }
+
+        function pickTornadoType() {
+            const types = ['landspout', 'rope', 'cone'];
+            let pool = types.filter(t => t !== lastTornadoType);
+            if (pool.length === 0) pool = types;
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        function getTornadoLayerProfile(type) {
+            // Ust genis -> alt ince; tipe gore kalinlik
+            if (type === 'rope') {
+                return [
+                    { y: 0.0, s: 1.2, h: 3.2, op: 0.4 },
+                    { y: -3.5, s: 0.95, h: 3.2, op: 0.45 },
+                    { y: -7.0, s: 0.75, h: 3.2, op: 0.5 },
+                    { y: -10.5, s: 0.58, h: 3.2, op: 0.55 },
+                    { y: -14.0, s: 0.48, h: 3.2, op: 0.58 },
+                    { y: -17.5, s: 0.4, h: 3.2, op: 0.6 },
+                    { y: -21.0, s: 0.34, h: 3.2, op: 0.62 },
+                    { y: -24.5, s: 0.3, h: 3.5, op: 0.65 },
+                    { y: -28.2, s: 0.26, h: 3.8, op: 0.68 },
+                    { y: -32.2, s: 0.22, h: 4.2, op: 0.7 }
+                ];
+            }
+            if (type === 'landspout') {
+                return [
+                    { y: 0.0, s: 1.8, h: 3.4, op: 0.32 },
+                    { y: -3.6, s: 1.5, h: 3.4, op: 0.38 },
+                    { y: -7.2, s: 1.25, h: 3.4, op: 0.42 },
+                    { y: -10.8, s: 1.05, h: 3.4, op: 0.48 },
+                    { y: -14.4, s: 0.9, h: 3.4, op: 0.52 },
+                    { y: -18.0, s: 0.78, h: 3.4, op: 0.55 },
+                    { y: -21.6, s: 0.68, h: 3.4, op: 0.58 },
+                    { y: -25.2, s: 0.6, h: 3.6, op: 0.6 },
+                    { y: -29.0, s: 0.55, h: 4.0, op: 0.62 },
+                    { y: -33.2, s: 0.5, h: 4.4, op: 0.65 }
+                ];
+            }
+            // cone - klasik genis huni
+            return [
+                { y: 0.0, s: 4.2, h: 3.6, op: 0.38 },
+                { y: -3.9, s: 3.5, h: 3.6, op: 0.42 },
+                { y: -7.8, s: 2.9, h: 3.6, op: 0.48 },
+                { y: -11.7, s: 2.35, h: 3.6, op: 0.52 },
+                { y: -15.6, s: 1.9, h: 3.6, op: 0.56 },
+                { y: -19.5, s: 1.5, h: 3.6, op: 0.6 },
+                { y: -23.4, s: 1.2, h: 3.6, op: 0.63 },
+                { y: -27.3, s: 0.95, h: 3.6, op: 0.66 },
+                { y: -31.2, s: 0.78, h: 3.8, op: 0.7 },
+                { y: -35.2, s: 0.65, h: 4.2, op: 0.72 },
+                { y: -39.5, s: 0.55, h: 4.5, op: 0.75 }
+            ];
+        }
+
+        function getTornadoColor(type) {
+            if (type === 'rope') return { color: 0x4a4a55, emissive: 0x1a1a22 };
+            if (type === 'landspout') return { color: 0x5a6a5a, emissive: 0x1a2218 };
+            return { color: 0x3a3a48, emissive: 0x151520 }; // cone
+        }
+
+        function canTornadoDestroyBlock(type, blockType) {
+            if (!blockType) return false;
+            if (type === 'landspout') {
+                return blockType === 'grass' || blockType === 'darkGrass' || blockType === 'grayGrass';
+            }
+            if (type === 'rope') {
+                return blockType === 'grass' || blockType === 'darkGrass' || blockType === 'grayGrass'
+                    || blockType === 'leaf' || blockType === 'grayLeaf';
+            }
+            // cone: yaprak, cimen, kum
+            return blockType === 'grass' || blockType === 'darkGrass' || blockType === 'grayGrass'
+                || blockType === 'leaf' || blockType === 'grayLeaf'
+                || blockType === 'sand' || blockType === 'slightlyWetSand' || blockType === 'wetSand';
         }
 
         function spawnOrRefreshTornado(cloudMesh) {
-            if (!cloudMesh) return;
+            if (!cloudMesh || !tornadoAllowedThisStorm) return;
             if (!tornado) {
-                // Kare ancak hafif ince dikey hortum (cumulonimbus altindan yere)
+                const type = pickTornadoType();
+                const layers = getTornadoLayerProfile(type);
+                const cols = getTornadoColor(type);
                 const group = new THREE.Group();
-                const mat = new THREE.MeshLambertMaterial({
-                    color: 0x2a2a32,
-                    transparent: true,
-                    opacity: 0.72,
-                    emissive: 0x111116,
-                    emissiveIntensity: 0.25
-                });
-                // Ust genis, alta dogru ince kare prizma katmanlari
-                const layers = [
-                    { y: 0.0, s: 1.1, h: 4 },
-                    { y: -4.2, s: 0.95, h: 4 },
-                    { y: -8.4, s: 0.8, h: 4 },
-                    { y: -12.6, s: 0.65, h: 4 },
-                    { y: -16.8, s: 0.55, h: 4 },
-                    { y: -21.0, s: 0.48, h: 4 },
-                    { y: -25.2, s: 0.42, h: 4 },
-                    { y: -29.4, s: 0.38, h: 4 },
-                    { y: -33.6, s: 0.34, h: 5 },
-                    { y: -38.5, s: 0.32, h: 6 }
-                ];
                 layers.forEach(L => {
                     const geo = new THREE.BoxGeometry(L.s, L.h, L.s);
-                    const mesh = new THREE.Mesh(geo, mat.clone());
+                    const mat = new THREE.MeshLambertMaterial({
+                        color: cols.color,
+                        transparent: true,
+                        opacity: L.op,
+                        emissive: cols.emissive,
+                        emissiveIntensity: 0.15,
+                        depthWrite: false,
+                        fog: true
+                    });
+                    const mesh = new THREE.Mesh(geo, mat);
                     mesh.position.y = L.y - L.h * 0.5;
                     group.add(mesh);
                 });
                 scene.add(group);
-                tornado = { mesh: group, active: true, spin: 0, destroyCooldown: 0 };
+                const spinSpeed = type === 'rope' ? 9 : (type === 'landspout' ? 6 : 5);
+                const dmgChance = type === 'cone' ? 0.12 : (type === 'rope' ? 0.06 : 0.08);
+                tornado = {
+                    mesh: group,
+                    active: true,
+                    spin: 0,
+                    destroyCooldown: 0,
+                    type: type,
+                    spinSpeed,
+                    pullRange: 5, // sadece 5 blok yakininda ceker
+                    pullForce: 0.11,
+                    dmgChance
+                };
+                lastTornadoType = type;
+                stormsSinceLastTornado = 0;
+                tornadoAllowedThisStorm = false; // bu firtinada tek hortum
+                // HUD ipucu
+                const biomeEl = document.getElementById('ui-biome');
+                if (biomeEl) {
+                    const labels = { landspout: 'LANDSPOUT', rope: 'ROPE TORNADO', cone: 'CONE TORNADO' };
+                    biomeEl.dataset.prev = biomeEl.innerText;
+                    biomeEl.innerText = '🌪️ ' + labels[type];
+                    biomeEl.style.color = '#c4b5fd';
+                }
             }
-            // Buluta takili: konum bulut merkezinin alti
             const ground = getTerrainHeight(cloudMesh.position.x, cloudMesh.position.z);
             const topY = cloudMesh.position.y - (cloudMesh.geometry?.parameters?.height || 8) * 0.35;
             tornado.mesh.position.set(cloudMesh.position.x, topY, cloudMesh.position.z);
-            // Yuksekligi yere kadar uzat (scale Y)
-            const need = Math.max(8, topY - ground);
-            tornado.mesh.scale.set(1, need / 42, 1);
+            const need = Math.max(10, topY - ground);
+            const baseScale = tornado.type === 'cone' ? 1.25 : (tornado.type === 'rope' ? 0.85 : 1.0);
+            tornado.mesh.scale.set(baseScale, need / 44, baseScale);
         }
 
         function updateTornado(dt) {
             if (!tornado || !tornado.active) return;
-            // Buluta bagli takip
             let host = null;
             const core = cloudDataList.find(c => c.isStormCore && c.mesh);
             if (core) host = core.mesh;
@@ -1736,52 +1916,63 @@ svg{display:block;vertical-align:middle}
                 spawnOrRefreshTornado(host);
                 windStormCenter = host.position.clone();
             }
-            tornado.spin += dt * 6;
+            tornado.spin += dt * (tornado.spinSpeed || 6);
             tornado.mesh.rotation.y = tornado.spin;
 
             const tx = tornado.mesh.position.x;
             const tz = tornado.mesh.position.z;
             const dist = Math.hypot(player.pos.x - tx, player.pos.z - tz);
+            // Sadece hortum ve sadece 5 blok yakininda ceker; baska itme yok
+            const range = 5;
+            const force = tornado.pullForce || 0.11;
 
-            // 10 blok yakininda cek
-            if (dist < 10 && !isPaused) {
+            if (dist < range && !isPaused) {
                 const pull = new THREE.Vector3(tx - player.pos.x, 0, tz - player.pos.z);
                 if (pull.length() > 0.05) {
                     pull.normalize();
-                    const force = (1 - dist / 10) * 0.14;
-                    player.pos.addScaledVector(pull, force);
-                    // Hafif yukari cek (hortum)
-                    if (dist < 5) player.vel.y = Math.max(player.vel.y, 0.06);
+                    const f = (1 - dist / range) * force;
+                    player.pos.addScaledVector(pull, f);
                 }
-                if (dist < 3 && Math.random() < 0.08) {
-                    damagePlayer(1);
+                if (dist < 2.5 && Math.random() < (tornado.dmgChance || 0.08)) {
+                    damagePlayer(tornado.type === 'cone' ? 2 : 1);
                 }
             }
 
-            // Cevredeki bloklari yok et
+            // Tip bazli blok yok etme + patlayici kare
             tornado.destroyCooldown -= dt;
             if (tornado.destroyCooldown <= 0) {
-                tornado.destroyCooldown = 0.12;
-                for (let n = 0; n < 6; n++) {
+                tornado.destroyCooldown = tornado.type === 'cone' ? 0.35 : 0.5;
+                const radMax = tornado.type === 'cone' ? 5.5 : (tornado.type === 'rope' ? 3.2 : 4.0);
+                const samples = tornado.type === 'cone' ? 4 : 2;
+                for (let n = 0; n < samples; n++) {
                     const ang = Math.random() * Math.PI * 2;
-                    const rad = Math.random() * 4.5;
+                    const rad = Math.random() * radMax;
                     const bx = Math.floor(tx + Math.cos(ang) * rad);
                     const bz = Math.floor(tz + Math.sin(ang) * rad);
                     const gy = findGroundY(bx, bz);
-                    for (let dy = 0; dy <= 3; dy++) {
-                        const by = gy - dy;
-                        if (by < 1) break;
+                    for (let dy = 0; dy <= 4; dy++) {
+                        const by = gy - dy + 2; // yuzey + yapraklar
+                        if (by < 1) continue;
                         const t = getBlock(bx, by, bz);
-                        if (!t || t === 'water') continue;
-                        // Sandik / not koruma yok - yapi ve dogal yok edilir
-                        worldBlocks.delete(`${bx},${by},${bz}`);
-                        sandRainHits.delete(`${bx},${by},${bz}`);
-                        updateAffectedChunks(bx, by, bz);
+                        if (canTornadoDestroyBlock(tornado.type, t)) {
+                            worldBlocks.delete(`${bx},${by},${bz}`);
+                            sandRainHits.delete(`${bx},${by},${bz}`);
+                            updateAffectedChunks(bx, by, bz);
+                        }
+                    }
+                }
+                // Patlayici kareye carpti mi? (landspout + cone; rope da carpsa patlasin)
+                for (let ei = explosiveSquares.length - 1; ei >= 0; ei--) {
+                    const e = explosiveSquares[ei];
+                    if (!e.alive) continue;
+                    const edx = (e.x + 0.5) - tx;
+                    const edz = (e.z + 0.5) - tz;
+                    if (Math.hypot(edx, edz) < radMax + 1.5) {
+                        explodeExplosiveSquare(ei);
                     }
                 }
             }
         }
-
 
         function applyRainToSandBlock(x, y, z) {
             const key = `${x},${y},${z}`;
@@ -1802,7 +1993,9 @@ svg{display:block;vertical-align:middle}
 
         function processRainWetness() {
             if ((!isRainActive && !isWindStormActive) || isPaused) return;
-            const dropsPerFrame = isWindStormActive ? 16 : 8;
+            // Her frame degil - rastgele seyrelt
+            if (Math.random() > 0.35) return;
+            const dropsPerFrame = isWindStormActive ? 4 : 2;
             for (let n = 0; n < dropsPerFrame; n++) {
                 const rx = Math.floor(player.pos.x + (Math.random() - 0.5) * 90);
                 const rz = Math.floor(player.pos.z + (Math.random() - 0.5) * 90);
@@ -1819,16 +2012,10 @@ svg{display:block;vertical-align:middle}
 
         function processWindStormEffects(dt) {
             if (!isWindStormActive || !windStormCenter || isPaused) return;
-            // Oyuncuyu bulut yonuune it
+            // Oyuncu itmesi yok - sadece hortum ceker
             const dist = player.pos.distanceTo(windStormCenter);
-            if (dist < 70) {
-                const strength = dist < 30 ? 0.09 : 0.055;
-                const push = windStormDir.clone().multiplyScalar(strength);
-                player.pos.x += push.x;
-                player.pos.z += push.z;
-            }
             // Altindaki bloklari hafif yer degistir (yuzey)
-            if (Math.random() < 0.35) {
+            if (Math.random() < 0.08) {
                 const bx = Math.floor(windStormCenter.x + (Math.random() - 0.5) * 28);
                 const bz = Math.floor(windStormCenter.z + (Math.random() - 0.5) * 28);
                 const h = getTerrainHeight(bx, bz);
@@ -1850,7 +2037,7 @@ svg{display:block;vertical-align:middle}
 
         function updateRainVisuals(dt) {
             const overlay = document.getElementById('rain-overlay');
-            if (overlay) overlay.style.opacity = isRainActive ? '1' : (isWindStormActive ? '0.35' : '0');
+            if (overlay) overlay.style.opacity = isRainActive ? '0.55' : (isWindStormActive ? '0.4' : '0');
             if (!rainParticlesGroup) return;
 
             rainParticlesGroup.children.forEach((drop, idx) => {
@@ -1868,9 +2055,12 @@ svg{display:block;vertical-align:middle}
                 }
                 drop.position.x = player.pos.x + drop.userData.offsetX + (isWindStormActive ? windStormDir.x * 3 : 0);
                 drop.position.z = player.pos.z + drop.userData.offsetZ + (isWindStormActive ? windStormDir.z * 3 : 0);
+                drop.rotation.z = isWindStormActive ? 0.35 : 0.12;
                 drop.position.y -= drop.userData.speed * dt;
                 if (drop.position.y < player.pos.y - 4) {
                     drop.position.y = player.pos.y + 22 + (idx % 12);
+                    drop.userData.offsetX = (Math.random() - 0.5) * 70;
+                    drop.userData.offsetZ = (Math.random() - 0.5) * 70;
                 }
             });
         }
@@ -1878,6 +2068,8 @@ svg{display:block;vertical-align:middle}
         function finishWeatherZone(zone) {
             destroyTornado();
             stormMergeCount = 0;
+            // beginNewStormEvent zaten sayaci artirir; burada sadece temizle
+            // stormsSinceLastTornado finish'te artirilmaz (cift sayim olmasin)
             // Bulutlar hizlica ayrilir / beyaza doner
             const mesh = zone.mesh;
             if (mesh && mesh.material) {
@@ -1927,9 +2119,9 @@ svg{display:block;vertical-align:middle}
                 darkCloudSpawnTimer = 0;
                 // Her oyun gununde en fazla 2 yagis, %50 sans
                 if (rainsToday < MAX_RAINS_PER_DAY && Math.random() < RAIN_CHANCE) {
-                    // Ortamda siyah/kara bulut veya normal bulut varsa tetikle
                     const hasAnyCloud = cloudDataList.length > 0;
                     if (hasAnyCloud) {
+                        beginNewStormEvent();
                         spawnDarkCloudNearExisting();
                         rainsToday++;
                     }
@@ -1972,7 +2164,16 @@ svg{display:block;vertical-align:middle}
                     }
                 }
             }
-            isRainActive = anyRain;
+            isRainActive = anyRain || isWindStormActive;
+
+            // Firtina aninda daha karanlik / gri atmosfer
+            if (ambientLight && (isRainActive || isWindStormActive)) {
+                const targetAmb = isWindStormActive ? 0.28 : 0.38;
+                ambientLight.intensity += (targetAmb - ambientLight.intensity) * 0.04;
+                if (scene.fog) {
+                    scene.fog.density += ((isWindStormActive ? 0.045 : 0.032) - scene.fog.density) * 0.04;
+                }
+            }
 
             // Bulut hareketi
             if (cloudsGroup) {
@@ -2011,6 +2212,122 @@ svg{display:block;vertical-align:middle}
             processWindStormEffects(dt);
             updateTornado(dt);
             updateRainVisuals(dt);
+        }
+
+        function spawnExplosiveSquare(cx, cz) {
+            const wx = cx * CHUNK_SIZE + 4 + Math.floor(Math.random() * 4);
+            const wz = cz * CHUNK_SIZE + 4 + Math.floor(Math.random() * 4);
+            if (!isInWharinBiome(wx, wz)) return;
+            const gy = getTerrainHeight(wx, wz) + 1;
+            const geo = new THREE.BoxGeometry(0.95, 0.95, 0.95);
+            const mat = new THREE.MeshLambertMaterial({
+                color: 0xc45c12,
+                emissive: 0x3a1500,
+                emissiveIntensity: 0.35
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(wx + 0.5, gy + 0.5, wz + 0.5);
+            scene.add(mesh);
+            explosiveSquares.push({
+                obj: mesh,
+                cx, cz,
+                x: wx, y: gy, z: wz,
+                alive: true
+            });
+        }
+
+        function explodeExplosiveSquare(index) {
+            const e = explosiveSquares[index];
+            if (!e || !e.alive) return;
+            e.alive = false;
+            const ox = e.x, oy = e.y, oz = e.z;
+            // 4x4 alan yok et
+            for (let dx = -2; dx <= 1; dx++) {
+                for (let dz = -2; dz <= 1; dz++) {
+                    for (let dy = -1; dy <= 2; dy++) {
+                        const bx = ox + dx, by = oy + dy, bz = oz + dz;
+                        const t = getBlock(bx, by, bz);
+                        if (t && t !== 'water') {
+                            worldBlocks.delete(`${bx},${by},${bz}`);
+                            updateAffectedChunks(bx, by, bz);
+                        }
+                    }
+                }
+            }
+            // Oyuncuya 5 hasar (yakinsa)
+            const dist = Math.hypot(player.pos.x - (ox + 0.5), player.pos.z - (oz + 0.5));
+            if (dist < 5) {
+                damagePlayer(5);
+                // itme yok
+            }
+            audio.playScream(1);
+            audio.playBreakTıkTık();
+            scene.remove(e.obj);
+            if (e.obj.geometry) e.obj.geometry.dispose();
+            if (e.obj.material) e.obj.material.dispose();
+            explosiveSquares.splice(index, 1);
+        }
+
+        function updateExplosiveSquares(dt) {
+            for (let i = explosiveSquares.length - 1; i >= 0; i--) {
+                const e = explosiveSquares[i];
+                if (!e.alive) continue;
+                // Ustune basma
+                const dx = Math.abs(player.pos.x - (e.x + 0.5));
+                const dz = Math.abs(player.pos.z - (e.z + 0.5));
+                const dy = player.pos.y - e.y;
+                if (dx < 0.7 && dz < 0.7 && dy >= -0.2 && dy < 1.6) {
+                    explodeExplosiveSquare(i);
+                    continue;
+                }
+                // Pulse anim
+                e.obj.rotation.y += dt * 1.5;
+                const s = 0.95 + Math.sin(clock.getElapsedTime() * 4 + i) * 0.05;
+                e.obj.scale.set(s, s, s);
+            }
+        }
+
+        function showDiscoveryMessage() {
+            const ov = document.getElementById('discovery-overlay');
+            if (!ov) return;
+            ov.classList.remove('hidden');
+            discoveryTimer = 5;
+        }
+
+        function updateDiscovery(dt) {
+            if (discoveryTimer <= 0) return;
+            discoveryTimer -= dt;
+            if (discoveryTimer <= 0) {
+                const ov = document.getElementById('discovery-overlay');
+                if (ov) ov.classList.add('hidden');
+            }
+        }
+
+        function updateWharinBiomeState() {
+            const inW = isInWharinBiome(player.pos.x, player.pos.z);
+            if (inW && !insideWharinBiome) {
+                insideWharinBiome = true;
+                const biomeEl = document.getElementById('ui-biome');
+                if (biomeEl) {
+                    biomeEl.innerText = "WHARIN GİZLİ ORMANI";
+                    biomeEl.className = "text-amber-400 font-black";
+                    biomeEl.style.color = "#fbbf24";
+                }
+                if (!wharinDiscoveryShown) {
+                    wharinDiscoveryShown = true;
+                    showDiscoveryMessage();
+                }
+            } else if (!inW && insideWharinBiome) {
+                insideWharinBiome = false;
+                if (!insideGrayBiome && !insideTowerBiome) {
+                    const biomeEl = document.getElementById('ui-biome');
+                    if (biomeEl) {
+                        biomeEl.innerText = "Sakin Orman";
+                        biomeEl.className = "text-green-400 font-bold";
+                        biomeEl.style.color = "";
+                    }
+                }
+            }
         }
 
         function createCreepyObservers() {
@@ -2158,6 +2475,8 @@ svg{display:block;vertical-align:middle}
         function initMaterials() {
             const grassTop = new THREE.MeshLambertMaterial({color: 0x3aa86a, emissive: 0x0a2a14, emissiveIntensity: 0.06}); 
             const grassSide = new THREE.MeshLambertMaterial({color: 0x9a6a38, emissive: 0x1a1005, emissiveIntensity: 0.04}); 
+            const darkGrassTop = new THREE.MeshLambertMaterial({color: 0x1a3d28, emissive: 0x05140c, emissiveIntensity: 0.08}); 
+            const darkGrassSide = new THREE.MeshLambertMaterial({color: 0x2a2010, emissive: 0x0a0804, emissiveIntensity: 0.05}); 
             const dirtMat = new THREE.MeshLambertMaterial({color: 0x6b4a35, emissive: 0x1a0e08, emissiveIntensity: 0.05}); 
             const sandMat = new THREE.MeshLambertMaterial({color: 0xc9a86a, emissive: 0x2a2010, emissiveIntensity: 0.05});
             const slightlyWetSandMat = new THREE.MeshLambertMaterial({color: 0xb8893a, emissive: 0x3a2008, emissiveIntensity: 0.08});
@@ -2171,6 +2490,7 @@ svg{display:block;vertical-align:middle}
 
             matList = {
                 grass: [grassSide, grassSide, grassTop, grassSide, grassSide, grassSide],
+                darkGrass: [darkGrassSide, darkGrassSide, darkGrassTop, darkGrassSide, darkGrassSide, darkGrassSide],
                 dirt: dirtMat,
                 sand: sandMat,
                 slightlyWetSand: slightlyWetSandMat,
@@ -2189,7 +2509,12 @@ svg{display:block;vertical-align:middle}
             };
         }
 
+        function isInWharinBiome(x, z) {
+            return x >= WHARIN_MIN_X && x <= WHARIN_MAX_X && z >= WHARIN_MIN_Z && z <= WHARIN_MAX_Z;
+        }
+
         function getActiveSpecialBiome(x, z) {
+            if (isInWharinBiome(x, z)) return 0; // Wharin ayri islenir
             if (x >= B1_MIN_X && x <= B1_MAX_X && z >= B1_MIN_Z && z <= B1_MAX_Z) return 1;
             if (x >= B2_MIN_X && x <= B2_MAX_X && z >= B2_MIN_Z && z <= B2_MAX_Z) return 2;
             if (x >= B3_MIN_X && x <= B3_MAX_X && z >= B3_MIN_Z && z <= B3_MAX_Z) return 3;
@@ -2210,6 +2535,10 @@ svg{display:block;vertical-align:middle}
             const insideT = getTowerBiomeIndex(x, z);
             if (insideT >= 0) {
                 return 20; 
+            }
+
+            if (isInWharinBiome(x, z)) {
+                return 20;
             }
 
             const getSpecial = getActiveSpecialBiome(x, z) > 0;
@@ -2387,14 +2716,23 @@ svg{display:block;vertical-align:middle}
                     const h = getTerrainHeight(wx, wz);
                     const biomeNum = getActiveSpecialBiome(wx, wz);
                     const isGray = biomeNum > 0;
+                    const isWharin = isInWharinBiome(wx, wz);
 
-                    if (!isGray && h < SEA_LEVEL) {
+                    if (!isGray && !isWharin && h < SEA_LEVEL) {
                         for (let y = h + 1; y <= SEA_LEVEL; y++) {
                             setBlock(wx, y, wz, 'water');
                         }
                     }
 
-                    if (isGray) {
+                    if (isWharin) {
+                        setBlock(wx, h, wz, 'darkGrass');
+                        for(let y = 1; y <= 4; y++) {
+                            setBlock(wx, h - y, wz, 'dirt');
+                        }
+                        for(let y = 5; y <= 20; y++) {
+                            setBlock(wx, h - y, wz, 'stone');
+                        }
+                    } else if (isGray) {
                         setBlock(wx, h, wz, 'grayGrass');
                         for(let y = 1; y <= 4; y++) {
                             setBlock(wx, h - y, wz, 'grayDirt');
@@ -2415,55 +2753,120 @@ svg{display:block;vertical-align:middle}
                         }
                     }
 
-                    const noise3Val = simplex3.noise2D(wx * 0.05, wz * 0.05);
-                    if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && h + 6 <= MAX_WORLD_HEIGHT && noise3Val > 0.4 && chunkRng() < 0.06) {
-                        const trunkType = isGray ? 'grayWood' : 'wood';
-                        const leafType = isGray ? 'grayLeaf' : 'leaf';
+                    // Wharin agaclari chunk sonunda yerlestirilir
+                    if (!isWharin) {
+                        const noise3Val = simplex3.noise2D(wx * 0.05, wz * 0.05);
+                        if (Math.abs(wx) > 8 && Math.abs(wz) > 8 && h >= SEA_LEVEL && h + 6 <= MAX_WORLD_HEIGHT && noise3Val > 0.4 && chunkRng() < 0.06) {
+                            const trunkType = isGray ? 'grayWood' : 'wood';
+                            const leafType = isGray ? 'grayLeaf' : 'leaf';
 
-                        const treeGroup = new THREE.Group();
-                        treeGroup.position.set(wx, h, wz);
+                            const treeGroup = new THREE.Group();
+                            treeGroup.position.set(wx, h, wz);
+                            const leafGeo = new THREE.BoxGeometry(1, 1, 1);
 
-                        const trunkGeo = new THREE.BoxGeometry(1, 1, 1);
-                        const leafGeo = new THREE.BoxGeometry(1, 1, 1);
+                            for (let i = 1; i <= 5; i++) {
+                                setBlock(wx, h + i, wz, trunkType);
+                            }
 
-                        for (let i = 1; i <= 5; i++) {
-                            setBlock(wx, h + i, wz, trunkType);
-                        }
-
-                        for (let ly = 4; ly <= 6; ly++) {
-                            for (let lx = -1; lx <= 1; lx++) {
-                                for (let lz = -1; lz <= 1; lz++) {
-                                    if (lx !== 0 || lz !== 0 || ly > 5) {
-                                        const leafMesh = new THREE.Mesh(leafGeo, matList[leafType]);
-                                        leafMesh.position.set(lx, ly - 0.5, lz);
-                                        leafMesh.userData = { type: leafType, localX: lx, localY: ly, localZ: lz };
-                                        treeGroup.add(leafMesh);
-                                        setBlock(wx + lx, h + ly, wz + lz, leafType);
+                            for (let ly = 4; ly <= 6; ly++) {
+                                for (let lx = -1; lx <= 1; lx++) {
+                                    for (let lz = -1; lz <= 1; lz++) {
+                                        if (lx !== 0 || lz !== 0 || ly > 5) {
+                                            const leafMesh = new THREE.Mesh(leafGeo, matList[leafType]);
+                                            leafMesh.position.set(lx, ly - 0.5, lz);
+                                            leafMesh.userData = { type: leafType, localX: lx, localY: ly, localZ: lz };
+                                            treeGroup.add(leafMesh);
+                                            setBlock(wx + lx, h + ly, wz + lz, leafType);
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        scene.add(treeGroup);
-                        grayBiomeTrees.push({
-                            chunkKey: key, 
-                            biomeId: biomeNum,
-                            obj: treeGroup,
-                            startY: h,
-                            targetY: h,
-                            currentY: h,
-                            isSunk: false
-                        });
+                            scene.add(treeGroup);
+                            grayBiomeTrees.push({
+                                chunkKey: key, 
+                                biomeId: biomeNum,
+                                obj: treeGroup,
+                                startY: h,
+                                targetY: h,
+                                currentY: h,
+                                isSunk: false
+                            });
+                        }
                     }
                 }
             }
+
+            // Wharin: her chunk'ta 2 agac + 1 patlayici kare
+            if (isInWharinBiome(cx * CHUNK_SIZE + CHUNK_SIZE / 2, cz * CHUNK_SIZE + CHUNK_SIZE / 2)) {
+                const already = explosiveSquares.some(e => e.cx === cx && e.cz === cz);
+                if (!already) {
+                    placeWharinChunkContent(cx, cz, chunkRng);
+                }
+            }
+        }
+
+        function placeWharinChunkContent(cx, cz, chunkRng) {
+            const rng = chunkRng || makeChunkRng(cx, cz, 77);
+            // 2 agac
+            for (let t = 0; t < 2; t++) {
+                const lx = Math.floor(rng() * (CHUNK_SIZE - 2)) + 1;
+                const lz = Math.floor(rng() * (CHUNK_SIZE - 2)) + 1;
+                const wx = cx * CHUNK_SIZE + lx;
+                const wz = cz * CHUNK_SIZE + lz;
+                if (!isInWharinBiome(wx, wz)) continue;
+                const h = getTerrainHeight(wx, wz);
+                const trunkType = 'wood';
+                const leafType = 'leaf';
+                for (let i = 1; i <= 6; i++) {
+                    setBlock(wx, h + i, wz, trunkType);
+                }
+                for (let ly = 5; ly <= 7; ly++) {
+                    for (let ox = -1; ox <= 1; ox++) {
+                        for (let oz = -1; oz <= 1; oz++) {
+                            if (ox !== 0 || oz !== 0 || ly > 6) {
+                                setBlock(wx + ox, h + ly, wz + oz, leafType);
+                            }
+                        }
+                    }
+                }
+                // Gorunur yaprak mesh grubu
+                const treeGroup = new THREE.Group();
+                treeGroup.position.set(wx, h, wz);
+                const leafGeo = new THREE.BoxGeometry(1, 1, 1);
+                for (let ly = 5; ly <= 7; ly++) {
+                    for (let ox = -1; ox <= 1; ox++) {
+                        for (let oz = -1; oz <= 1; oz++) {
+                            if (ox !== 0 || oz !== 0 || ly > 6) {
+                                const leafMesh = new THREE.Mesh(leafGeo, matList.leaf);
+                                leafMesh.position.set(ox, ly - 0.5, oz);
+                                leafMesh.userData = { type: leafType, localX: ox, localY: ly, localZ: oz };
+                                treeGroup.add(leafMesh);
+                            }
+                        }
+                    }
+                }
+                scene.add(treeGroup);
+                grayBiomeTrees.push({
+                    chunkKey: `${cx},${cz}`,
+                    biomeId: 0,
+                    obj: treeGroup,
+                    startY: h,
+                    targetY: h,
+                    currentY: h,
+                    isSunk: false,
+                    isWharin: true
+                });
+            }
+            spawnExplosiveSquare(cx, cz);
+            // Mesh createChunk icinde build edilecek
         }
 
         function buildChunkMeshGroup(cx, cz) {
             const group = new THREE.Group();
             const geo = new THREE.BoxGeometry(1, 1, 1);
             const blocks = {
-                grass: [], dirt: [], sand: [], slightlyWetSand: [], wetSand: [], stone: [], wood: [], leaf: [], water: [], chest: [],
+                grass: [], darkGrass: [], dirt: [], sand: [], slightlyWetSand: [], wetSand: [], stone: [], wood: [], leaf: [], water: [], chest: [],
                 grayGrass: [], grayDirt: [], grayStone: [], grayWood: [], grayLeaf: []
             };
 
@@ -2471,10 +2874,22 @@ svg{display:block;vertical-align:middle}
                 for (let z = 0; z < CHUNK_SIZE; z++) {
                     const wx = cx * CHUNK_SIZE + x;
                     const wz = cz * CHUNK_SIZE + z;
-                    for (let y = 0; y <= MAX_WORLD_HEIGHT; y++) {
+                    // Sadece yuzey + yapilar: derin tas katmanlarini atla (FPS)
+                    let foundSurface = false;
+                    for (let y = MAX_WORLD_HEIGHT; y >= 1; y--) {
                         const type = getBlock(wx, y, wz);
-                        if (!type || blocks[type] === undefined) continue;
-                        if (type === 'leaf' || type === 'grayLeaf') continue;
+                        if (!type) {
+                            if (foundSurface && y < 12) break;
+                            continue;
+                        }
+                        foundSurface = true;
+                        if (blocks[type] === undefined) continue;
+                        // leaf artik ciziliyor (Wharin agaclari)
+                        // Derin gomulu stone'u cizme
+                        if ((type === 'stone' || type === 'grayStone' || type === 'dirt' || type === 'grayDirt') && y < 14) {
+                            // sadece kenar kontrolu basitleştir: ust bos ise ciz
+                            if (getBlock(wx, y + 1, wz)) continue;
+                        }
                         if (!isBlockOccluded(wx, y, wz)) {
                             blocks[type].push(new THREE.Vector3(wx, y, wz));
                         }
@@ -2487,9 +2902,10 @@ svg{display:block;vertical-align:middle}
                 if (list.length === 0) return;
                 let material = matList[type];
                 if (type === 'grass') material = matList.grass;
+                if (type === 'darkGrass') material = matList.darkGrass;
                 if (type === 'grayGrass') material = matList.grayGrass;
                 const inst = new THREE.InstancedMesh(geo, material, list.length);
-                inst.receiveShadow = true;
+                inst.receiveShadow = false;
                 const mat = new THREE.Matrix4();
                 list.forEach((pos, i) => {
                     mat.setPosition(pos);
@@ -2595,7 +3011,7 @@ svg{display:block;vertical-align:middle}
             return new THREE.Vector3(preferredX, g + 1, preferredZ);
         }
 
-        function updatePhysics() {
+        function updatePhysics(frameScale = 1) {
             if (isPaused) return;
 
             const currentBlock = getBlock(player.pos.x, player.pos.y + 0.4, player.pos.z);
@@ -2630,7 +3046,7 @@ svg{display:block;vertical-align:middle}
             moveDir.normalize();
 
             let currentSpeed = player.inWater ? player.speed * 0.45 : player.speed;
-            currentSpeed *= speedMultiplier;
+            currentSpeed *= speedMultiplier * frameScale;
 
             if (fishDebuffTimer > 0) {
                 currentSpeed *= 0.5;
@@ -2671,7 +3087,7 @@ svg{display:block;vertical-align:middle}
                 }
             }
 
-            const gravity = player.inWater ? 0.003 : 0.008;
+            const gravity = (player.inWater ? 0.003 : 0.008) * frameScale;
             
             // Düşüşten kurtarma mekaniği
             if (player.pos.y < -5) {
@@ -2688,7 +3104,7 @@ svg{display:block;vertical-align:middle}
                 player.vel.y -= gravity;
             }
 
-            player.pos.y += player.vel.y;
+            player.pos.y += player.vel.y * frameScale;
 
             if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
                 if (player.vel.y < 0) {
@@ -2749,6 +3165,7 @@ svg{display:block;vertical-align:middle}
             });
             killerFishList.forEach(f => targets.push(f.obj));
             towerGuards.forEach(g => targets.push(g.obj));
+            explosiveSquares.forEach(e => { if (e.alive) targets.push(e.obj); });
             if (horrorGiant && horrorGiant.obj) targets.push(horrorGiant.obj);
             const intersects = raycaster.intersectObjects(targets, true);
             if (intersects.length > 0 && intersects[0].distance < maxDist) return intersects[0];
@@ -2767,6 +3184,16 @@ svg{display:block;vertical-align:middle}
 
         function attackEntity(hit, clickedObj) {
             if (attackCooldown > 0) return false;
+
+            for (let i = 0; i < explosiveSquares.length; i++) {
+                const e = explosiveSquares[i];
+                if (!e.alive) continue;
+                if (e.obj === clickedObj || e.obj.children.includes(clickedObj)) {
+                    attackCooldown = 0.2;
+                    explodeExplosiveSquare(i);
+                    return true;
+                }
+            }
 
             if (horrorGiant && horrorGiant.obj) {
                 const gObj = horrorGiant.obj;
@@ -3025,6 +3452,15 @@ svg{display:block;vertical-align:middle}
                     removeOneFromSlot(selectedSlot);
                     audio.playPlaceTık();
                     updateAffectedChunks(px, py, pz);
+                    // Patlayici karenin ustune / icine blok -> patla
+                    for (let ei = explosiveSquares.length - 1; ei >= 0; ei--) {
+                        const e = explosiveSquares[ei];
+                        if (!e.alive) continue;
+                        if (Math.abs(px - e.x) <= 1 && Math.abs(pz - e.z) <= 1 && Math.abs(py - e.y) <= 1) {
+                            explodeExplosiveSquare(ei);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -3342,10 +3778,8 @@ svg{display:block;vertical-align:middle}
                 if (dist < 2.5 && g.attackCooldown <= 0) {
                     g.attackCooldown = 1.5;
                     damagePlayer(5);
-                    player.vel.y = 0.12;
-                    const push = new THREE.Vector3().subVectors(player.pos, g.obj.position).normalize();
-                    player.pos.addScaledVector(push, 1.2);
                     audio.playScream(2);
+                    // itme yok
                 }
             }
         }
@@ -3558,11 +3992,9 @@ svg{display:block;vertical-align:middle}
                 }
 
                 if (distToPlayer < 1.3 && !isPaused && g.attackCooldown <= 0 && playerInSameBiome && g.isTriggered) {
-                    player.vel.y = 0.1;
-                    const push = new THREE.Vector3().subVectors(player.pos, g.obj.position).normalize();
-                    player.pos.addScaledVector(push, 0.8);
                     damagePlayer(2);
                     g.attackCooldown = 1.2;
+                    // itme yok
                     if (g.isDamaged && performance.now() - lastTowerScreamTime > 800) {
                         audio.playScream(2);
                         lastTowerScreamTime = performance.now();
@@ -3621,6 +4053,20 @@ svg{display:block;vertical-align:middle}
 
             killerFishList.forEach(f => scene.remove(f.obj));
             killerFishList.length = 0;
+            explosiveSquares.forEach(e => {
+                if (e.obj) {
+                    scene.remove(e.obj);
+                    if (e.obj.geometry) e.obj.geometry.dispose();
+                    if (e.obj.material) e.obj.material.dispose();
+                }
+            });
+            explosiveSquares.length = 0;
+            insideWharinBiome = false;
+            wharinDiscoveryShown = false;
+            discoveryTimer = 0;
+            wharinTreesPlaced = 0;
+            const dov = document.getElementById('discovery-overlay');
+            if (dov) dov.classList.add('hidden');
             if (horrorGiant && horrorGiant.obj) {
                 scene.remove(horrorGiant.obj);
                 horrorGiant.obj.traverse(c => {
@@ -3636,6 +4082,11 @@ svg{display:block;vertical-align:middle}
             windStormTimer = 0;
             windStormCenter = null;
             stormMergeCount = 0;
+            stormsCompleted = 0;
+            isFirstStormEvent = true;
+            tornadoAllowedThisStorm = false;
+            stormsSinceLastTornado = 0;
+            lastTornadoType = null;
             destroyTornado();
             rainsToday = 0;
             darkCloudSpawnTimer = 0;
@@ -3669,20 +4120,31 @@ svg{display:block;vertical-align:middle}
             }
         }
 
+        const pendingChunkRebuilds = new Set();
+        let chunkRebuildTimer = 0;
+
         function updateAffectedChunks(bx, by, bz) {
             const cx = Math.floor(bx / CHUNK_SIZE);
             const cz = Math.floor(bz / CHUNK_SIZE);
             const modX = ((bx % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
             const modZ = ((bz % CHUNK_SIZE) + CHUNK_SIZE) % CHUNK_SIZE;
+            // Aninda rebuild yerine kuyruk - FPS korumasi
+            pendingChunkRebuilds.add(`${cx},${cz}`);
+            if (modX === 0) pendingChunkRebuilds.add(`${cx - 1},${cz}`);
+            if (modX === CHUNK_SIZE - 1) pendingChunkRebuilds.add(`${cx + 1},${cz}`);
+            if (modZ === 0) pendingChunkRebuilds.add(`${cx},${cz - 1}`);
+            if (modZ === CHUNK_SIZE - 1) pendingChunkRebuilds.add(`${cx},${cz + 1}`);
+        }
 
-            rebuildChunk(cx, cz);
-            if (modX === 0) rebuildChunk(cx - 1, cz);
-            if (modX === CHUNK_SIZE - 1) rebuildChunk(cx + 1, cz);
-            if (modZ === 0) rebuildChunk(cx, cz - 1);
-            if (modZ === CHUNK_SIZE - 1) rebuildChunk(cx, cz + 1);
-
-            if (by === 0 || by === MAX_WORLD_HEIGHT) {
+        function flushChunkRebuilds(maxPerFrame = 2) {
+            if (pendingChunkRebuilds.size === 0) return;
+            let n = 0;
+            for (const key of pendingChunkRebuilds) {
+                pendingChunkRebuilds.delete(key);
+                const [cx, cz] = key.split(',').map(Number);
                 rebuildChunk(cx, cz);
+                n++;
+                if (n >= maxPerFrame) break;
             }
         }
 
@@ -3733,12 +4195,23 @@ svg{display:block;vertical-align:middle}
             }
         }
 
-        function animate() {
+        function animate(rafTime) {
             if (!gameActive) return;
             animationFrameId = requestAnimationFrame(animate);
+            const t = (typeof rafTime === 'number') ? rafTime : performance.now();
+            // 40 FPS siniri
+            if (t - lastFrameTime < FRAME_MS) return;
+            lastFrameTime = t - ((t - lastFrameTime) % FRAME_MS);
 
-            const dt = clock.getDelta();
-            updatePhysics();
+            let dt = clock.getDelta();
+            if (dt > 0.05) dt = 0.05;
+            const frameScale = Math.min(dt * TARGET_FPS, 2.0);
+            updatePhysics(frameScale);
+            chunkRebuildTimer += dt;
+            if (chunkRebuildTimer >= 0.1) {
+                chunkRebuildTimer = 0;
+                flushChunkRebuilds(2);
+            }
 
             if (playerDamageCooldown > 0) playerDamageCooldown -= dt;
             if (attackCooldown > 0) attackCooldown -= dt;
@@ -3750,12 +4223,15 @@ svg{display:block;vertical-align:middle}
                 updateTowerGuardsLogic(dt);
                 updateHorrorGiantLogic(dt);
                 updateWeatherSystem(dt);
+                updateExplosiveSquares(dt);
+                updateWharinBiomeState();
+                updateDiscovery(dt);
             }
 
             frames++;
-            const now = performance.now();
-            if (now >= lastTime + 1000) {
-                currentFps = Math.round((frames * 1000) / (now - lastTime));
+            const fpsNow = performance.now();
+            if (fpsNow >= lastTime + 1000) {
+                currentFps = Math.round((frames * 1000) / (fpsNow - lastTime));
                 const fpsEl = document.getElementById('gpu-fps');
                 if (fpsEl) {
                     fpsEl.innerText = currentFps;
@@ -3773,7 +4249,7 @@ svg{display:block;vertical-align:middle}
                 }
 
                 frames = 0;
-                lastTime = now;
+                lastTime = fpsNow;
             }
 
             const px = Math.floor(player.pos.x / CHUNK_SIZE);
@@ -3825,7 +4301,7 @@ svg{display:block;vertical-align:middle}
                 targetHemiIntensity = 0.6;
                 targetHemiSky = 0xc8e4ff;
                 targetHemiGround = 0x5a8a3a;
-                VIEW_DISTANCE = 3;
+                VIEW_DISTANCE = 2;
             } else if (dayNightTimer < DAY_DURATION + AFTERNOON_DURATION) {
                 phaseName = "Öğle";
                 const localTimer = dayNightTimer - DAY_DURATION;
@@ -3883,7 +4359,7 @@ svg{display:block;vertical-align:middle}
                 }
                 
                 starOpacity = 1.0;
-                VIEW_DISTANCE = 3;
+                VIEW_DISTANCE = 2;
             }
 
             const timeEl = document.getElementById('ui-time');
@@ -3923,9 +4399,9 @@ svg{display:block;vertical-align:middle}
             if (isBloodMoon && !isPaused) {
                 startScaryGlitches();
 
-                if (blackoutTimer <= 0 && Math.random() < 0.0015 && (now - lastBlackoutTrigger > 12000)) {
+                if (blackoutTimer <= 0 && Math.random() < 0.0015 && (performance.now() - lastBlackoutTrigger > 12000)) {
                     blackoutTimer = 3.0; 
-                    lastBlackoutTrigger = now;
+                    lastBlackoutTrigger = performance.now();
                     audio.playScream(2);
                 }
             } else if (!insideGrayBiome && !insideTowerBiome) {
@@ -4118,6 +4594,20 @@ svg{display:block;vertical-align:middle}
                 for (let x = px - VIEW_DISTANCE; x <= px + VIEW_DISTANCE; x++) {
                     for (let z = pz - VIEW_DISTANCE; z <= pz + VIEW_DISTANCE; z++) {
                         createChunk(x, z);
+                    }
+                }
+                // Uzak chunk mesh'lerini kaldir (FPS)
+                const unloadDist = VIEW_DISTANCE + 2;
+                for (const key of Array.from(chunkMeshes.keys())) {
+                    const [cx, cz] = key.split(',').map(Number);
+                    if (Math.abs(cx - px) > unloadDist || Math.abs(cz - pz) > unloadDist) {
+                        const g = chunkMeshes.get(key);
+                        scene.remove(g);
+                        g.traverse(c => {
+                            if (c.geometry) c.geometry.dispose();
+                            // material shared - dispose etme
+                        });
+                        chunkMeshes.delete(key);
                     }
                 }
             }
