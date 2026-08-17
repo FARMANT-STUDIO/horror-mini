@@ -1768,12 +1768,6 @@ svg{display:block;vertical-align:middle}
                 });
             }
             tornado = null;
-            const biomeEl = document.getElementById('ui-biome');
-            if (biomeEl && biomeEl.dataset.prev) {
-                biomeEl.innerText = biomeEl.dataset.prev;
-                biomeEl.style.color = insideWharinBiome ? '#fbbf24' : '';
-                delete biomeEl.dataset.prev;
-            }
         }
 
         function pickTornadoType() {
@@ -1889,31 +1883,42 @@ svg{display:block;vertical-align:middle}
                 lastTornadoType = type;
                 stormsSinceLastTornado = 0;
                 tornadoAllowedThisStorm = false; // bu firtinada tek hortum
-                // HUD ipucu
-                const biomeEl = document.getElementById('ui-biome');
-                if (biomeEl) {
-                    const labels = { landspout: 'LANDSPOUT', rope: 'ROPE TORNADO', cone: 'CONE TORNADO' };
-                    biomeEl.dataset.prev = biomeEl.innerText;
-                    biomeEl.innerText = '🌪️ ' + labels[type];
-                    biomeEl.style.color = '#c4b5fd';
-                }
+                // Biyom HUD'una yazma - sadece biyom adi kalir
             }
-            const ground = getTerrainHeight(cloudMesh.position.x, cloudMesh.position.z);
-            const topY = cloudMesh.position.y - (cloudMesh.geometry?.parameters?.height || 8) * 0.35;
-            tornado.mesh.position.set(cloudMesh.position.x, topY, cloudMesh.position.z);
-            const need = Math.max(10, topY - ground);
+            // Buluta bagli: XZ bulutla ayni, Y buluttan yere kadar
+            attachTornadoToCloud(cloudMesh);
+        }
+
+        function attachTornadoToCloud(cloudMesh) {
+            if (!tornado || !tornado.mesh || !cloudMesh) return;
+            const cx = cloudMesh.position.x;
+            const cz = cloudMesh.position.z;
+            const ground = getTerrainHeight(cx, cz);
+            const cloudH = (cloudMesh.geometry && cloudMesh.geometry.parameters)
+                ? cloudMesh.geometry.parameters.height : 6;
+            // Hortum ustu bulut altina degssin
+            const topY = cloudMesh.position.y - cloudH * 0.45;
+            // Model yaklasik 42 birim yuksek; yere kadar uzat
+            const span = Math.max(12, topY - ground);
             const baseScale = tornado.type === 'cone' ? 1.25 : (tornado.type === 'rope' ? 0.85 : 1.0);
-            tornado.mesh.scale.set(baseScale, need / 44, baseScale);
+            const yScale = span / 42;
+            tornado.mesh.scale.set(baseScale, yScale, baseScale);
+            // Group origin ustte; alt yere degssin: position.y = topY
+            tornado.mesh.position.set(cx, topY, cz);
+            tornado.hostCloud = cloudMesh;
         }
 
         function updateTornado(dt) {
             if (!tornado || !tornado.active) return;
-            let host = null;
-            const core = cloudDataList.find(c => c.isStormCore && c.mesh);
-            if (core) host = core.mesh;
-            else if (mergedCloudRainZones.length) host = mergedCloudRainZones[0].mesh;
+            // Bulut nereye giderse hortum oraya (XZ + yukseklik)
+            let host = tornado.hostCloud;
+            if (!host || !host.parent) {
+                const core = cloudDataList.find(c => c.isStormCore && c.mesh);
+                if (core) host = core.mesh;
+                else if (mergedCloudRainZones.length) host = mergedCloudRainZones[0].mesh;
+            }
             if (host) {
-                spawnOrRefreshTornado(host);
+                attachTornadoToCloud(host);
                 windStormCenter = host.position.clone();
             }
             tornado.spin += dt * (tornado.spinSpeed || 6);
