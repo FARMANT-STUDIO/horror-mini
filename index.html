@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI Alpha 1.0.3</title>
+    <title>HORROR MINI Alpha 1.0.4</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='%23ff0000'%3EH%3C/text%3E%3C/svg%3E">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
     <style>
@@ -243,6 +244,8 @@ svg{display:block;vertical-align:middle}
             font-family: 'Courier Prime', monospace;
             -webkit-user-select: none;
         }
+        #auth-name, #auth-pass, #friend-add-name, #chat-input { outline: none; }
+        #auth-screen input:focus, #friend-add-modal input:focus { border-color: #dc2626; }
         canvas {
             display: block;
             width: 100vw;
@@ -391,16 +394,107 @@ svg{display:block;vertical-align:middle}
         }, 5000);
     });
 </script>
+    
+    <!-- AUTH EKRANI -->
+    <div id="auth-screen" class="fixed inset-0 bg-black z-[90] flex flex-col items-center justify-center p-4 font-mono">
+        <div class="w-full max-w-sm border border-red-900/60 bg-[#0a0000] p-6 rounded-lg shadow-[0_0_30px_rgba(255,0,0,0.15)]">
+            <h2 id="auth-title" class="text-red-600 text-center font-black tracking-widest mb-6">HESAP OLUŞTUR</h2>
+            <div id="auth-choice" class="hidden flex-col gap-3 mb-4">
+                <button id="btn-auth-login" class="w-full py-3 border border-red-700 text-red-400 font-bold hover:bg-red-700 hover:text-black">GİRİŞ</button>
+                <button id="btn-auth-register" class="w-full py-3 border border-zinc-600 text-zinc-300 font-bold hover:bg-zinc-700">HESAP OLUŞTUR</button>
+            </div>
+            <div id="auth-form" class="flex flex-col gap-3">
+                <label class="text-zinc-400 text-xs">Oyuncu İsmi (tam 6 harf)</label>
+                <input id="auth-name" maxlength="6" autocomplete="off" class="bg-black border border-zinc-700 text-white px-3 py-2 tracking-widest uppercase" placeholder="FIRTINA" />
+                <label class="text-zinc-400 text-xs">Şifre (tam 6 hane)</label>
+                <input id="auth-pass" maxlength="6" type="password" autocomplete="off" class="bg-black border border-zinc-700 text-white px-3 py-2 tracking-widest" placeholder="583214" />
+                <p id="auth-error" class="text-red-500 text-xs min-h-[1.2em]"></p>
+                <button id="btn-auth-ok" class="mt-2 py-3 bg-red-950 border border-red-600 text-red-300 font-black tracking-widest hover:bg-red-600 hover:text-black">TAMAM</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arkadas ekle modal -->
+    <div id="friend-add-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:16px;font-family:monospace;">
+        <div style="background:#110101;border:2px solid #7f1d1d;padding:20px;border-radius:8px;width:100%;max-width:320px;position:relative;">
+            <button id="btn-friend-add-close" type="button" style="position:absolute;top:8px;right:12px;color:#aaa;background:none;border:none;font-size:16px;cursor:pointer;">X</button>
+            <h3 style="color:#ef4444;font-weight:bold;margin:0 0 12px 0;font-size:13px;text-align:center;letter-spacing:0.05em;">ARKADAŞINLA OYNAMAK İÇİN İSMİNİ YAZ!</h3>
+            <input id="friend-add-name" maxlength="6" autocomplete="off" style="width:100%;box-sizing:border-box;background:#000;border:1px solid #3f3f46;color:#fff;padding:10px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;" placeholder="6 HARF İSİM" />
+            <p id="friend-add-msg" style="font-size:11px;color:#a1a1aa;min-height:1.2em;margin:0 0 10px 0;"></p>
+            <button id="btn-friend-send" type="button" style="width:100%;padding:10px;border:1px solid #b91c1c;color:#fca5a5;background:#450a0a;font-weight:bold;cursor:pointer;letter-spacing:0.08em;">İSTEK GÖNDER</button>
+        </div>
+    </div>
+
+    <!-- Arkadaslik istegi bildirimi (sol ust) -->
+    <div id="friend-request-toast" style="display:none;position:fixed;top:16px;left:16px;z-index:210;font-family:monospace;">
+        <div style="background:#110101;border:2px solid #991b1b;padding:14px;border-radius:8px;box-shadow:0 0 20px rgba(0,0,0,0.5);max-width:280px;">
+            <p id="friend-request-text" style="color:#e4e4e7;font-size:12px;margin:0 0 12px 0;line-height:1.4;"></p>
+            <div style="display:flex;gap:8px;">
+                <button id="btn-friend-accept" type="button" style="flex:1;padding:8px;background:#14532d;border:1px solid #15803d;color:#bbf7d0;font-size:11px;font-weight:bold;cursor:pointer;">KABUL ET</button>
+                <button id="btn-friend-decline" type="button" style="flex:1;padding:8px;background:#18181b;border:1px solid #52525b;color:#d4d4d8;font-size:11px;font-weight:bold;cursor:pointer;">KABUL ETME</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Arkadas context menu -->
+    <div id="friend-ctx" class="fixed z-[86] hidden bg-[#110101] border border-zinc-700 rounded shadow-lg font-mono text-xs min-w-[120px]">
+        <button id="btn-friend-join" class="w-full text-left px-4 py-2 text-green-400 hover:bg-zinc-800">KATIL</button>
+    </div>
+
+    <!-- Oyuncu dunyada degil mesaji -->
+    <div id="not-in-world-modal" class="fixed inset-0 bg-black/80 z-[80] hidden items-center justify-center p-4 font-mono">
+        <div class="bg-[#110101] border border-zinc-600 p-5 rounded max-w-sm w-full relative">
+            <button id="btn-not-in-world-close" class="absolute top-2 right-3 text-zinc-400">X</button>
+            <p class="text-zinc-200 text-sm pr-6">Üzgünüz, oyuncu şu an bir dünyada değil!</p>
+        </div>
+    </div>
+
+    <!-- Baglanti ekrani -->
+    <div id="connect-overlay" class="fixed inset-0 bg-black z-[75] hidden flex-col items-center justify-center font-mono">
+        <p id="connect-text" class="text-red-400 tracking-widest text-sm">Oyuna bağlanılıyor...</p>
+    </div>
+
+    <!-- ERROR 456 -->
+    <div id="error-456" class="fixed inset-0 bg-[#000080] z-[95] hidden flex-col items-center justify-center font-mono p-6">
+        <div class="max-w-md w-full text-white">
+            <div class="text-4xl font-black mb-2">ERROR 456</div>
+            <div class="border-t border-b border-white py-2 mb-4">Sunucu kapatıldı</div>
+            <p class="text-sm mb-6 leading-relaxed">Oyunu kuran oyuncu oyundan ayrıldığı için sunucu kapatıldı.<br/>Ciddi bir sorun oluşmadı.</p>
+            <button id="btn-error-456-ok" class="px-6 py-2 bg-white text-[#000080] font-bold">TAMAM</button>
+        </div>
+    </div>
+
+    <!-- Chat -->
+    <div id="chat-log" class="fixed bottom-24 left-4 z-30 w-80 max-h-40 overflow-y-auto font-mono text-xs pointer-events-none hidden" style="text-shadow:0 1px 2px #000;"></div>
+    <div id="chat-input-wrap" class="fixed bottom-16 left-4 z-30 hidden font-mono">
+        <input id="chat-input" maxlength="120" class="w-80 bg-black/70 border border-zinc-600 text-white px-3 py-2 text-sm" placeholder="Mesaj yaz..." />
+    </div>
+    <div id="chat-toast" class="fixed bottom-24 right-4 z-30 font-mono text-xs bg-black/80 border border-zinc-700 text-zinc-200 px-3 py-2 rounded hidden max-w-xs"></div>
+
+    <!-- MP oyuncu listesi -->
+    <div id="mp-player-list" class="fixed top-16 right-4 z-30 font-mono text-[10px] text-zinc-300 bg-black/50 border border-zinc-800 p-2 rounded hidden min-w-[120px]"></div>
+
     <!-- PC Ana Menü -->
-    <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700">
+    <div id="menu" class="fixed inset-0 bg-radial from-[#150202] to-black flex flex-col items-center justify-center z-50 p-4 transition-all duration-700 hidden">
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.3</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.4</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 oyna
             </button>
+        </div>
+
+        
+        <!-- Sag ust: hesap + arkadaslar -->
+        <div id="account-panel" class="absolute top-4 right-4 z-[60] flex flex-col items-end gap-2 font-mono" style="pointer-events:auto;">
+            <div class="flex items-center gap-2">
+                <span id="menu-username" class="text-white font-bold tracking-widest text-sm">—</span>
+                <button id="btn-add-friend" type="button" title="Arkadaş ekle" style="width:32px;height:32px;background:#18181b;border:1px solid #991b1b;color:#f87171;font-weight:900;border-radius:6px;cursor:pointer;font-size:18px;line-height:1;z-index:70;position:relative;">+</button>
+            </div>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest self-start w-full">Arkadaşlar</div>
+            <div id="friends-list" class="flex flex-col gap-1.5 max-h-64 overflow-y-auto w-44"></div>
         </div>
 
         <!-- SOL ALT: Güncelleme Defteri Butonu -->
@@ -415,13 +509,14 @@ svg{display:block;vertical-align:middle}
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.3 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.4 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.3 SÜRÜMÜNE GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>2 SORUN GİDERİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ FIRTINA SİSTEMİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>YENİ BİYOM EKLENDİ: WHARIN GİZLİ ORMANI.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.4 SÜRÜMÜNE GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>HESAP SİSTEMİ EKLENDİ (6 HARF İSİM + 6 HANELİ ŞİFRE).</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ARKADAŞLIK + ONLINE DURUM SİSTEMİ EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MULTIPLAYER DÜNYA + HOST (ERROR 456) EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>CHAT SİSTEMİ (C TUŞU) EKLENDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -437,7 +532,7 @@ svg{display:block;vertical-align:middle}
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.3</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.4</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -646,6 +741,703 @@ svg{display:block;vertical-align:middle}
         let moonMesh = null;
         let moonMat = null;
 
+
+        // ========== ALPHA 1.0.4 — HESAP / ARKADAŞ / MULTIPLAYER / CHAT ==========
+        const HM_ACCOUNTS_KEY = 'hm_accounts_v1';
+        const HM_SESSION_KEY = 'hm_session_v1';
+        const HM_FRIENDS_KEY = 'hm_friends_v1';
+
+        // Sandbox / file:// / iframe: localStorage yoksa bellek ici depolama
+        const _memStore = {};
+        let _canStore = false;
+        try {
+            const k = '__hm_test__';
+            window.localStorage.setItem(k, '1');
+            window.localStorage.removeItem(k);
+            _canStore = true;
+        } catch (e) {
+            _canStore = false;
+        }
+        function storeGet(key) {
+            try {
+                if (_canStore) return window.localStorage.getItem(key);
+            } catch (e) {}
+            return _memStore.hasOwnProperty(key) ? _memStore[key] : null;
+        }
+        function storeSet(key, val) {
+            try {
+                if (_canStore) {
+                    window.localStorage.setItem(key, val);
+                    return;
+                }
+            } catch (e) {}
+            _memStore[key] = String(val);
+        }
+        function storeRemove(key) {
+            try {
+                if (_canStore) {
+                    window.localStorage.removeItem(key);
+                    return;
+                }
+            } catch (e) {}
+            delete _memStore[key];
+        }
+
+        let currentUser = null; // { name, pass }
+        let mpPeer = null;
+        let mpIsHost = false;
+        let mpHostName = null;
+        let mpConnections = {}; // name -> DataConnection
+        let remotePlayers = {}; // name -> { mesh, targetPos, ... }
+        let mpInWorld = false;
+        let pendingFriendRequestFrom = null;
+        let friendPresence = {}; // name -> 'offline'|'menu'|'world'
+        let chatOpen = false;
+        let mpTickTimer = 0;
+
+        function loadAccounts() {
+            try { return JSON.parse(storeGet(HM_ACCOUNTS_KEY) || '{}'); } catch(e) { return {}; }
+        }
+        function saveAccounts(a) { storeSet(HM_ACCOUNTS_KEY, JSON.stringify(a)); }
+        function loadFriends(name) {
+            try {
+                const all = JSON.parse(storeGet(HM_FRIENDS_KEY) || '{}');
+                return all[name] || [];
+            } catch(e) { return []; }
+        }
+        function saveFriends(name, list) {
+            let all = {};
+            try { all = JSON.parse(storeGet(HM_FRIENDS_KEY) || '{}'); } catch(e) { all = {}; }
+            all[name] = list;
+            storeSet(HM_FRIENDS_KEY, JSON.stringify(all));
+        }
+        function normalizeName(s) {
+            return (s || '').trim().toUpperCase().replace(/[^A-ZÇĞİÖŞÜ]/g, '').slice(0, 6);
+        }
+        function isValidName(s) { return normalizeName(s).length === 6; }
+        function isValidPass(s) { return /^\d{6}$/.test((s || '').trim()); }
+
+        function showAuthScreen() {
+            const auth = document.getElementById('auth-screen');
+            const menu = document.getElementById('menu');
+            if (menu) menu.classList.add('hidden');
+            if (auth) auth.classList.remove('hidden');
+            const accounts = loadAccounts();
+            const hasAny = Object.keys(accounts).length > 0;
+            const choice = document.getElementById('auth-choice');
+            const form = document.getElementById('auth-form');
+            const title = document.getElementById('auth-title');
+            if (hasAny) {
+                choice.classList.remove('hidden');
+                choice.classList.add('flex');
+                form.classList.add('hidden');
+                title.innerText = 'HORROR MINI';
+            } else {
+                choice.classList.add('hidden');
+                form.classList.remove('hidden');
+                title.innerText = 'HESAP OLUŞTUR';
+                window._authMode = 'register';
+            }
+        }
+
+        function openAuthForm(mode) {
+            window._authMode = mode;
+            document.getElementById('auth-choice').classList.add('hidden');
+            document.getElementById('auth-form').classList.remove('hidden');
+            document.getElementById('auth-title').innerText = mode === 'login' ? 'GİRİŞ' : 'HESAP OLUŞTUR';
+            document.getElementById('auth-error').innerText = '';
+        }
+
+        function completeLogin(user) {
+            currentUser = user;
+            storeSet(HM_SESSION_KEY, JSON.stringify({ name: user.name }));
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('menu').classList.remove('hidden');
+            document.getElementById('menu').classList.add('flex');
+            const un = document.getElementById('menu-username');
+            if (un) un.innerText = user.name;
+            renderFriendsList();
+            startPresencePeer();
+        }
+
+        function handleAuthOk() {
+            const name = normalizeName(document.getElementById('auth-name').value);
+            const pass = (document.getElementById('auth-pass').value || '').trim();
+            const err = document.getElementById('auth-error');
+            if (!isValidName(name)) { err.innerText = 'İsim tam 6 harf olmalı.'; return; }
+            if (!isValidPass(pass)) { err.innerText = 'Şifre tam 6 hane (sayı) olmalı.'; return; }
+            const accounts = loadAccounts();
+            const mode = window._authMode || 'register';
+            if (mode === 'register') {
+                if (accounts[name]) { err.innerText = 'İSİM SEÇİLEMEDİ BAŞKA AD DENEYİN'; return; }
+                accounts[name] = { name, pass };
+                saveAccounts(accounts);
+                completeLogin({ name, pass });
+            } else {
+                const acc = accounts[name];
+                if (!acc || acc.pass !== pass) { err.innerText = 'İsim veya şifre hatalı.'; return; }
+                completeLogin({ name, pass });
+            }
+        }
+
+        function renderFriendsList() {
+            const box = document.getElementById('friends-list');
+            if (!box || !currentUser) return;
+            const friends = loadFriends(currentUser.name);
+            box.innerHTML = '';
+            friends.forEach(fname => {
+                const status = friendPresence[fname] || 'offline';
+                const color = status === 'world' ? '#22c55e' : (status === 'menu' ? '#3b82f6' : '#111');
+                const card = document.createElement('div');
+                card.className = 'relative bg-zinc-900/90 border border-zinc-700 rounded px-2 py-2 text-xs text-zinc-200 cursor-pointer select-none';
+                card.dataset.friend = fname;
+                card.innerHTML = `<span class="font-bold tracking-wider">${fname}</span>
+                    <span class="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-sm" style="background:${color};border:1px solid #444;"></span>`;
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    openFriendCtx(e.clientX, e.clientY, fname);
+                });
+                box.appendChild(card);
+            });
+        }
+
+        function openFriendCtx(x, y, fname) {
+            const ctx = document.getElementById('friend-ctx');
+            ctx.style.left = x + 'px';
+            ctx.style.top = y + 'px';
+            ctx.classList.remove('hidden');
+            ctx.dataset.friend = fname;
+        }
+        document.addEventListener('click', () => {
+            const ctx = document.getElementById('friend-ctx');
+            if (ctx) ctx.classList.add('hidden');
+        });
+
+        function peerIdFor(name) {
+            // PeerJS id: lowercase alphanumeric
+            return ('hm_' + name.toLowerCase().replace(/[^a-z0-9]/g, 'x')).slice(0, 20);
+        }
+
+        function startPresencePeer() {
+            if (!currentUser || typeof Peer === 'undefined') return;
+            try {
+                if (mpPeer) { try { mpPeer.destroy(); } catch(e) {} }
+                mpPeer = new Peer(peerIdFor(currentUser.name), { debug: 0 });
+                mpPeer.on('open', () => {
+                    broadcastPresence('menu');
+                    // poll friends presence by attempting lightweight connect is heavy; use data channel when they connect to us
+                });
+                mpPeer.on('connection', (conn) => {
+                    setupDataConn(conn);
+                });
+                mpPeer.on('error', (err) => {
+                    console.warn('Peer error', err);
+                });
+            } catch (e) {
+                console.warn('PeerJS init failed', e);
+            }
+        }
+
+        function setupDataConn(conn) {
+            conn.on('open', () => {
+                const remoteName = (conn.metadata && conn.metadata.name) || conn.peer;
+                mpConnections[conn.peer] = conn;
+                conn.on('data', (data) => handleMpData(data, conn));
+                // send hello
+                conn.send({ t: 'hello', name: currentUser.name, status: mpInWorld ? 'world' : 'menu' });
+            });
+            conn.on('close', () => {
+                const name = conn.metadata && conn.metadata.name;
+                delete mpConnections[conn.peer];
+                if (name && remotePlayers[name]) {
+                    removeRemotePlayer(name);
+                }
+                if (mpInWorld && !mpIsHost && name === mpHostName) {
+                    showError456();
+                }
+            });
+        }
+
+        function connectToPeer(name, metadata) {
+            if (!mpPeer) return null;
+            const id = peerIdFor(name);
+            const conn = mpPeer.connect(id, { metadata: { name: currentUser.name, ...(metadata || {}) } });
+            setupDataConn(conn);
+            return conn;
+        }
+
+        function broadcastPresence(status) {
+            // try notify friends
+            if (!currentUser) return;
+            const friends = loadFriends(currentUser.name);
+            friends.forEach(f => {
+                try {
+                    const existing = Object.values(mpConnections).find(c => c.metadata && c.metadata.name === f);
+                    if (existing && existing.open) {
+                        existing.send({ t: 'presence', name: currentUser.name, status });
+                    } else {
+                        const c = connectToPeer(f, { purpose: 'presence' });
+                        if (c) {
+                            c.on('open', () => c.send({ t: 'presence', name: currentUser.name, status }));
+                        }
+                    }
+                } catch (e) {}
+            });
+        }
+
+        function handleMpData(data, conn) {
+            if (!data || !data.t) return;
+            if (data.t === 'hello' || data.t === 'presence') {
+                if (data.name) {
+                    friendPresence[data.name] = data.status || 'menu';
+                    renderFriendsList();
+                }
+            }
+            if (data.t === 'friend_req') {
+                showFriendRequestUI(data.from);
+            }
+            if (data.t === 'friend_accept') {
+                const friends = loadFriends(currentUser.name);
+                if (!friends.includes(data.from)) {
+                    friends.push(data.from);
+                    saveFriends(currentUser.name, friends);
+                    renderFriendsList();
+                }
+            }
+            if (data.t === 'chat') {
+                appendChat(data.from, data.msg);
+            }
+            if (data.t === 'pos' && data.name && data.name !== currentUser.name) {
+                updateRemotePlayer(data);
+            }
+            if (data.t === 'join_world' && mpIsHost && mpInWorld) {
+                // client wants world seed + state
+                conn.send({
+                    t: 'world_sync',
+                    seed: worldSeed,
+                    host: currentUser.name,
+                    pos: { x: player.pos.x, y: player.pos.y, z: player.pos.z }
+                });
+                conn.send({ t: 'presence', name: currentUser.name, status: 'world' });
+            }
+            if (data.t === 'world_sync' && !mpIsHost) {
+                // join as client with same seed
+                mpHostName = data.host;
+                window._pendingJoinSeed = data.seed;
+                window._pendingJoinHostPos = data.pos;
+                finishJoinWorld();
+            }
+            if (data.t === 'host_left') {
+                showError456();
+            }
+            if (data.t === 'player_left' && data.name) {
+                removeRemotePlayer(data.name);
+            }
+        }
+
+        function openFriendAddModal() {
+            const m = document.getElementById('friend-add-modal');
+            if (!m) return;
+            m.style.display = 'flex';
+            const msg = document.getElementById('friend-add-msg');
+            if (msg) { msg.innerText = ''; msg.style.color = '#a1a1aa'; }
+            const inp = document.getElementById('friend-add-name');
+            if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 50); }
+        }
+        function closeFriendAddModal() {
+            const m = document.getElementById('friend-add-modal');
+            if (m) m.style.display = 'none';
+        }
+        function showFriendRequestUI(fromName) {
+            pendingFriendRequestFrom = fromName;
+            const toast = document.getElementById('friend-request-toast');
+            const txt = document.getElementById('friend-request-text');
+            if (txt) txt.innerText = '[' + fromName + '] SANA BİR ARKADAŞLIK İSTEĞİ ATTI!';
+            if (toast) toast.style.display = 'block';
+        }
+        function hideFriendRequestUI() {
+            const toast = document.getElementById('friend-request-toast');
+            if (toast) toast.style.display = 'none';
+            pendingFriendRequestFrom = null;
+        }
+
+        function sendFriendRequest(targetName) {
+            targetName = normalizeName(targetName);
+            const msg = document.getElementById('friend-add-msg');
+            if (!msg || !currentUser) return;
+            if (!isValidName(targetName)) { msg.innerText = 'İsim tam 6 harf olmalı.'; msg.style.color = '#f66'; return; }
+            if (targetName === currentUser.name) { msg.innerText = 'Kendini ekleyemezsin.'; msg.style.color = '#f66'; return; }
+            const accounts = loadAccounts();
+            // Isim hesaplarla tamamen uyusmali
+            if (!accounts[targetName]) {
+                msg.innerText = 'Bu isimde bir oyuncu bulunamadı.';
+                msg.style.color = '#f66';
+                return;
+            }
+            const friends = loadFriends(currentUser.name);
+            if (friends.includes(targetName)) {
+                msg.innerText = 'Zaten arkadaşsınız.';
+                msg.style.color = '#6f6';
+                return;
+            }
+            // Her zaman yerel kuyruga yaz (karsi hesap girince gorur)
+            queueLocalFriendReq(targetName);
+            msg.innerText = 'Arkadaşlık isteği gönderildi!';
+            msg.style.color = '#6f6';
+            // Online ise PeerJS ile aninda bildir
+            try {
+                const conn = connectToPeer(targetName, { purpose: 'friend_req' });
+                if (conn) {
+                    conn.on('open', () => {
+                        conn.send({ t: 'friend_req', from: currentUser.name });
+                    });
+                }
+            } catch (e) {}
+            setTimeout(() => closeFriendAddModal(), 800);
+        }
+
+        function queueLocalFriendReq(targetName) {
+            const key = 'hm_pending_req_' + targetName;
+            const list = JSON.parse(storeGet(key) || '[]');
+            if (!list.includes(currentUser.name)) list.push(currentUser.name);
+            storeSet(key, JSON.stringify(list));
+        }
+
+        function checkLocalFriendReqs() {
+            if (!currentUser) return;
+            const key = 'hm_pending_req_' + currentUser.name;
+            const list = JSON.parse(storeGet(key) || '[]');
+            if (list.length) {
+                showFriendRequestUI(list[0]);
+            }
+        }
+
+        function acceptFriend() {
+            if (!pendingFriendRequestFrom || !currentUser) return;
+            const from = pendingFriendRequestFrom;
+            const friends = loadFriends(currentUser.name);
+            if (!friends.includes(from)) {
+                friends.push(from);
+                saveFriends(currentUser.name, friends);
+            }
+            // mutual local
+            const their = loadFriends(from);
+            if (!their.includes(currentUser.name)) {
+                their.push(currentUser.name);
+                saveFriends(from, their);
+            }
+            // remove pending
+            const key = 'hm_pending_req_' + currentUser.name;
+            let list = JSON.parse(storeGet(key) || '[]');
+            list = list.filter(x => x !== from);
+            storeSet(key, JSON.stringify(list));
+            // notify
+            try {
+                const conn = connectToPeer(from);
+                if (conn) conn.on('open', () => conn.send({ t: 'friend_accept', from: currentUser.name }));
+            } catch(e) {}
+            hideFriendRequestUI();
+            renderFriendsList();
+        }
+
+        function declineFriend() {
+            if (pendingFriendRequestFrom && currentUser) {
+                const key = 'hm_pending_req_' + currentUser.name;
+                let list = JSON.parse(storeGet(key) || '[]');
+                list = list.filter(x => x !== pendingFriendRequestFrom);
+                storeSet(key, JSON.stringify(list));
+            }
+            hideFriendRequestUI();
+        }
+
+        function tryJoinFriend(fname) {
+            const status = friendPresence[fname] || 'offline';
+            if (status !== 'world') {
+                const m = document.getElementById('not-in-world-modal');
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+                return;
+            }
+            const ov = document.getElementById('connect-overlay');
+            const ct = document.getElementById('connect-text');
+            ov.classList.remove('hidden');
+            ov.classList.add('flex');
+            ct.innerText = 'Arkadaşının dünyasına bağlanılıyor...';
+            mpIsHost = false;
+            mpHostName = fname;
+            const conn = connectToPeer(fname, { purpose: 'join' });
+            if (!conn) {
+                ct.innerText = 'Bağlantı başarısız.';
+                setTimeout(() => ov.classList.add('hidden'), 1500);
+                return;
+            }
+            conn.on('open', () => {
+                ct.innerText = 'Bağlantı başarılı! Dünya yükleniyor...';
+                conn.send({ t: 'join_world', name: currentUser.name });
+            });
+            setTimeout(() => {
+                if (!mpInWorld) {
+                    ct.innerText = 'Zaman aşımı / oyuncu dünyada değil.';
+                    setTimeout(() => { ov.classList.add('hidden'); }, 1500);
+                }
+            }, 8000);
+        }
+
+        function finishJoinWorld() {
+            const ov = document.getElementById('connect-overlay');
+            if (ov) ov.classList.add('hidden');
+            if (window._pendingJoinSeed != null) {
+                window._forceSeed = window._pendingJoinSeed;
+                window._pendingJoinSeed = null;
+            }
+            mpInWorld = true;
+            mpIsHost = false;
+            const menu = document.getElementById('menu');
+            if (menu) {
+                menu.classList.add('hidden');
+                menu.style.display = 'none';
+            }
+            document.getElementById('ui-overlay').style.display = 'block';
+            document.getElementById('gpu-monitor').style.display = 'block';
+            document.getElementById('crosshair').style.display = 'block';
+            document.getElementById('hud-bottom').style.display = 'flex';
+            if (!gameActive) {
+                audio.init();
+                initGame();
+                requestPointerLock();
+            }
+            document.getElementById('chat-log')?.classList.remove('hidden');
+            document.getElementById('mp-player-list')?.classList.remove('hidden');
+            updateMpPlayerList();
+            broadcastPresence('world');
+        }
+
+        function hostStartWorld() {
+            mpIsHost = true;
+            mpInWorld = true;
+            mpHostName = currentUser ? currentUser.name : null;
+            broadcastPresence('world');
+            document.getElementById('chat-log').classList.remove('hidden');
+            document.getElementById('mp-player-list').classList.remove('hidden');
+            updateMpPlayerList();
+        }
+
+        function leaveMultiplayer(isHostLeaving) {
+            if (isHostLeaving || mpIsHost) {
+                Object.values(mpConnections).forEach(c => {
+                    try { c.send({ t: 'host_left' }); c.close(); } catch(e) {}
+                });
+            } else {
+                Object.values(mpConnections).forEach(c => {
+                    try { c.send({ t: 'player_left', name: currentUser.name }); c.close(); } catch(e) {}
+                });
+            }
+            Object.keys(remotePlayers).forEach(removeRemotePlayer);
+            mpInWorld = false;
+            mpIsHost = false;
+            mpHostName = null;
+            document.getElementById('chat-log').classList.add('hidden');
+            document.getElementById('mp-player-list').classList.add('hidden');
+            broadcastPresence('menu');
+        }
+
+        function showError456() {
+            leaveMultiplayer(false);
+            if (gameActive) resetGameToMenu();
+            const e = document.getElementById('error-456');
+            e.classList.remove('hidden');
+            e.classList.add('flex');
+        }
+
+        function createRemoteMesh(name) {
+            const g = new THREE.Group();
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(0.6, 1.2, 0.4),
+                new THREE.MeshLambertMaterial({ color: 0xcc3333 })
+            );
+            body.position.y = 0.9;
+            const head = new THREE.Mesh(
+                new THREE.BoxGeometry(0.45, 0.45, 0.45),
+                new THREE.MeshLambertMaterial({ color: 0xe8c4a0 })
+            );
+            head.position.y = 1.7;
+            g.add(body);
+            g.add(head);
+            // name label billboard simple
+            g.userData.name = name;
+            scene.add(g);
+            return g;
+        }
+
+        function updateRemotePlayer(data) {
+            if (!scene) return;
+            let rp = remotePlayers[data.name];
+            if (!rp) {
+                const mesh = createRemoteMesh(data.name);
+                rp = { mesh, name: data.name };
+                remotePlayers[data.name] = rp;
+            }
+            rp.mesh.position.set(data.x, data.y, data.z);
+            if (data.ry != null) rp.mesh.rotation.y = data.ry;
+            updateMpPlayerList();
+        }
+
+        function removeRemotePlayer(name) {
+            const rp = remotePlayers[name];
+            if (rp && rp.mesh) {
+                scene.remove(rp.mesh);
+                rp.mesh.traverse(c => {
+                    if (c.geometry) c.geometry.dispose();
+                    if (c.material) c.material.dispose();
+                });
+            }
+            delete remotePlayers[name];
+            updateMpPlayerList();
+        }
+
+        function updateMpPlayerList() {
+            const el = document.getElementById('mp-player-list');
+            if (!el || !currentUser) return;
+            let html = '<div class="text-zinc-500 mb-1">Oyuncular</div>';
+            html += `<div>${currentUser.name}${mpIsHost ? ' — HOST' : ''}</div>`;
+            Object.keys(remotePlayers).forEach(n => {
+                html += `<div>${n}${n === mpHostName ? ' — HOST' : ''}</div>`;
+            });
+            el.innerHTML = html;
+        }
+
+        function mpBroadcast(obj) {
+            Object.values(mpConnections).forEach(c => {
+                if (c.open) try { c.send(obj); } catch(e) {}
+            });
+        }
+
+        function mpSendPos() {
+            if (!mpInWorld || !currentUser) return;
+            mpBroadcast({
+                t: 'pos',
+                name: currentUser.name,
+                x: player.pos.x,
+                y: player.pos.y,
+                z: player.pos.z,
+                ry: camera.rotation.y
+            });
+        }
+
+        function appendChat(from, msg) {
+            const log = document.getElementById('chat-log');
+            if (log) {
+                const line = document.createElement('div');
+                line.style.color = '#eee';
+                line.innerHTML = `<span style="color:#f66">${from}:</span> ${msg.replace(/[<>]/g,'')}`;
+                log.appendChild(line);
+                log.scrollTop = log.scrollHeight;
+                while (log.children.length > 30) log.removeChild(log.firstChild);
+            }
+            const toast = document.getElementById('chat-toast');
+            if (toast) {
+                toast.innerText = '💬 ' + from + ': ' + msg;
+                toast.classList.remove('hidden');
+                clearTimeout(window._chatToastT);
+                window._chatToastT = setTimeout(() => toast.classList.add('hidden'), 3500);
+            }
+        }
+
+        function toggleChat() {
+            if (!mpInWorld && !gameActive) return;
+            chatOpen = !chatOpen;
+            const wrap = document.getElementById('chat-input-wrap');
+            const input = document.getElementById('chat-input');
+            const log = document.getElementById('chat-log');
+            if (chatOpen) {
+                wrap.classList.remove('hidden');
+                log.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+                document.exitPointerLock();
+            } else {
+                wrap.classList.add('hidden');
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = (input.value || '').trim();
+            if (!msg || !currentUser) return;
+            appendChat(currentUser.name, msg);
+            mpBroadcast({ t: 'chat', from: currentUser.name, msg });
+            input.value = '';
+            chatOpen = false;
+            document.getElementById('chat-input-wrap').classList.add('hidden');
+        }
+
+        function initAuthUI() {
+            document.getElementById('btn-auth-login')?.addEventListener('click', () => openAuthForm('login'));
+            document.getElementById('btn-auth-register')?.addEventListener('click', () => openAuthForm('register'));
+            document.getElementById('btn-auth-ok')?.addEventListener('click', handleAuthOk);
+            document.getElementById('btn-add-friend')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFriendAddModal();
+            });
+            document.getElementById('btn-friend-add-close')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeFriendAddModal();
+            });
+            document.getElementById('btn-friend-send')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                sendFriendRequest(document.getElementById('friend-add-name').value);
+            });
+            document.getElementById('friend-add-name')?.addEventListener('keydown', (e) => {
+                if (e.code === 'Enter') {
+                    e.preventDefault();
+                    sendFriendRequest(document.getElementById('friend-add-name').value);
+                }
+            });
+            document.getElementById('btn-friend-accept')?.addEventListener('click', acceptFriend);
+            document.getElementById('btn-friend-decline')?.addEventListener('click', declineFriend);
+            document.getElementById('btn-friend-join')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const fname = document.getElementById('friend-ctx').dataset.friend;
+                if (fname) tryJoinFriend(fname);
+            });
+            document.getElementById('btn-not-in-world-close')?.addEventListener('click', () => {
+                document.getElementById('not-in-world-modal').classList.add('hidden');
+            });
+            document.getElementById('btn-error-456-ok')?.addEventListener('click', () => {
+                document.getElementById('error-456').classList.add('hidden');
+            });
+            document.getElementById('chat-input')?.addEventListener('keydown', (e) => {
+                if (e.code === 'Enter') { e.preventDefault(); sendChatMessage(); }
+                if (e.code === 'Escape') { chatOpen = false; document.getElementById('chat-input-wrap').classList.add('hidden'); }
+                e.stopPropagation();
+            });
+            // session
+            try {
+                const sess = JSON.parse(storeGet(HM_SESSION_KEY) || 'null');
+                const accounts = loadAccounts();
+                if (sess && sess.name && accounts[sess.name]) {
+                    completeLogin(accounts[sess.name]);
+                    checkLocalFriendReqs();
+                    return;
+                }
+            } catch(e) {}
+            showAuthScreen();
+            checkLocalFriendReqs();
+        }
+
+        // init auth after DOM
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAuthUI);
+        } else {
+            setTimeout(initAuthUI, 0);
+        }
+        // Bekleyen istekleri periyodik kontrol (diger sekme/hesap)
+        setInterval(() => {
+            if (currentUser && !gameActive) checkLocalFriendReqs();
+        }, 2000);
+
+
         const player = {
             pos: new THREE.Vector3(0, 40, 0),
             vel: new THREE.Vector3(0, 0, 0),
@@ -657,6 +1449,8 @@ svg{display:block;vertical-align:middle}
             inWater: false,
             isUnderwater: false,
             isCrouching: false,
+            isFlying: false,
+            flySpeed: 0.12,
             height: 1.8,
             radius: 0.35,
             isSprinting: false,
@@ -1127,7 +1921,13 @@ svg{display:block;vertical-align:middle}
 
         document.getElementById('btn-create').addEventListener('click', (e) => {
             e.stopPropagation();
+            if (!currentUser) {
+                showAuthScreen();
+                return;
+            }
             audio.init();
+            mpIsHost = true;
+            mpInWorld = false; // hostStartWorld initGame sonunda cagrilir
 
             document.getElementById('menu').style.opacity = '0';
             setTimeout(() => {
@@ -1211,6 +2011,7 @@ svg{display:block;vertical-align:middle}
         function initGame() {
             gameActive = true;
             isPaused = false;
+            player.isFlying = false;
             dayNightTimer = 0;
             isBloodMoon = false;
             hasCheckedBloodMoonThisNight = false;
@@ -1238,8 +2039,13 @@ svg{display:block;vertical-align:middle}
             insideTowerBiomeIdx = -1;
             biomeAggroTriggered.fill(false);
 
-            const seeds = generate32BitSeed();
-            worldSeed = seeds.seed32;
+            if (window._forceSeed != null) {
+                worldSeed = (window._forceSeed >>> 0);
+                window._forceSeed = null;
+            } else {
+                const seeds = generate32BitSeed();
+                worldSeed = seeds.seed32;
+            }
             const seedEl = document.getElementById('ui-seed');
             if (seedEl) seedEl.innerText = String(worldSeed >>> 0);
 
@@ -1345,6 +2151,16 @@ svg{display:block;vertical-align:middle}
             startOpeningStorm();
             lastFrameTime = performance.now();
             clock.getDelta(); // sifirla
+
+            // Multiplayer: host veya client
+            if (currentUser) {
+                if (!mpInWorld) hostStartWorld();
+                else {
+                    document.getElementById('chat-log')?.classList.remove('hidden');
+                    document.getElementById('mp-player-list')?.classList.remove('hidden');
+                    updateMpPlayerList();
+                }
+            }
 
             window.addEventListener('keydown', handleKeyDown);
             window.addEventListener('keyup', handleKeyUp);
@@ -3051,9 +3867,13 @@ svg{display:block;vertical-align:middle}
             moveDir.normalize();
 
             let currentSpeed = player.inWater ? player.speed * 0.45 : player.speed;
+            if (player.isFlying) {
+                currentSpeed = player.flySpeed;
+                speedMultiplier = player.isSprinting ? 1.8 : 1.0;
+            }
             currentSpeed *= speedMultiplier * frameScale;
 
-            if (fishDebuffTimer > 0) {
+            if (fishDebuffTimer > 0 && !player.isFlying) {
                 currentSpeed *= 0.5;
             }
 
@@ -3092,66 +3912,86 @@ svg{display:block;vertical-align:middle}
                 }
             }
 
-            const gravity = (player.inWater ? 0.003 : 0.008) * frameScale;
-            
             // Düşüşten kurtarma mekaniği
             if (player.pos.y < -5) {
                 player.pos.y = 40;
                 player.vel.y = 0;
             }
 
-            const onGroundNow = checkCollision(player.pos.x, player.pos.y - 0.05, player.pos.z);
-            if (onGroundNow) {
-                player.onGround = true;
-                if (player.vel.y < 0) player.vel.y = 0;
-            } else {
+            if (player.isFlying) {
+                // Creative ucus: yercekimi yok, Space yukari / Ctrl asagi, blok carpismasi var
                 player.onGround = false;
-                player.vel.y -= gravity;
-            }
-
-            player.pos.y += player.vel.y * frameScale;
-
-            if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                if (player.vel.y < 0) {
-                    player.pos.y = Math.ceil(player.pos.y);
-                    while (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                        player.pos.y += 0.01;
-                    }
-                    player.onGround = true;
-                    player.vel.y = 0;
-                } else if (player.vel.y > 0) {
-                    player.pos.y = Math.floor(player.pos.y);
-                    while (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                        player.pos.y -= 0.01;
-                    }
-                    player.vel.y = 0;
-                }
-            }
-
-            if (player.onGround && (dx !== 0 || dz !== 0)) {
-                player.stepAccumulator += currentSpeed;
-                const stepInterval = player.isSprinting ? 0.5 : 0.75;
-                if (player.stepAccumulator >= stepInterval) {
-                    player.stepAccumulator = 0;
-                    const blockBelow = getBlock(player.pos.x, player.pos.y - 0.15, player.pos.z);
-                    if (blockBelow === 'grass' || blockBelow === 'grayGrass') {
-                        audio.playStepSound('grass');
-                    } else if (blockBelow === 'sand' || blockBelow === 'slightlyWetSand' || blockBelow === 'wetSand') {
-                        audio.playStepSound('dirt');
-                    } else if (blockBelow === 'dirt' || blockBelow === 'grayDirt' || blockBelow === 'stone' || blockBelow === 'grayStone') {
-                        audio.playStepSound('dirt');
+                player.isCrouching = false;
+                player.height = 1.8;
+                let flySpd = player.flySpeed * (player.isSprinting ? 1.8 : 1.0) * frameScale;
+                let dy = 0;
+                if (keys['Space']) dy += flySpd;
+                if (keys['ControlLeft'] || keys['ControlRight']) dy -= flySpd;
+                // Yatay hiz ucusta da gecerli (currentSpeed zaten uygulandi)
+                if (dy !== 0) {
+                    player.pos.y += dy;
+                    if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
+                        player.pos.y -= dy; // bloktan gecemez
                     }
                 }
-            } else {
+                player.vel.y = 0;
                 player.stepAccumulator = 0;
-            }
+            } else {
+                const gravity = (player.inWater ? 0.003 : 0.008) * frameScale;
 
-            if (keys['Space']) {
-                if (player.onGround) {
-                    player.vel.y = player.jumpForce;
+                const onGroundNow = checkCollision(player.pos.x, player.pos.y - 0.05, player.pos.z);
+                if (onGroundNow) {
+                    player.onGround = true;
+                    if (player.vel.y < 0) player.vel.y = 0;
+                } else {
                     player.onGround = false;
-                } else if (player.inWater) {
-                    player.vel.y = 0.065; 
+                    player.vel.y -= gravity;
+                }
+
+                player.pos.y += player.vel.y * frameScale;
+
+                if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
+                    if (player.vel.y < 0) {
+                        player.pos.y = Math.ceil(player.pos.y);
+                        while (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
+                            player.pos.y += 0.01;
+                        }
+                        player.onGround = true;
+                        player.vel.y = 0;
+                    } else if (player.vel.y > 0) {
+                        player.pos.y = Math.floor(player.pos.y);
+                        while (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
+                            player.pos.y -= 0.01;
+                        }
+                        player.vel.y = 0;
+                    }
+                }
+
+                if (player.onGround && (dx !== 0 || dz !== 0)) {
+                    player.stepAccumulator += currentSpeed;
+                    const stepInterval = player.isSprinting ? 0.5 : 0.75;
+                    if (player.stepAccumulator >= stepInterval) {
+                        player.stepAccumulator = 0;
+                        const blockBelow = getBlock(player.pos.x, player.pos.y - 0.15, player.pos.z);
+                        if (blockBelow === 'grass' || blockBelow === 'grayGrass' || blockBelow === 'darkGrass') {
+                            audio.playStepSound('grass');
+                        } else if (blockBelow === 'sand' || blockBelow === 'slightlyWetSand' || blockBelow === 'wetSand') {
+                            audio.playStepSound('dirt');
+                        } else if (blockBelow === 'dirt' || blockBelow === 'grayDirt' || blockBelow === 'stone' || blockBelow === 'grayStone') {
+                            audio.playStepSound('dirt');
+                        }
+                    }
+                } else {
+                    player.stepAccumulator = 0;
+                }
+
+                if (keys['Space']) {
+                    if (player.onGround) {
+                        player.vel.y = player.jumpForce;
+                        player.onGround = false;
+                    } else if (player.inWater) {
+                        player.vel.y = 0.065; 
+                    }
                 }
             }
 
@@ -3518,6 +4358,19 @@ svg{display:block;vertical-align:middle}
                     player.pos.copy(safe);
                 }
                 audio.playBeep(220, 'square', 0.25, 0.15);
+            }
+
+            // F: ucus modu (creative fly) - bloklardan gecemez
+            if (e.code === 'KeyF' && !e.repeat) {
+                player.isFlying = !player.isFlying;
+                player.vel.set(0, 0, 0);
+                audio.playBeep(player.isFlying ? 440 : 220, 'sine', 0.12, 0.12);
+            }
+
+            // C: chat
+            if (e.code === 'KeyC' && !e.repeat && gameActive) {
+                e.preventDefault();
+                toggleChat();
             }
         }
 
@@ -4029,6 +4882,7 @@ svg{display:block;vertical-align:middle}
         }
 
         function resetGameToMenu() {
+            leaveMultiplayer(mpIsHost);
             gameActive = false;
             isPaused = false;
             
@@ -4212,6 +5066,11 @@ svg{display:block;vertical-align:middle}
             if (dt > 0.05) dt = 0.05;
             const frameScale = Math.min(dt * TARGET_FPS, 2.0);
             updatePhysics(frameScale);
+            mpTickTimer += dt;
+            if (mpTickTimer >= 0.1) {
+                mpTickTimer = 0;
+                if (mpInWorld) mpSendPos();
+            }
             chunkRebuildTimer += dt;
             if (chunkRebuildTimer >= 0.1) {
                 chunkRebuildTimer = 0;
