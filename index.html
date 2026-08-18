@@ -938,13 +938,349 @@ svg{display:block;vertical-align:middle}
             }
         }
 
+
+        // ========== SECURITY LAYER (Alpha 1.0.4) ==========
+        // Client -> PeerJS -> Security -> Host Validation -> Game State
+        const Security = (() => {
+            const PROTOCOL = 1;
+            const MAX_PACKET_CHARS = 4096;
+            const MAX_STRING = 200;
+            const MAX_CHAT = 120;
+            const ALLOWED_TYPES = new Set([
+                'hello','presence','friend_req','friend_accept','chat','pos',
+                'join_world','world_sync','host_left','player_left',
+                'block_req','block_ack','storm_event','ping','pong'
+            ]);
+            // Rate limits (per peer id)
+            const peerStats = new Map(); // peerId -> { packets, chat, flags, lastPos, lastPosTime, violations }
+            const GLOBAL_PKT_WINDOW = 1000;
+            const MAX_PKT_PER_SEC = 40;
+            const MAX_CHAT_PER_SEC = 3;
+            const MAX_VIOLATIONS = 12;
+            const MAX_SPEED = 18; // units/sec (fly+sprint toleransli)
+            const MAX_TELEPORT = 40; // tek pakette max mesafe (spawn/tornado toleransi)
+            const DEV_LOG = true;
+
+            function log(kind, detail) {
+                if (!DEV_LOG) return;
+                try { console.warn('[SEC]', kind, detail || ''); } catch (e) {}
+            }
+
+            function getStats(peerId) {
+                if (!peerStats.has(peerId)) {
+                    peerStats.set(peerId, {
+                        windowStart: Date.now(),
+                        packets: 0,
+                        chat: 0,
+                        flags: 0,
+                        violations: 0,
+                        lastPos: null,
+                        lastPosTime: 0,
+                        chatBlockedUntil: 0
+                    });
+                }
+                return peerStats.get(peerId);
+            }
+
+            function rateLimit(peerId, isChat) {
+                const s = getStats(peerId);
+                const now = Date.now();
+                if (now - s.windowStart > GLOBAL_PKT_WINDOW) {
+                    s.windowStart = now;
+                    s.packets = 0;
+                    s.chat = 0;
+                }
+                s.packets++;
+                if (s.packets > MAX_PKT_PER_SEC) {
+                    s.flags++;
+                    log('packet_flood', peerId);
+                    if (s.flags > 8) {
+                        s.violations++;
+                        return false;
+                    }
+                    return false;
+                }
+                if (isChat) {
+                    if (now < s.chatBlockedUntil) return false;
+                    s.chat++;
+                    if (s.chat > MAX_CHAT_PER_SEC) {
+                        s.chatBlockedUntil = now + 4000;
+                        s.violations++;
+                        log('chat_spam', peerId);
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function finiteNum(n, min, max) {
+                if (typeof n !== 'number' || !Number.isFinite(n)) return false;
+                if (n < min || n > max) return false;
+                return true;
+            }
+
+            function sanitizeString(str, maxLen) {
+                if (typeof str !== 'string') return null;
+                if (str.length > maxLen) str = str.slice(0, maxLen);
+                // XSS: strip tags and control chars
+                str = str.replace(/[<>]/g, '').replace(/[\u0000-\u001F\u007F]/g, '');
+                return str;
+            }
+
+            function validateRaw(raw, peerId) {
+                if (raw == null) return null;
+                // size
+                let size = 0;
+                try {
+                    size = typeof raw === 'string' ? raw.length : JSON.stringify(raw).length;
+                } catch (e) {
+                    log('invalid_json', peerId);
+                    return null;
+                }
+                if (size > MAX_PACKET_CHARS) {
+                    log('packet_too_large', size);
+                    return null;
+                }
+                let data = raw;
+                if (typeof raw === 'string') {
+                    try { data = JSON.parse(raw); } catch (e) {
+                        log('invalid_json', peerId);
+                        return null;
+                    }
+                }
+                if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+                    log('invalid_packet_type', peerId);
+                    return null;
+                }
+                if (!data.t || typeof data.t !== 'string' || !ALLOWED_TYPES.has(data.t)) {
+                    log('unknown_command', data.t);
+                    return null;
+                }
+                // protocol optional
+                if (data.v != null && data.v !== PROTOCOL) {
+                    log('bad_protocol', data.v);
+                    return null;
+                }
+                return data;
+            }
+
+            function validateChat(data) {
+                const from = sanitizeString(data.from, 6);
+                const msg = sanitizeString(data.msg, MAX_CHAT);
+                if (!from || !msg || from.length !== 6) return null;
+                return { t: 'chat', from, msg, v: PROTOCOL };
+            }
+
+            function validatePos(data, peerId, isHost) {
+                const name = sanitizeString(data.name, 6);
+                if (!name || name.length !== 6) return null;
+                if (!finiteNum(data.x, -50000, 50000)) return null;
+                if (!finiteNum(data.y, -100, 500)) return null;
+                if (!finiteNum(data.z, -50000, 50000)) return null;
+                if (data.ry != null && !finiteNum(data.ry, -100, 100)) return null;
+
+                const s = getStats(peerId);
+                const now = Date.now();
+                if (s.lastPos) {
+                    const dt = Math.max(0.05, (now - s.lastPosTime) / 1000);
+                    const dx = data.x - s.lastPos.x;
+                    const dy = data.y - s.lastPos.y;
+                    const dz = data.z - s.lastPos.z;
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    // Legitimate: tornado pull, fly, spawn jump
+                    if (dist > MAX_TELEPORT) {
+                        s.violations++;
+                        log('teleport_violation', { name, dist });
+                        // reject extreme teleports (not soft-correct)
+                        if (dist > MAX_TELEPORT * 3) return null;
+                    }
+                    const speed = dist / dt;
+                    if (speed > MAX_SPEED) {
+                        s.violations++;
+                        log('speed_violation', { name, speed: speed.toFixed(1) });
+                        // soft clamp toward last pos for host view
+                        if (isHost && speed > MAX_SPEED * 2) {
+                            const f = (MAX_SPEED * dt) / dist;
+                            data = {
+                                t: 'pos', name,
+                                x: s.lastPos.x + dx * f,
+                                y: s.lastPos.y + dy * f,
+                                z: s.lastPos.z + dz * f,
+                                ry: data.ry,
+                                v: PROTOCOL
+                            };
+                        }
+                    }
+                }
+                s.lastPos = { x: data.x, y: data.y, z: data.z };
+                s.lastPosTime = now;
+                return {
+                    t: 'pos', name,
+                    x: data.x, y: data.y, z: data.z,
+                    ry: data.ry != null ? data.ry : 0,
+                    v: PROTOCOL
+                };
+            }
+
+            function validatePresence(data) {
+                const name = sanitizeString(data.name || data.from, 6);
+                if (!name || name.length !== 6) return null;
+                const status = data.status === 'world' || data.status === 'menu' ? data.status : 'menu';
+                return { t: data.t, name, status, from: sanitizeString(data.from, 6), v: PROTOCOL };
+            }
+
+            function validateBlockReq(data, peerId) {
+                // Only host processes; clients send requests
+                const name = sanitizeString(data.name, 6);
+                if (!name) return null;
+                if (!finiteNum(data.x, -50000, 50000)) return null;
+                if (!finiteNum(data.y, 0, 80)) return null;
+                if (!finiteNum(data.z, -50000, 50000)) return null;
+                if (data.action !== 'break' && data.action !== 'place') return null;
+                if (data.action === 'place') {
+                    const bt = sanitizeString(data.blockType, 32);
+                    if (!bt) return null;
+                    data.blockType = bt;
+                }
+                // Host: player must be near block
+                if (typeof getStats === 'function') {
+                    const s = getStats(peerId);
+                    if (s.lastPos) {
+                        const d = Math.hypot(data.x - s.lastPos.x, data.z - s.lastPos.z);
+                        if (d > 8) {
+                            log('block_too_far', { name, d });
+                            return null;
+                        }
+                    }
+                }
+                return {
+                    t: 'block_req',
+                    name,
+                    action: data.action,
+                    x: Math.floor(data.x),
+                    y: Math.floor(data.y),
+                    z: Math.floor(data.z),
+                    blockType: data.blockType || null,
+                    v: PROTOCOL
+                };
+            }
+
+            function shouldKick(peerId) {
+                const s = getStats(peerId);
+                return s.violations >= MAX_VIOLATIONS;
+            }
+
+            function processIncoming(raw, peerId, isHost) {
+                if (!rateLimit(peerId, false)) {
+                    if (shouldKick(peerId)) return { kick: true, reason: 'flood' };
+                    return null;
+                }
+                const data = validateRaw(raw, peerId);
+                if (!data) return null;
+
+                let clean = null;
+                switch (data.t) {
+                    case 'chat':
+                        if (!rateLimit(peerId, true)) return null;
+                        clean = validateChat(data);
+                        break;
+                    case 'pos':
+                        clean = validatePos(data, peerId, isHost);
+                        break;
+                    case 'hello':
+                    case 'presence':
+                    case 'friend_req':
+                    case 'friend_accept':
+                        clean = validatePresence(Object.assign({}, data, { t: data.t }));
+                        if (clean) {
+                            clean.t = data.t;
+                            if (data.t === 'friend_req' || data.t === 'friend_accept') {
+                                clean.from = sanitizeString(data.from, 6);
+                                if (!clean.from) clean = null;
+                            }
+                        }
+                        break;
+                    case 'join_world':
+                        clean = { t: 'join_world', name: sanitizeString(data.name, 6), v: PROTOCOL };
+                        if (!clean.name) clean = null;
+                        break;
+                    case 'world_sync':
+                        if (!finiteNum(data.seed, 0, 0xFFFFFFFF)) { clean = null; break; }
+                        clean = {
+                            t: 'world_sync',
+                            seed: data.seed >>> 0,
+                            host: sanitizeString(data.host, 6),
+                            pos: data.pos && finiteNum(data.pos.x,-50000,50000) ? {
+                                x: data.pos.x, y: data.pos.y, z: data.pos.z
+                            } : null,
+                            v: PROTOCOL
+                        };
+                        break;
+                    case 'host_left':
+                    case 'player_left':
+                        clean = {
+                            t: data.t,
+                            name: sanitizeString(data.name, 6),
+                            v: PROTOCOL
+                        };
+                        break;
+                    case 'block_req':
+                        clean = validateBlockReq(data, peerId);
+                        break;
+                    case 'block_ack':
+                    case 'storm_event':
+                        // Only accept from host path (checked by caller)
+                        clean = data;
+                        break;
+                    case 'ping':
+                    case 'pong':
+                        clean = { t: data.t, v: PROTOCOL };
+                        break;
+                    default:
+                        log('unhandled', data.t);
+                        clean = null;
+                }
+
+                if (!clean) return null;
+                if (shouldKick(peerId)) return { kick: true, reason: 'violations' };
+                return { data: clean };
+            }
+
+            function wrapOutgoing(obj) {
+                if (!obj || typeof obj !== 'object') return null;
+                const o = Object.assign({ v: PROTOCOL }, obj);
+                try {
+                    const s = JSON.stringify(o);
+                    if (s.length > MAX_PACKET_CHARS) return null;
+                } catch (e) { return null; }
+                return o;
+            }
+
+            return {
+                processIncoming,
+                wrapOutgoing,
+                sanitizeString,
+                log,
+                PROTOCOL
+            };
+        })();
+
         function setupDataConn(conn) {
             conn.on('open', () => {
-                const remoteName = (conn.metadata && conn.metadata.name) || conn.peer;
                 mpConnections[conn.peer] = conn;
-                conn.on('data', (data) => handleMpData(data, conn));
-                // send hello
-                conn.send({ t: 'hello', name: currentUser.name, status: mpInWorld ? 'world' : 'menu' });
+                conn.on('data', (data) => {
+                    const result = Security.processIncoming(data, conn.peer, mpIsHost);
+                    if (!result) return;
+                    if (result.kick) {
+                        Security.log('kick', result.reason);
+                        try { conn.close(); } catch (e) {}
+                        delete mpConnections[conn.peer];
+                        return;
+                    }
+                    handleMpData(result.data, conn);
+                });
+                const hello = Security.wrapOutgoing({ t: 'hello', name: currentUser.name, status: mpInWorld ? 'world' : 'menu' });
+                if (hello) try { conn.send(hello); } catch (e) {}
             });
             conn.on('close', () => {
                 const name = conn.metadata && conn.metadata.name;
@@ -987,51 +1323,113 @@ svg{display:block;vertical-align:middle}
 
         function handleMpData(data, conn) {
             if (!data || !data.t) return;
+            // --- Social / presence (her iki taraf) ---
             if (data.t === 'hello' || data.t === 'presence') {
                 if (data.name) {
                     friendPresence[data.name] = data.status || 'menu';
                     renderFriendsList();
                 }
+                return;
             }
             if (data.t === 'friend_req') {
-                showFriendRequestUI(data.from);
+                if (data.from) showFriendRequestUI(data.from);
+                return;
             }
             if (data.t === 'friend_accept') {
+                if (!data.from || !currentUser) return;
                 const friends = loadFriends(currentUser.name);
                 if (!friends.includes(data.from)) {
                     friends.push(data.from);
                     saveFriends(currentUser.name, friends);
                     renderFriendsList();
                 }
+                return;
             }
+
+            // --- Chat: sanitizasyon Security'de; burada sadece goster ---
             if (data.t === 'chat') {
-                appendChat(data.from, data.msg);
+                if (!data.from || !data.msg) return;
+                // Kendi mesajimizi tekrar gosterme
+                if (data.from !== currentUser.name) appendChat(data.from, data.msg);
+                if (mpIsHost && mpInWorld && data.from !== currentUser.name) {
+                    mpBroadcast({ t: 'chat', from: data.from, msg: data.msg });
+                }
+                return;
             }
-            if (data.t === 'pos' && data.name && data.name !== currentUser.name) {
+
+            // --- Pozisyon: Host dogrular, herkes remote gunceller ---
+            if (data.t === 'pos') {
+                if (!data.name || data.name === currentUser.name) return;
+                // Client self-reported pos yalnizca gorsel; host da ayni
                 updateRemotePlayer(data);
+                // Host, dogrulanmis pos'u diger client'lara yayinlar (relay)
+                if (mpIsHost && mpInWorld) {
+                    mpBroadcast({ t: 'pos', name: data.name, x: data.x, y: data.y, z: data.z, ry: data.ry });
+                }
+                return;
             }
-            if (data.t === 'join_world' && mpIsHost && mpInWorld) {
-                // client wants world seed + state
-                conn.send({
+
+            // --- Join / world: yalnizca host seed verir ---
+            if (data.t === 'join_world') {
+                if (!(mpIsHost && mpInWorld)) return;
+                const sync = Security.wrapOutgoing({
                     t: 'world_sync',
                     seed: worldSeed,
                     host: currentUser.name,
                     pos: { x: player.pos.x, y: player.pos.y, z: player.pos.z }
                 });
-                conn.send({ t: 'presence', name: currentUser.name, status: 'world' });
+                if (sync) try { conn.send(sync); } catch (e) {}
+                const pres = Security.wrapOutgoing({ t: 'presence', name: currentUser.name, status: 'world' });
+                if (pres) try { conn.send(pres); } catch (e) {}
+                return;
             }
-            if (data.t === 'world_sync' && !mpIsHost) {
-                // join as client with same seed
+            if (data.t === 'world_sync') {
+                if (mpIsHost) return; // client only
+                if (!data.host || data.seed == null) return;
                 mpHostName = data.host;
                 window._pendingJoinSeed = data.seed;
                 window._pendingJoinHostPos = data.pos;
                 finishJoinWorld();
+                return;
             }
             if (data.t === 'host_left') {
-                showError456();
+                if (!mpIsHost) showError456();
+                return;
             }
             if (data.t === 'player_left' && data.name) {
                 removeRemotePlayer(data.name);
+                return;
+            }
+
+            // --- Blok istekleri: sadece Host uygular ---
+            if (data.t === 'block_req') {
+                if (!mpIsHost || !mpInWorld) return;
+                const bx = data.x, by = data.y, bz = data.z;
+                if (data.action === 'break') {
+                    const existing = getBlock(bx, by, bz);
+                    if (!existing) return;
+                    worldBlocks.delete(`${bx},${by},${bz}`);
+                    updateAffectedChunks(bx, by, bz);
+                    mpBroadcast({ t: 'block_ack', action: 'break', x: bx, y: by, z: bz });
+                } else if (data.action === 'place' && data.blockType) {
+                    if (getBlock(bx, by, bz)) return;
+                    setBlock(bx, by, bz, data.blockType);
+                    updateAffectedChunks(bx, by, bz);
+                    mpBroadcast({ t: 'block_ack', action: 'place', x: bx, y: by, z: bz, blockType: data.blockType });
+                }
+                return;
+            }
+            if (data.t === 'block_ack') {
+                if (mpIsHost) return; // host zaten uyguladi
+                const bx = data.x, by = data.y, bz = data.z;
+                if (data.action === 'break') {
+                    worldBlocks.delete(`${bx},${by},${bz}`);
+                    updateAffectedChunks(bx, by, bz);
+                } else if (data.action === 'place' && data.blockType) {
+                    setBlock(bx, by, bz, data.blockType);
+                    updateAffectedChunks(bx, by, bz);
+                }
+                return;
             }
         }
 
@@ -1307,13 +1705,16 @@ svg{display:block;vertical-align:middle}
         }
 
         function mpBroadcast(obj) {
+            const wrapped = Security.wrapOutgoing(obj);
+            if (!wrapped) return;
             Object.values(mpConnections).forEach(c => {
-                if (c.open) try { c.send(obj); } catch(e) {}
+                if (c.open) try { c.send(wrapped); } catch(e) {}
             });
         }
 
         function mpSendPos() {
             if (!mpInWorld || !currentUser) return;
+            // Client pozisyon gonderir; host Security ile dogrular
             mpBroadcast({
                 t: 'pos',
                 name: currentUser.name,
@@ -1329,7 +1730,11 @@ svg{display:block;vertical-align:middle}
             if (log) {
                 const line = document.createElement('div');
                 line.style.color = '#eee';
-                line.innerHTML = `<span style="color:#f66">${from}:</span> ${msg.replace(/[<>]/g,'')}`;
+                const nameSpan = document.createElement('span');
+                nameSpan.style.color = '#f66';
+                nameSpan.textContent = String(from || '') + ': ';
+                line.appendChild(nameSpan);
+                line.appendChild(document.createTextNode(String(msg || '')));
                 log.appendChild(line);
                 log.scrollTop = log.scrollHeight;
                 while (log.children.length > 30) log.removeChild(log.firstChild);
@@ -1362,8 +1767,10 @@ svg{display:block;vertical-align:middle}
 
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
-            const msg = (input.value || '').trim();
+            let msg = (input.value || '').trim();
             if (!msg || !currentUser) return;
+            msg = Security.sanitizeString(msg, 120);
+            if (!msg) return;
             appendChat(currentUser.name, msg);
             mpBroadcast({ t: 'chat', from: currentUser.name, msg });
             input.value = '';
