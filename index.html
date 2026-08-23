@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI Alpha 1.0.4</title>
+    <title>HORROR MINI Alpha 1.0.5</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='%23ff0000'%3EH%3C/text%3E%3C/svg%3E">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -729,6 +729,13 @@ svg{display:block;vertical-align:middle}
         let stormsSinceLastTornado = 0;
         let lastTornadoType = null;
         let tornado = null; // { mesh, active, life }
+        // Toz seytani / supercell / su hortumu
+        let dustDevil = null;
+        let dustDevilWatch = null; // { x, z, startTime, sandCount }
+        let supercellActive = false;
+        let supercellCloudRing = [];
+        let waterspouts = []; // multiple can merge
+        let specialWeatherTimer = 0;
         const sandRainHits = new Map();
         const DARK_CLOUD_SPAWN_INTERVAL = 300; // 5 dakika
         const MAX_RAINS_PER_DAY = 2;
@@ -869,15 +876,80 @@ svg{display:block;vertical-align:middle}
             const accounts = loadAccounts();
             const mode = window._authMode || 'register';
             if (mode === 'register') {
-                if (accounts[name]) { err.innerText = 'İSİM SEÇİLEMEDİ BAŞKA AD DENEYİN'; return; }
-                accounts[name] = { name, pass };
-                saveAccounts(accounts);
-                completeLogin({ name, pass });
+                if (accounts[name]) {
+                    err.innerText = 'BAŞKA AYNI İSİMLİ HESAP VAR BAŞKA İSİM DENEYİN';
+                    return;
+                }
+                // Online isim rezervasyonu: PeerJS ID baska birinde aciksa isim alinmis demektir
+                err.innerText = 'İsim kontrol ediliyor...';
+                err.style.color = '#aaa';
+                claimNameOnline(name).then((ok) => {
+                    if (!ok) {
+                        err.style.color = '#f66';
+                        err.innerText = 'BAŞKA AYNI İSİMLİ HESAP VAR BAŞKA İSİM DENEYİN';
+                        return;
+                    }
+                    const accs = loadAccounts();
+                    if (accs[name]) {
+                        err.style.color = '#f66';
+                        err.innerText = 'BAŞKA AYNI İSİMLİ HESAP VAR BAŞKA İSİM DENEYİN';
+                        return;
+                    }
+                    accs[name] = { name, pass };
+                    saveAccounts(accs);
+                    err.innerText = '';
+                    completeLogin({ name, pass });
+                }).catch(() => {
+                    // PeerJS yoksa yine yerel kayit (offline)
+                    const accs = loadAccounts();
+                    accs[name] = { name, pass };
+                    saveAccounts(accs);
+                    err.innerText = '';
+                    completeLogin({ name, pass });
+                });
             } else {
                 const acc = accounts[name];
                 if (!acc || acc.pass !== pass) { err.innerText = 'İsim veya şifre hatalı.'; return; }
                 completeLogin({ name, pass });
             }
+        }
+
+        // Isim baska cihazda online mi? Peer ID claim dene
+        function claimNameOnline(name) {
+            return new Promise((resolve) => {
+                if (typeof Peer === 'undefined') { resolve(true); return; }
+                let settled = false;
+                const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+                let testPeer = null;
+                try {
+                    testPeer = new Peer(peerIdFor(name), { debug: 0 });
+                } catch (e) {
+                    done(true);
+                    return;
+                }
+                const t = setTimeout(() => {
+                    try { testPeer.destroy(); } catch (e) {}
+                    done(true); // timeout: izin ver
+                }, 4000);
+                testPeer.on('open', () => {
+                    clearTimeout(t);
+                    // ID basariyla alindi - hemen birak, asil peer login'de acilacak
+                    try { testPeer.destroy(); } catch (e) {}
+                    done(true);
+                });
+                testPeer.on('error', (err) => {
+                    clearTimeout(t);
+                    const msg = (err && (err.type || err.message || '')) + '';
+                    // ID taken / unavailable
+                    if (/taken|unavailable|invalid-id/i.test(msg) || err.type === 'unavailable-id') {
+                        try { testPeer.destroy(); } catch (e) {}
+                        done(false);
+                    } else {
+                        try { testPeer.destroy(); } catch (e) {}
+                        done(true); // ag hatasi: engelleme
+                    }
+                });
+            });
         }
 
         function renderFriendsList() {
@@ -932,6 +1004,11 @@ svg{display:block;vertical-align:middle}
                 });
                 mpPeer.on('error', (err) => {
                     console.warn('Peer error', err);
+                    const t = (err && err.type) || '';
+                    if (t === 'unavailable-id') {
+                        // Ayni isim baska yerde online
+                        alert('BAŞKA AYNI İSİMLİ HESAP VAR BAŞKA İSİM DENEYİN (bu isim şu an başka cihazda kullanılıyor).');
+                    }
                 });
             } catch (e) {
                 console.warn('PeerJS init failed', e);
@@ -1465,33 +1542,60 @@ svg{display:block;vertical-align:middle}
             if (!msg || !currentUser) return;
             if (!isValidName(targetName)) { msg.innerText = 'İsim tam 6 harf olmalı.'; msg.style.color = '#f66'; return; }
             if (targetName === currentUser.name) { msg.innerText = 'Kendini ekleyemezsin.'; msg.style.color = '#f66'; return; }
-            const accounts = loadAccounts();
-            // Isim hesaplarla tamamen uyusmali
-            if (!accounts[targetName]) {
-                msg.innerText = 'Bu isimde bir oyuncu bulunamadı.';
-                msg.style.color = '#f66';
-                return;
-            }
             const friends = loadFriends(currentUser.name);
             if (friends.includes(targetName)) {
                 msg.innerText = 'Zaten arkadaşsınız.';
                 msg.style.color = '#6f6';
                 return;
             }
-            // Her zaman yerel kuyruga yaz (karsi hesap girince gorur)
-            queueLocalFriendReq(targetName);
-            msg.innerText = 'Arkadaşlık isteği gönderildi!';
-            msg.style.color = '#6f6';
-            // Online ise PeerJS ile aninda bildir
+            if (!mpPeer) {
+                msg.innerText = 'Bağlantı hazır değil, biraz bekle.';
+                msg.style.color = '#f66';
+                startPresencePeer();
+                return;
+            }
+            // Cihazlar arasi: yerel hesap listesine BAKMA — PeerJS ile online arkadasa istek at
+            msg.innerText = 'İstek gönderiliyor...';
+            msg.style.color = '#aaa';
+            let settled = false;
+            const finishOk = () => {
+                if (settled) return;
+                settled = true;
+                msg.innerText = 'Arkadaşlık isteği gönderildi!';
+                msg.style.color = '#6f6';
+                setTimeout(() => closeFriendAddModal(), 900);
+            };
+            const finishFail = () => {
+                if (settled) return;
+                settled = true;
+                msg.innerText = 'Oyuncu bulunamadı veya çevrimdışı. Karşı taraf menüde online olmalı.';
+                msg.style.color = '#f66';
+            };
             try {
-                const conn = connectToPeer(targetName, { purpose: 'friend_req' });
-                if (conn) {
-                    conn.on('open', () => {
-                        conn.send({ t: 'friend_req', from: currentUser.name });
-                    });
-                }
-            } catch (e) {}
-            setTimeout(() => closeFriendAddModal(), 800);
+                const conn = connectToPeer(targetName, { purpose: 'friend_req', name: currentUser.name });
+                if (!conn) { finishFail(); return; }
+                const timer = setTimeout(() => {
+                    try { conn.close(); } catch (e) {}
+                    finishFail();
+                }, 5000);
+                conn.on('open', () => {
+                    clearTimeout(timer);
+                    try {
+                        const pkt = Security.wrapOutgoing({ t: 'friend_req', from: currentUser.name });
+                        if (pkt) conn.send(pkt);
+                        else conn.send({ t: 'friend_req', from: currentUser.name });
+                    } catch (e) {}
+                    // Yerel yedek (ayni tarayici)
+                    queueLocalFriendReq(targetName);
+                    finishOk();
+                });
+                conn.on('error', () => {
+                    clearTimeout(timer);
+                    finishFail();
+                });
+            } catch (e) {
+                finishFail();
+            }
         }
 
         function queueLocalFriendReq(targetName) {
@@ -2436,6 +2540,9 @@ svg{display:block;vertical-align:middle}
             stormsSinceLastTornado = 0;
             lastTornadoType = null;
             destroyTornado();
+            destroyDustDevil();
+            destroyAllWaterspouts();
+            clearSupercell();
             isRainActive = false;
             insideWharinBiome = false;
             wharinDiscoveryShown = false;
@@ -2967,9 +3074,13 @@ svg{display:block;vertical-align:middle}
                     zone.rainDuration = Math.max(zone.rainDuration, 40);
                 }
             }
-            // 5+ : kule; hortum sadece izinliyse (ilk firtina veya %10)
-            if (stormMergeCount >= 5 && tornadoAllowedThisStorm) {
+            // 5+ : kule; hortum sadece izinliyse
+            if (stormMergeCount >= 5 && tornadoAllowedThisStorm && stormMergeCount < 10) {
                 spawnOrRefreshTornado(centerEntry.mesh);
+            }
+            // 10+ kara bulut: SUPERCELL
+            if (stormMergeCount >= 10) {
+                tryStartSupercell(centerEntry.mesh);
             }
         }
 
@@ -3336,6 +3447,341 @@ svg{display:block;vertical-align:middle}
             }
         }
 
+
+        // ========== TOZ SEYTANI / SUPERCELL / SU HORTUMU ==========
+        function destroyDustDevil() {
+            if (dustDevil && dustDevil.mesh) {
+                scene.remove(dustDevil.mesh);
+                dustDevil.mesh.traverse(c => {
+                    if (c.geometry) c.geometry.dispose();
+                    if (c.material) c.material.dispose();
+                });
+            }
+            dustDevil = null;
+            dustDevilWatch = null;
+        }
+
+        function destroyAllWaterspouts() {
+            waterspouts.forEach(w => {
+                if (w.mesh) {
+                    scene.remove(w.mesh);
+                    w.mesh.traverse(c => {
+                        if (c.geometry) c.geometry.dispose();
+                        if (c.material) c.material.dispose();
+                    });
+                }
+            });
+            waterspouts = [];
+        }
+
+        function clearSupercell() {
+            supercellActive = false;
+            supercellCloudRing = [];
+        }
+
+        function countSandDirtNear(wx, wz, radius) {
+            let n = 0;
+            const r = radius | 0;
+            for (let dx = -r; dx <= r; dx++) {
+                for (let dz = -r; dz <= r; dz++) {
+                    const h = getTerrainHeight(wx + dx, wz + dz);
+                    const t = getBlock(wx + dx, h, wz + dz);
+                    if (t === 'sand' || t === 'slightlyWetSand' || t === 'wetSand' || t === 'dirt' || t === 'grayDirt') n++;
+                }
+            }
+            return n;
+        }
+
+        function isMostlyWaterRegion(wx, wz, radius) {
+            let water = 0, total = 0;
+            for (let dx = -radius; dx <= radius; dx += 2) {
+                for (let dz = -radius; dz <= radius; dz += 2) {
+                    total++;
+                    const h = getTerrainHeight(wx + dx, wz + dz);
+                    if (h < SEA_LEVEL || getBlock(wx + dx, SEA_LEVEL, wz + dz) === 'water') water++;
+                }
+            }
+            return total > 0 && (water / total) > 0.65;
+        }
+
+        function createParticleColumnMesh(color, baseScale) {
+            const group = new THREE.Group();
+            const layers = 8;
+            for (let i = 0; i < layers; i++) {
+                const t = i / (layers - 1);
+                const s = (0.4 + t * 1.2) * baseScale;
+                const geo = new THREE.BoxGeometry(s, 2.2, s);
+                const mat = new THREE.MeshLambertMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.35 + t * 0.35,
+                    depthWrite: false,
+                    emissive: color,
+                    emissiveIntensity: 0.15
+                });
+                const m = new THREE.Mesh(geo, mat);
+                m.position.y = i * 2.0;
+                group.add(m);
+            }
+            return group;
+        }
+
+        function trySpawnDustDevil(px, pz) {
+            if (dustDevil) return; // dunyada sadece 1
+            if (supercellActive) return;
+            const sand = countSandDirtNear(Math.floor(px), Math.floor(pz), 6);
+            if (sand < 28) {
+                dustDevilWatch = null;
+                return;
+            }
+            if (!dustDevilWatch) {
+                dustDevilWatch = { x: px, z: pz, start: Date.now(), sand };
+                return;
+            }
+            // 5 dk bekle
+            if (Date.now() - dustDevilWatch.start < 5 * 60 * 1000) return;
+            // Hala kum/toprak var mi
+            const sand2 = countSandDirtNear(Math.floor(dustDevilWatch.x), Math.floor(dustDevilWatch.z), 6);
+            if (sand2 < 20) {
+                dustDevilWatch = null;
+                return;
+            }
+            const mesh = createParticleColumnMesh(0xe67a22, 0.9);
+            const gx = dustDevilWatch.x;
+            const gz = dustDevilWatch.z;
+            const gy = getTerrainHeight(gx, gz) + 0.5;
+            mesh.position.set(gx, gy, gz);
+            scene.add(mesh);
+            dustDevil = {
+                mesh,
+                life: 50,
+                dir: new THREE.Vector3((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize(),
+                spin: 0,
+                convertCd: 0
+            };
+            dustDevilWatch = null;
+        }
+
+        function updateDustDevil(dt) {
+            if (!dustDevil) {
+                // Oyuncu cevresinde kum/toprak gozetle
+                if (player && player.pos) trySpawnDustDevil(player.pos.x, player.pos.z);
+                return;
+            }
+            dustDevil.life -= dt;
+            if (dustDevil.life <= 0) {
+                destroyDustDevil();
+                return;
+            }
+            dustDevil.spin += dt * 8;
+            dustDevil.mesh.rotation.y = dustDevil.spin;
+            // Rastgele yer degistir
+            if (Math.random() < 0.02) {
+                dustDevil.dir.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+            }
+            dustDevil.mesh.position.x += dustDevil.dir.x * 3.5 * dt;
+            dustDevil.mesh.position.z += dustDevil.dir.z * 3.5 * dt;
+            const gx = dustDevil.mesh.position.x;
+            const gz = dustDevil.mesh.position.z;
+            dustDevil.mesh.position.y = getTerrainHeight(gx, gz) + 0.5;
+            // Sadece cimleri topraga cevir - blok kirmaz, cekmez, hasar yok
+            dustDevil.convertCd -= dt;
+            if (dustDevil.convertCd <= 0) {
+                dustDevil.convertCd = 0.35;
+                for (let i = 0; i < 3; i++) {
+                    const bx = Math.floor(gx + (Math.random() - 0.5) * 4);
+                    const bz = Math.floor(gz + (Math.random() - 0.5) * 4);
+                    const h = getTerrainHeight(bx, bz);
+                    const t = getBlock(bx, h, bz);
+                    if (t === 'grass' || t === 'darkGrass' || t === 'grayGrass') {
+                        setBlock(bx, h, bz, t === 'grayGrass' ? 'grayDirt' : 'dirt');
+                        updateAffectedChunks(bx, h, bz);
+                    }
+                }
+            }
+        }
+
+        function tryStartSupercell(centerMesh) {
+            if (supercellActive || !centerMesh) return;
+            supercellActive = true;
+            // Bulutlari daireye diz ve dondur
+            const cx = centerMesh.position.x;
+            const cz = centerMesh.position.z;
+            const darks = cloudDataList.filter(c => c.isDark && c.mesh);
+            supercellCloudRing = darks.slice(0, 10);
+            supercellCloudRing.forEach((c, i) => {
+                const ang = (i / Math.max(1, supercellCloudRing.length)) * Math.PI * 2;
+                c._scAngle = ang;
+                c._scRadius = 18 + (i % 3) * 4;
+                c.mesh.position.set(cx + Math.cos(ang) * c._scRadius, 70 + (i % 2) * 3, cz + Math.sin(ang) * c._scRadius);
+            });
+            // Merkezde guclu cone hortum - 10 dk
+            tornadoAllowedThisStorm = true;
+            lastTornadoType = null; // cone secilsin
+            // Force cone by temporarily biasing pick - spawn as cone
+            if (tornado) destroyTornado();
+            spawnOrRefreshTornado(centerMesh);
+            if (tornado) {
+                tornado.type = 'cone';
+                tornado.isSupercell = true;
+                tornado.supercellLife = 10 * 60; // 10 dk
+                tornado.pullRange = 8;
+                tornado.pullForce = 0.18;
+                tornado.dmgChance = 0.2;
+            }
+        }
+
+        function updateSupercell(dt) {
+            if (!supercellActive) return;
+            if (tornado && tornado.isSupercell) {
+                tornado.supercellLife -= dt;
+                if (tornado.supercellLife <= 0) {
+                    destroyTornado();
+                    clearSupercell();
+                    return;
+                }
+            } else if (!tornado) {
+                clearSupercell();
+                return;
+            }
+            // Bulut halkasi hizli donus
+            const cx = tornado.mesh.position.x;
+            const cz = tornado.mesh.position.z;
+            supercellCloudRing.forEach((c, i) => {
+                if (!c.mesh) return;
+                c._scAngle = (c._scAngle || 0) + dt * 1.8;
+                const r = c._scRadius || 20;
+                c.mesh.position.x = cx + Math.cos(c._scAngle) * r;
+                c.mesh.position.z = cz + Math.sin(c._scAngle) * r;
+            });
+            // Supercell cone: agac/yaprak/blok + canli hasari updateTornado zaten yapiyor;
+            // ekstra: wood da kirilabilsin
+            if (tornado.destroyCooldown <= 0.05) {
+                const tx = tornado.mesh.position.x, tz = tornado.mesh.position.z;
+                for (let n = 0; n < 3; n++) {
+                    const ang = Math.random() * Math.PI * 2;
+                    const rad = Math.random() * 6;
+                    const bx = Math.floor(tx + Math.cos(ang) * rad);
+                    const bz = Math.floor(tz + Math.sin(ang) * rad);
+                    const gy = findGroundY(bx, bz);
+                    for (let by = gy; by <= gy + 6; by++) {
+                        const t = getBlock(bx, by, bz);
+                        if (t === 'wood' || t === 'grayWood' || t === 'leaf' || t === 'grayLeaf' ||
+                            t === 'grass' || t === 'darkGrass' || t === 'sand') {
+                            worldBlocks.delete(`${bx},${by},${bz}`);
+                            updateAffectedChunks(bx, by, bz);
+                        }
+                    }
+                }
+            }
+        }
+
+        function trySpawnWaterspout() {
+            if (waterspouts.length >= 4) return;
+            if (!player || !player.pos) return;
+            // Karadan uzak su bolgesi ara
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 30 + Math.random() * 40;
+            const wx = player.pos.x + Math.cos(angle) * dist;
+            const wz = player.pos.z + Math.sin(angle) * dist;
+            if (!isMostlyWaterRegion(wx, wz, 8)) return;
+            if (Math.random() > 0.015) return; // nadir
+
+            const mesh = createParticleColumnMesh(0x4aa8c8, 0.7);
+            // Goge cikmaz - biraz yuksek
+            const waterY = SEA_LEVEL + 1;
+            mesh.position.set(wx, waterY, wz);
+            mesh.scale.set(1, 0.45, 1); // kisa
+            scene.add(mesh);
+            waterspouts.push({
+                mesh,
+                life: 30 + Math.random() * 10, // 30-40 sn
+                dir: new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize(),
+                spin: 0,
+                power: 1,
+                pullRange: 3,
+                pullForce: 0.04
+            });
+        }
+
+        function mergeWaterspouts() {
+            for (let i = 0; i < waterspouts.length; i++) {
+                for (let j = i + 1; j < waterspouts.length; j++) {
+                    const a = waterspouts[i], b = waterspouts[j];
+                    const d = a.mesh.position.distanceTo(b.mesh.position);
+                    if (d < 6) {
+                        // Birlestir: a buyusun
+                        a.power += b.power;
+                        a.life = 60; // 1 dk
+                        a.pullRange = Math.min(12, 3 + a.power * 1.5);
+                        a.pullForce = Math.min(0.16, 0.04 + a.power * 0.025);
+                        const sc = Math.min(2.5, 0.7 + a.power * 0.25);
+                        a.mesh.scale.set(sc, 0.45 + a.power * 0.12, sc);
+                        scene.remove(b.mesh);
+                        b.mesh.traverse(c => {
+                            if (c.geometry) c.geometry.dispose();
+                            if (c.material) c.material.dispose();
+                        });
+                        waterspouts.splice(j, 1);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function updateWaterspouts(dt) {
+            if (Math.random() < 0.008) trySpawnWaterspout();
+            mergeWaterspouts();
+            for (let i = waterspouts.length - 1; i >= 0; i--) {
+                const w = waterspouts[i];
+                w.life -= dt;
+                if (w.life <= 0) {
+                    scene.remove(w.mesh);
+                    w.mesh.traverse(c => {
+                        if (c.geometry) c.geometry.dispose();
+                        if (c.material) c.material.dispose();
+                    });
+                    waterspouts.splice(i, 1);
+                    continue;
+                }
+                w.spin += dt * (5 + w.power);
+                w.mesh.rotation.y = w.spin;
+                if (Math.random() < 0.03) {
+                    w.dir.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+                }
+                w.mesh.position.x += w.dir.x * (2 + w.power) * dt;
+                w.mesh.position.z += w.dir.z * (2 + w.power) * dt;
+                w.mesh.position.y = SEA_LEVEL + 1;
+                // Su ustunde kal
+                if (!isMostlyWaterRegion(w.mesh.position.x, w.mesh.position.z, 4)) {
+                    // karaya yaklasti - yavasca bitir
+                    w.life -= dt * 2;
+                }
+                // Zayif cekim (su hortumu)
+                if (player && !isPaused) {
+                    const dist = Math.hypot(player.pos.x - w.mesh.position.x, player.pos.z - w.mesh.position.z);
+                    if (dist < w.pullRange) {
+                        const pull = new THREE.Vector3(
+                            w.mesh.position.x - player.pos.x, 0,
+                            w.mesh.position.z - player.pos.z
+                        );
+                        if (pull.length() > 0.05) {
+                            pull.normalize();
+                            player.pos.addScaledVector(pull, (1 - dist / w.pullRange) * w.pullForce);
+                        }
+                    }
+                }
+            }
+        }
+
+        function updateSpecialWeather(dt) {
+            if (isPaused || !gameActive) return;
+            specialWeatherTimer += dt;
+            updateDustDevil(dt);
+            updateSupercell(dt);
+            updateWaterspouts(dt);
+        }
+
         function updateWeatherSystem(dt) {
             // Gun indeksi (toplam donguye gore)
             const dayIndex = Math.floor(dayNightTimer / TOTAL_CYCLE_DURATION);
@@ -3439,6 +3885,7 @@ svg{display:block;vertical-align:middle}
             processRainWetness();
             processWindStormEffects(dt);
             updateTornado(dt);
+            updateSpecialWeather(dt);
             updateRainVisuals(dt);
         }
 
@@ -5354,6 +5801,9 @@ svg{display:block;vertical-align:middle}
             stormsSinceLastTornado = 0;
             lastTornadoType = null;
             destroyTornado();
+            destroyDustDevil();
+            destroyAllWaterspouts();
+            clearSupercell();
             rainsToday = 0;
             darkCloudSpawnTimer = 0;
             sandRainHits.clear();
