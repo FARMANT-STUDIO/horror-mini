@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HORROR MINI Alpha 1.0.5</title>
+    <title>HORROR MINI Alpha 1.0.6</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='%23ff0000'%3EH%3C/text%3E%3C/svg%3E">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -436,9 +436,55 @@ svg{display:block;vertical-align:middle}
         </div>
     </div>
 
-    <!-- Arkadas context menu -->
-    <div id="friend-ctx" class="fixed z-[86] hidden bg-[#110101] border border-zinc-700 rounded shadow-lg font-mono text-xs min-w-[120px]">
-        <button id="btn-friend-join" class="w-full text-left px-4 py-2 text-green-400 hover:bg-zinc-800">KATIL</button>
+    <!-- Arkadas katil onay -->
+    <div id="friend-join-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:220;align-items:center;justify-content:center;padding:16px;font-family:monospace;">
+        <div style="background:#110101;border:2px solid #166534;padding:22px;border-radius:10px;width:100%;max-width:360px;position:relative;">
+            <p id="friend-join-text" style="color:#e4e4e7;font-size:14px;line-height:1.5;margin:0 0 20px 0;text-align:center;"></p>
+            <div style="display:flex;gap:12px;justify-content:space-between;">
+                <button id="btn-friend-join-yes" type="button" style="flex:1;padding:10px;background:#14532d;border:1px solid #22c55e;color:#bbf7d0;font-weight:bold;cursor:pointer;">EVET</button>
+                <button id="btn-friend-join-no" type="button" style="flex:1;padding:10px;background:#18181b;border:1px solid #52525b;color:#d4d4d8;font-weight:bold;cursor:pointer;">HAYIR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shader secim (I tusu) -->
+    <div id="shader-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:230;align-items:center;justify-content:center;padding:12px;font-family:monospace;overflow:auto;">
+        <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1100px;width:100%;">
+            <div class="shader-card" data-shader="original" style="flex:1;min-width:240px;max-width:320px;background:#0a0a0c;border:2px solid #444;border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                <div style="color:#f87171;font-weight:900;font-size:12px;letter-spacing:0.08em;margin-bottom:10px;">HORROR MİNİ ORIGINAL SHADER</div>
+                <div style="color:#fff;font-size:42px;font-weight:900;line-height:1.05;margin:8px 0;white-space:pre-line;">:=)</div>
+                <p style="color:#a1a1aa;font-size:11px;line-height:1.45;margin:10px 0 14px 0;">Oyundaki normal shaderdır grafikler daha canlı ve daha iyileştirilmiş daha uzağı görmeni sağlayan shader paketi!</p>
+                <button type="button" class="shader-select-btn" data-shader="original" style="margin-top:auto;width:100%;padding:10px;border:1px solid #b91c1c;background:#450a0a;color:#fecaca;font-weight:bold;cursor:pointer;">SEÇ</button>
+            </div>
+            <div class="shader-card" data-shader="horror" style="flex:1;min-width:240px;max-width:320px;background:#0a0508;border:2px solid #7f1d1d;border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                <div style="color:#ef4444;font-weight:900;font-size:12px;letter-spacing:0.08em;margin-bottom:10px;">HORROR MİNİ HORROR SHADER</div>
+                <div style="color:#fff;font-size:42px;font-weight:900;line-height:1.05;margin:8px 0;">:)</div>
+                <p style="color:#a1a1aa;font-size:11px;line-height:1.45;margin:10px 0 14px 0;">Pre-alpha shaderı ve bir kaç korku eklemeleri! beyaz sis yoğun ve chunk 2 ye düşer ses veya ekran kararırsa kork! çünkü sana musallat oluyorlar!</p>
+                <button type="button" class="shader-select-btn" data-shader="horror" style="margin-top:auto;width:100%;padding:10px;border:1px solid #b91c1c;background:#450a0a;color:#fecaca;font-weight:bold;cursor:pointer;">SEÇ</button>
+            </div>
+            <div class="shader-card" data-shader="mal" style="flex:1;min-width:240px;max-width:320px;background:#120a18;border:2px solid #7c3aed;border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;">
+                <div style="color:#c4b5fd;font-weight:900;font-size:12px;letter-spacing:0.08em;margin-bottom:10px;">HORROR MİNİ MAL SHADER!!!</div>
+                <div style="color:#fff;font-size:36px;font-weight:900;line-height:1.1;margin:8px 0;white-space:pre-line;">%
+/</div>
+                <p style="color:#a1a1aa;font-size:11px;line-height:1.45;margin:10px 0 14px 0;">TAM BİR ÇILGINLIK! BU SHADERDA BÜTÜN BLOKLARIN HAVANIN HER SANİYE RENGİ DEĞİŞİYOR RASTGELE ÇILGINSAN OYNAAA!</p>
+                <button type="button" class="shader-select-btn" data-shader="mal" style="margin-top:auto;width:100%;padding:10px;border:1px solid #7c3aed;background:#2e1065;color:#ddd6fe;font-weight:bold;cursor:pointer;">SEÇ</button>
+            </div>
+        </div>
+        <button id="btn-shader-close" type="button" style="position:fixed;top:12px;right:16px;background:#18181b;border:1px solid #52525b;color:#fff;padding:8px 14px;cursor:pointer;font-family:monospace;">KAPAT (I)</button>
+    </div>
+
+    <!-- Mal shader epilepsi uyarisi -->
+    <div id="epilepsy-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:240;align-items:center;justify-content:center;padding:16px;font-family:monospace;">
+        <div style="background:#1a0505;border:2px solid #dc2626;padding:22px;border-radius:10px;max-width:480px;width:100%;">
+            <div style="color:#f87171;font-weight:900;font-size:13px;letter-spacing:0.1em;margin-bottom:12px;text-align:center;">⚠ UYARI</div>
+            <p id="epilepsy-text" style="color:#e4e4e7;font-size:13px;line-height:1.55;margin:0 0 20px 0;">
+                Bu shader epilepsi nöbetini etkileyebilecek görüntüler, ani ışık patlamaları ve renkler içerir. Epilepsi nöbetiniz varsa eğer bu shaderı seçmeniz şiddetle tavsiye edilmez! Eğer devam edip aşağıdaki butonlardan epilepsi nöbetim yok seçicem derseniz epilepsi nöbetiniz olmadığını kabul edip uyarıyı kabul ettiğiniz anlamına gelir.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;">
+                <button id="btn-epilepsy-has" type="button" style="flex:1;min-width:140px;padding:12px 10px;background:#18181b;border:1px solid #a1a1aa;color:#e4e4e7;font-weight:bold;cursor:pointer;font-size:12px;">Epilepsi nöbetim var seçmicem</button>
+                <button id="btn-epilepsy-none" type="button" style="flex:1;min-width:140px;padding:12px 10px;background:#450a0a;border:1px solid #dc2626;color:#fecaca;font-weight:bold;cursor:pointer;font-size:12px;">Epilepsi nöbetim yok seçicem</button>
+            </div>
+        </div>
     </div>
 
     <!-- Oyuncu dunyada degil mesaji -->
@@ -479,7 +525,7 @@ svg{display:block;vertical-align:middle}
         <div class="text-center max-w-lg flex flex-col items-center">
             
             <h1 id="title" class="text-red-600 text-5xl md:text-8xl font-black tracking-wider glitch-text mb-2 drop-shadow-[0_5px_15px_rgba(255,0,0,0.4)]">HORROR MINI</h1>
-            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.4</div>
+            <div id="version" class="text-white text-base tracking-[0.3em] font-semibold mb-8 opacity-90">Alpha 1.0.6</div>
             
             <button id="btn-create" class="px-10 py-4 text-xl font-bold tracking-widest text-white border-2 border-red-600 hover:bg-red-600 hover:text-black transition-all duration-300 rounded shadow-[0_0_15px_rgba(255,0,0,0.3)] active:scale-95">
                 oyna
@@ -494,7 +540,7 @@ svg{display:block;vertical-align:middle}
                 <button id="btn-add-friend" type="button" title="Arkadaş ekle" style="width:32px;height:32px;background:#18181b;border:1px solid #991b1b;color:#f87171;font-weight:900;border-radius:6px;cursor:pointer;font-size:18px;line-height:1;z-index:70;position:relative;">+</button>
             </div>
             <div class="text-[10px] text-zinc-500 uppercase tracking-widest self-start w-full">Arkadaşlar</div>
-            <div id="friends-list" class="flex flex-col gap-1.5 max-h-64 overflow-y-auto w-44"></div>
+            <div id="friends-list" class="flex flex-col gap-2 max-h-72 overflow-y-auto" style="width:220px;"></div>
         </div>
 
         <!-- SOL ALT: Güncelleme Defteri Butonu -->
@@ -509,14 +555,13 @@ svg{display:block;vertical-align:middle}
     <div id="notes-modal" class="fixed inset-0 bg-black/95 z-[70] hidden flex-col items-center justify-center p-4">
         <div class="bg-[#110101] border-2 border-red-900/50 p-6 md:p-8 rounded-lg max-w-lg w-full font-mono text-xs md:text-sm text-zinc-300 shadow-[0_0_30px_rgba(255,0,0,0.2)]">
             <h2 class="text-red-600 text-center font-black text-sm md:text-base border-b border-red-950/80 pb-3 mb-4 leading-normal">
-                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.4 | GÜNCELLEME KAYDI
+                FARMANT STUDIOS | HORROR MİNİ Alpha 1.0.6 | GÜNCELLEME KAYDI
             </h2>
             <ul class="space-y-3.5 pt-1">
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.4 SÜRÜMÜNE GEÇİLDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>HESAP SİSTEMİ EKLENDİ (6 HARF İSİM + 6 HANELİ ŞİFRE).</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ARKADAŞLIK + ONLINE DURUM SİSTEMİ EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>MULTIPLAYER DÜNYA + HOST (ERROR 456) EKLENDİ.</span></li>
-                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>CHAT SİSTEMİ (C TUŞU) EKLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>Alpha 1.0.6 SÜRÜMÜNE GEÇİLDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>ARKADAŞ LİSTESİ + KATILMA PENCERESİ GÜNCELLENDİ.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>SHADER PAKETLERİ EKLENDİ (I TUŞU): ORIGINAL / HORROR / MAL.</span></li>
+                <li class="flex items-start"><span class="text-red-500 mr-2">-</span> <span>TOZ ŞEYTANI, SUPERCELL VE SU HORTUMU EKLENDİ.</span></li>
             </ul>
             <div class="mt-6 flex justify-center">
                 <button id="btn-close-notes" class="px-8 py-2.5 bg-red-950/30 border border-red-800 text-red-500 font-bold hover:bg-red-600 hover:text-black rounded active:scale-95 transition-all text-xs tracking-widest">
@@ -532,7 +577,7 @@ svg{display:block;vertical-align:middle}
             <span class="bg-red-900/70 border border-red-700/40 text-red-200 font-black px-1.5 py-0.5 rounded w-max text-[8px] md:text-[10px] tracking-wide mb-1 leading-none uppercase">
                 FARMANT STUDIOS IS THE GAME DEVELOPER. DO NOT CHANGE IT.
             </span>
-            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.4</span></span>
+            <span class="text-zinc-400">SÜRÜM: <span class="text-white font-bold">Alpha 1.0.6</span></span>
         </div>
         <div class="text-gray-400 pt-1">TOHUM (32-BIT): <span id="ui-seed" class="text-white">...</span></div>
         <div class="text-gray-400">BIYOM: <span id="ui-biome" class="text-green-400 font-bold">Sakin Orman</span></div>
@@ -634,7 +679,14 @@ svg{display:block;vertical-align:middle}
         let isPaused = false;
 
         const CHUNK_SIZE = 12;
-        let VIEW_DISTANCE = 2; 
+        let VIEW_DISTANCE = 2;
+        let currentShader = 'original'; // original | horror | mal
+        let shaderHorrorTimer = 0;
+        let shaderMalTimer = 0;
+        let pendingJoinFriend = null;
+        let shaderModalOpen = false;
+        const SHADER_KEY = 'hm_shader_v1';
+
         const SEA_LEVEL = 18;
         const MAX_WORLD_HEIGHT = 54;
         
@@ -749,7 +801,7 @@ svg{display:block;vertical-align:middle}
         let moonMat = null;
 
 
-        // ========== ALPHA 1.0.4 — HESAP / ARKADAŞ / MULTIPLAYER / CHAT ==========
+        // ========== ALPHA 1.0.6 — HESAP / ARKADAŞ / MULTIPLAYER / CHAT ==========
         const HM_ACCOUNTS_KEY = 'hm_accounts_v1';
         const HM_SESSION_KEY = 'hm_session_v1';
         const HM_FRIENDS_KEY = 'hm_friends_v1';
@@ -957,33 +1009,51 @@ svg{display:block;vertical-align:middle}
             if (!box || !currentUser) return;
             const friends = loadFriends(currentUser.name);
             box.innerHTML = '';
+            if (!friends.length) {
+                box.innerHTML = '<div style="color:#71717a;font-size:11px;padding:6px;">Henüz arkadaş yok</div>';
+                return;
+            }
             friends.forEach(fname => {
                 const status = friendPresence[fname] || 'offline';
-                const color = status === 'world' ? '#22c55e' : (status === 'menu' ? '#3b82f6' : '#111');
+                // yesil=dunyada, turuncu=menu, siyah=oyunda degil
+                const color = status === 'world' ? '#22c55e' : (status === 'menu' ? '#f97316' : '#0a0a0a');
                 const card = document.createElement('div');
-                card.className = 'relative bg-zinc-900/90 border border-zinc-700 rounded px-2 py-2 text-xs text-zinc-200 cursor-pointer select-none';
+                card.style.cssText = 'display:flex;align-items:center;gap:10px;background:rgba(24,24,27,0.95);border:1px solid #3f3f46;border-radius:8px;padding:10px 12px;cursor:pointer;user-select:none;';
                 card.dataset.friend = fname;
-                card.innerHTML = `<span class="font-bold tracking-wider">${fname}</span>
-                    <span class="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-sm" style="background:${color};border:1px solid #444;"></span>`;
+                card.dataset.status = status;
+                const dot = document.createElement('span');
+                dot.style.cssText = `width:12px;height:12px;border-radius:50%;background:${color};border:1px solid #52525b;flex-shrink:0;box-shadow:0 0 6px ${color};`;
+                const nameEl = document.createElement('span');
+                nameEl.textContent = fname;
+                nameEl.style.cssText = 'color:#fafafa;font-weight:800;font-size:14px;letter-spacing:0.12em;';
+                card.appendChild(dot);
+                card.appendChild(nameEl);
                 card.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
-                    openFriendCtx(e.clientX, e.clientY, fname);
+                    e.stopPropagation();
+                    openFriendJoinPrompt(fname, status);
                 });
                 box.appendChild(card);
             });
         }
 
-        function openFriendCtx(x, y, fname) {
-            const ctx = document.getElementById('friend-ctx');
-            ctx.style.left = x + 'px';
-            ctx.style.top = y + 'px';
-            ctx.classList.remove('hidden');
-            ctx.dataset.friend = fname;
+        function openFriendJoinPrompt(fname, status) {
+            if (status !== 'world') {
+                const m = document.getElementById('not-in-world-modal');
+                if (m) { m.classList.remove('hidden'); m.classList.add('flex'); m.style.display = 'flex'; }
+                return;
+            }
+            pendingJoinFriend = fname;
+            const modal = document.getElementById('friend-join-modal');
+            const txt = document.getElementById('friend-join-text');
+            if (txt) txt.textContent = '[' + fname + '] adlı arkadaşına katılmak istiyor musun?';
+            if (modal) modal.style.display = 'flex';
         }
-        document.addEventListener('click', () => {
-            const ctx = document.getElementById('friend-ctx');
-            if (ctx) ctx.classList.add('hidden');
-        });
+        function closeFriendJoinPrompt() {
+            pendingJoinFriend = null;
+            const modal = document.getElementById('friend-join-modal');
+            if (modal) modal.style.display = 'none';
+        }
 
         function peerIdFor(name) {
             // PeerJS id: lowercase alphanumeric
@@ -1016,7 +1086,7 @@ svg{display:block;vertical-align:middle}
         }
 
 
-        // ========== SECURITY LAYER (Alpha 1.0.4) ==========
+        // ========== SECURITY LAYER (Alpha 1.0.6) ==========
         // Client -> PeerJS -> Security -> Host Validation -> Game State
         const Security = (() => {
             const PROTOCOL = 1;
@@ -1907,11 +1977,36 @@ svg{display:block;vertical-align:middle}
             });
             document.getElementById('btn-friend-accept')?.addEventListener('click', acceptFriend);
             document.getElementById('btn-friend-decline')?.addEventListener('click', declineFriend);
-            document.getElementById('btn-friend-join')?.addEventListener('click', (e) => {
+            document.getElementById('btn-friend-join-yes')?.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const fname = document.getElementById('friend-ctx').dataset.friend;
+                const fname = pendingJoinFriend;
+                closeFriendJoinPrompt();
                 if (fname) tryJoinFriend(fname);
             });
+            document.getElementById('btn-friend-join-no')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeFriendJoinPrompt();
+            });
+            document.getElementById('btn-shader-close')?.addEventListener('click', () => closeShaderModal());
+            document.querySelectorAll('.shader-select-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectShader(btn.getAttribute('data-shader'));
+                });
+            });
+            document.getElementById('btn-epilepsy-has')?.addEventListener('click', () => {
+                closeEpilepsyWarning();
+                // Mal shader etkinlesmez
+                try { audio.playBeep(180, 'sine', 0.1, 0.1); } catch (e) {}
+            });
+            document.getElementById('btn-epilepsy-none')?.addEventListener('click', () => {
+                closeEpilepsyWarning();
+                confirmSelectShader('mal');
+            });
+            // Kayitli shader
+            try {
+                const saved = storeGet(SHADER_KEY);
+                if (saved === 'original' || saved === 'horror' || saved === 'mal') currentShader = saved;
+            } catch (e) {}
             document.getElementById('btn-not-in-world-close')?.addEventListener('click', () => {
                 document.getElementById('not-in-world-modal').classList.add('hidden');
             });
@@ -2541,6 +2636,7 @@ svg{display:block;vertical-align:middle}
             lastTornadoType = null;
             destroyTornado();
             destroyDustDevil();
+            try { removeMalLights(); } catch(e) {}
             destroyAllWaterspouts();
             clearSupercell();
             isRainActive = false;
@@ -2572,6 +2668,9 @@ svg{display:block;vertical-align:middle}
             const skyColor = 0xa8bdd0; 
             scene.background = new THREE.Color(skyColor);
             scene.fog = new THREE.FogExp2(0x8fa8bc, 0.016);
+            // Varsayilan / kayitli shader
+            if (!currentShader) currentShader = 'original';
+            setTimeout(() => applyShader(currentShader), 0);
 
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.rotation.order = 'YXZ'; 
@@ -3774,6 +3873,251 @@ svg{display:block;vertical-align:middle}
             }
         }
 
+
+        function toggleShaderModal() {
+            if (shaderModalOpen) closeShaderModal();
+            else openShaderModal();
+        }
+        function openShaderModal() {
+            // Sadece oyuna girilip dunya olustuktan sonra (I tusu)
+            if (!gameActive || !scene || !camera || !renderer) return;
+            shaderModalOpen = true;
+            isPaused = true;
+            try { document.exitPointerLock(); } catch (e) {}
+            const m = document.getElementById('shader-modal');
+            if (m) m.style.display = 'flex';
+            refreshShaderButtons();
+        }
+        function closeShaderModal() {
+            shaderModalOpen = false;
+            const m = document.getElementById('shader-modal');
+            if (m) m.style.display = 'none';
+            if (gameActive) {
+                isPaused = false;
+                requestPointerLock();
+            }
+        }
+        function refreshShaderButtons() {
+            document.querySelectorAll('.shader-select-btn').forEach(btn => {
+                const id = btn.getAttribute('data-shader');
+                if (id === currentShader) {
+                    btn.style.display = 'none';
+                } else {
+                    btn.style.display = 'block';
+                    btn.textContent = 'SEÇ';
+                }
+            });
+            document.querySelectorAll('.shader-card').forEach(card => {
+                const id = card.getAttribute('data-shader');
+                if (id === currentShader) {
+                    card.style.boxShadow = '0 0 16px rgba(255,80,80,0.35)';
+                    card.style.borderColor = '#ef4444';
+                } else {
+                    card.style.boxShadow = 'none';
+                }
+            });
+        }
+        function selectShader(id) {
+            if (id !== 'original' && id !== 'horror' && id !== 'mal') return;
+            if (id === 'mal') {
+                openEpilepsyWarning();
+                return;
+            }
+            confirmSelectShader(id);
+        }
+        function confirmSelectShader(id) {
+            currentShader = id;
+            try { storeSet(SHADER_KEY, id); } catch (e) {}
+            applyShader(id);
+            refreshShaderButtons();
+            try { audio.playBeep(330, 'sine', 0.1, 0.12); } catch (e) {}
+        }
+        function openEpilepsyWarning() {
+            const m = document.getElementById('epilepsy-modal');
+            if (m) m.style.display = 'flex';
+        }
+        function closeEpilepsyWarning() {
+            const m = document.getElementById('epilepsy-modal');
+            if (m) m.style.display = 'none';
+        }
+        function applyShader(id) {
+            if (!scene) return;
+            // Reset mal materials
+            if (id !== 'mal') {
+                restoreBlockMaterials();
+            }
+            if (id === 'original') {
+                VIEW_DISTANCE = 3;
+                if (scene.fog) {
+                    scene.fog.color.setHex(0x8fa8bc);
+                    scene.fog.density = 0.014;
+                }
+                if (renderer) renderer.toneMappingExposure = 1.15;
+            } else if (id === 'horror') {
+                VIEW_DISTANCE = 2;
+                if (scene.fog) {
+                    scene.fog.color.setHex(0xffffff);
+                    scene.fog.density = 0.095;
+                }
+                if (scene.background) scene.background.setHex(0xf5f5f5);
+                if (renderer) renderer.toneMappingExposure = 1.25;
+                if (ambientLight) {
+                    ambientLight.color.setHex(0xffffff);
+                    ambientLight.intensity = 1.1;
+                }
+            } else if (id === 'mal') {
+                VIEW_DISTANCE = 2;
+                if (scene.fog) {
+                    scene.fog.color.setHex(0xff00aa);
+                    scene.fog.density = 0.028;
+                }
+                if (renderer) renderer.toneMappingExposure = 1.6;
+                // Mal isik noktalari
+                ensureMalLights();
+            }
+            if (id !== 'mal') {
+                removeMalLights();
+                if (renderer && id === 'original') renderer.toneMappingExposure = 1.15;
+            }
+            shaderHorrorTimer = 0;
+            shaderMalTimer = 0;
+        }
+
+        let malLights = [];
+        function ensureMalLights() {
+            if (!scene || malLights.length) return;
+            for (let i = 0; i < 4; i++) {
+                const col = new THREE.Color().setHSL(Math.random(), 1, 0.55);
+                const l = new THREE.PointLight(col.getHex(), 2.5, 28, 2);
+                l.position.set(
+                    player.pos.x + (Math.random() - 0.5) * 20,
+                    player.pos.y + 2 + Math.random() * 6,
+                    player.pos.z + (Math.random() - 0.5) * 20
+                );
+                scene.add(l);
+                malLights.push(l);
+            }
+        }
+        function removeMalLights() {
+            malLights.forEach(l => {
+                if (scene) scene.remove(l);
+            });
+            malLights = [];
+        }
+        function restoreBlockMaterials() {
+            if (!matList) return;
+            try {
+                if (matList.grass && matList.grass[2]) matList.grass[2].color.setHex(0x3aa86a);
+                if (matList.dirt && matList.dirt.color) matList.dirt.color.setHex(0x5c4033);
+                if (matList.sand && matList.sand.color) matList.sand.color.setHex(0xEDC9AF);
+                if (matList.stone && matList.stone.color) matList.stone.color.setHex(0x6b6b6b);
+                if (matList.wood && matList.wood.color) matList.wood.color.setHex(0x6b3a12);
+            } catch (e) {}
+        }
+        function updateShaderEffects(dt) {
+            if (!gameActive || !scene) return;
+            if (currentShader === 'horror') {
+                shaderHorrorTimer += dt;
+                // Cok yogun beyaz sis
+                if (scene.fog) {
+                    scene.fog.color.lerp(new THREE.Color(0xffffff), 0.12);
+                    scene.fog.density += (0.1 - scene.fog.density) * 0.08;
+                }
+                if (scene.background) {
+                    scene.background.lerp(new THREE.Color(0xfafafa), 0.08);
+                }
+                if (ambientLight) {
+                    ambientLight.color.lerp(new THREE.Color(0xffffff), 0.1);
+                    ambientLight.intensity += (1.15 - ambientLight.intensity) * 0.05;
+                }
+                if (renderer) {
+                    renderer.toneMappingExposure += (1.3 - renderer.toneMappingExposure) * 0.05;
+                }
+                // Hafif beyaz flash
+                if (Math.random() < 0.008) {
+                    const bo = document.getElementById('blackout-overlay');
+                    if (bo) {
+                        bo.style.background = '#ffffff';
+                        bo.style.opacity = String(0.35 + Math.random() * 0.4);
+                        setTimeout(() => {
+                            if (bo) { bo.style.opacity = '0'; bo.style.background = '#000'; }
+                        }, 60 + Math.random() * 150);
+                    }
+                }
+                // Ara sira ses
+                if (Math.random() < 0.002) {
+                    try { audio.playBeep(40 + Math.random() * 30, 'sawtooth', 0.4, 0.08); } catch (e) {}
+                }
+                // Ara sira ekran kararir
+                if (Math.random() < 0.0015) {
+                    const bo = document.getElementById('blackout-overlay');
+                    if (bo) {
+                        bo.style.background = '#000';
+                        bo.style.opacity = '1';
+                        setTimeout(() => { if (bo) bo.style.opacity = '0'; }, 400 + Math.random() * 800);
+                    }
+                }
+            } else if (currentShader === 'mal') {
+                shaderMalTimer += dt;
+                // Surekli isik nabzi
+                if (renderer) {
+                    renderer.toneMappingExposure = 1.2 + Math.sin(performance.now() * 0.012) * 0.9 + Math.random() * 0.35;
+                }
+                // Point light'lari oyuncuyu takip + renk degistir
+                if (malLights.length && player) {
+                    malLights.forEach((l, i) => {
+                        const t = performance.now() * 0.001 + i;
+                        l.position.x = player.pos.x + Math.cos(t * (1.5 + i * 0.4)) * (8 + i * 3);
+                        l.position.z = player.pos.z + Math.sin(t * (1.2 + i * 0.5)) * (8 + i * 3);
+                        l.position.y = player.pos.y + 3 + Math.sin(t * 2) * 2;
+                        l.color.setHSL((t * 0.3 + i * 0.2) % 1, 1, 0.55);
+                        l.intensity = 2 + Math.sin(t * 5) * 1.5 + Math.random();
+                    });
+                } else {
+                    ensureMalLights();
+                }
+                // Ambient flicker
+                if (ambientLight) {
+                    ambientLight.intensity = 0.4 + Math.random() * 1.2;
+                    ambientLight.color.setHSL(Math.random(), 0.9, 0.5);
+                }
+                if (sunLight) {
+                    sunLight.intensity = 0.2 + Math.random() * 1.8;
+                    sunLight.color.setHSL(Math.random(), 1, 0.6);
+                }
+                // Ara sira flash overlay
+                if (Math.random() < 0.04) {
+                    const bo = document.getElementById('blackout-overlay');
+                    if (bo) {
+                        const c = `rgb(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)})`;
+                        bo.style.background = c;
+                        bo.style.opacity = String(0.25 + Math.random() * 0.55);
+                        setTimeout(() => {
+                            if (bo) { bo.style.opacity = '0'; bo.style.background = '#000'; }
+                        }, 50 + Math.random() * 120);
+                    }
+                }
+                if (shaderMalTimer >= 0.35) {
+                    shaderMalTimer = 0;
+                    const rnd = () => Math.floor(Math.random() * 0xffffff);
+                    try {
+                        if (matList) {
+                            Object.keys(matList).forEach(k => {
+                                const m = matList[k];
+                                if (Array.isArray(m)) m.forEach(mm => { if (mm && mm.color) mm.color.setHex(rnd()); });
+                                else if (m && m.color) m.color.setHex(rnd());
+                            });
+                        }
+                        if (scene.background) scene.background.setHex(rnd());
+                        if (scene.fog) {
+                            scene.fog.color.setHex(rnd());
+                            scene.fog.density = 0.01 + Math.random() * 0.05;
+                        }
+                    } catch (e) {}
+                }
+            }
+        }
+
         function updateSpecialWeather(dt) {
             if (isPaused || !gameActive) return;
             specialWeatherTimer += dt;
@@ -3886,6 +4230,7 @@ svg{display:block;vertical-align:middle}
             processWindStormEffects(dt);
             updateTornado(dt);
             updateSpecialWeather(dt);
+                updateShaderEffects(dt);
             updateRainVisuals(dt);
         }
 
@@ -5203,15 +5548,10 @@ svg{display:block;vertical-align:middle}
                 dropSelectedItem(true);
             }
 
-            if (e.code === 'KeyI') {
-                player.pos.copy(player.spawnPos);
-                player.vel.set(0, 0, 0);
-                if (checkCollision(player.pos.x, player.pos.y, player.pos.z)) {
-                    const safe = findSafeSpawnPosition(player.spawnPos.x, player.spawnPos.z);
-                    player.spawnPos.copy(safe);
-                    player.pos.copy(safe);
-                }
-                audio.playBeep(220, 'square', 0.25, 0.15);
+            // Shader paketi: sadece dunya olustuktan sonra I
+            if (e.code === 'KeyI' && !e.repeat && gameActive && scene && renderer) {
+                e.preventDefault();
+                toggleShaderModal();
             }
 
             // F: ucus modu (creative fly) - bloklardan gecemez
@@ -5243,8 +5583,11 @@ svg{display:block;vertical-align:middle}
         function handleMouseMove(e) {
             if (!gameActive || isPaused) return;
             if (document.pointerLockElement === document.body) {
-                camera.rotation.y -= e.movementX * 0.0022;
-                camera.rotation.x -= e.movementY * 0.0022;
+                // Mal shader: mouse ters yone gider
+                const inv = (currentShader === 'mal') ? -1 : 1;
+                const sens = (currentShader === 'mal') ? 0.0035 : 0.0022;
+                camera.rotation.y -= e.movementX * sens * inv;
+                camera.rotation.x -= e.movementY * sens * inv;
                 camera.rotation.x = Math.max(-Math.PI / 2.1, Math.min(Math.PI / 2.1, camera.rotation.x));
             }
         }
