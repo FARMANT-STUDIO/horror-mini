@@ -1,6 +1,6 @@
 
 KORKU MINI: BİLGİSAYAR EDİTİON
-Resmi Versiyon: ALPHA 1.0.5 | Geliştirici: Farmant Studios
+Resmi Versiyon: ALPHA 1.0.6 | Geliştirici: Farmant Studios
 Horror Mini, procedural (yordamsal) olarak üretilen sonsuz bir evrende geçen ve inşa odaklı bir Voxel Tabanlı Korku Simülasyonudur. Bu yazılım, gelişmiş chunk yönetim sistemleri ve dinamik çevre etkileşimleri üzerine inşa edilmiş bağımsız bir oyun motoru projesidir.
 
 🛠️ Teknik Özellikler ve Mekanikler
@@ -25,6 +25,8 @@ SUPERCELL HORTUMU EKLENDİ
 ONLİNE HATALARI DÜZELTİLDİ
 
 AYNI İSİM KOYMA MEKANİĞİ KALDIRILDI
+
+SHADER PAKETLERİ
 
 
 
