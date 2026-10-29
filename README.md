@@ -1,6 +1,6 @@
 
 KORKU MINI: BİLGİSAYAR EDİTİON
-Resmi Versiyon: ALPHA 1.0.6 | Geliştirici: Farmant Studios
+Resmi Versiyon: ALPHA 1.0.7| Geliştirici: Farmant Studios
 Horror Mini, procedural (yordamsal) olarak üretilen sonsuz bir evrende geçen ve inşa odaklı bir Voxel Tabanlı Korku Simülasyonudur. Bu yazılım, gelişmiş chunk yönetim sistemleri ve dinamik çevre etkileşimleri üzerine inşa edilmiş bağımsız bir oyun motoru projesidir.
 
 🛠️ Teknik Özellikler ve Mekanikler
@@ -14,19 +14,16 @@ Gelişmiş Fizik ve Hitbox: Tüm objelerin ve zeminin hassas çarpışma veriler
 
 Prosedürel Bitki Örtüsü: Rastgele koordinatlarda ve farklı yüksekliklerde oluşan yapraklı ağaç sistemleri.
 
-Atmosferik Korku Öğeleri: İzlenme hissini tetikleyen statik varlıklar ve derinlik algısını artıran sis (Fog) efektleri.                 
+Atmosferik Korku Öğeleri: İzlenme hissini tetikleyen statik varlıklar ve derinlik algısını artıran sis (Fog) efektleri.          
 
- 
+error 456 kaldırıldı
 
-SU HORTUMU EKLENDİ
+3 fırtına türü eklendi:  Zayıf fırtına'da rope hortumu çıkabilir az sürer orta fırtınada ise cone ve rope hortumu çıkabilir daha uzun sürer süper hücre fırtınasında wedge ve diğer bütün tür hortumlar çıkabilir o yüzden dikkatli olunması lazım
 
-SUPERCELL HORTUMU EKLENDİ
 
-ONLİNE HATALARI DÜZELTİLDİ
+DENİZ KOKULU AĞAÇLAR EKLENDİ
 
-AYNI İSİM KOYMA MEKANİĞİ KALDIRILDI
-
-SHADER PAKETLERİ
+YAPRAK BALIĞI EKLENDİ: DENİZ KOKULU AĞACIN PEMBE YAPRAĞINI ALIP ONA DOĞRU SAĞ TIKLARSINIZ EVCİLLEŞİR ÜSTÜNE BİNEBİLİRSİNİZ ANCAK YORULABİLİYOR YORULDUKTAN SONRA DİNLENİNCE TEKRAR BİNELEBİLİR KATİL BALIKLARA SALDIRIR
 
 
 
